@@ -16,7 +16,7 @@ Guidance for Claude Code working in this repository.
 
 **Stack**: SvelteKit 2 + Svelte 5 runes · TypeScript strict · Tailwind v4 (CSS-first; tokens from `@dropout/ds`, vendored) + shadcn-svelte · Better Auth (Google OAuth only) · Cloudflare D1 + Drizzle · Cloudflare Workers AI (copilot, direct binding) · GSAP · Bun. Dark-only (`app.html` hardcodes `<html class="dark">`).
 
-**Auth-gated**: any Google-authenticated user gets full access; unauthenticated users are redirected to `/login`. The public `/s/[token]` share route is the one exception — it has no auth guard by design. All data is scoped to `userId` in D1.
+**Auth-gated**: the board (`/`) is the only authenticated route — its `+page.server.ts` redirects to `/login` when there's no session. There's no global guard (none in `hooks.server.ts`/`+layout.server.ts`), so every other route (`/login`, `/changelog`, the public `/s/[token]` share page) is unguarded by design — new routes are public by default. Any Google-authenticated user gets full access; all data is scoped to `userId` in D1.
 
 ---
 
@@ -65,7 +65,8 @@ The frontend runs on the **Dropout Design System**, **vendored** at `src/lib/ds/
 ### UI
 
 - `src/routes/+page.svelte` — the board. Single `untrack()` hydration site (`countdowns.hydrate` + `ai.hydrate`). Hero + grid + past sections; `use:reveal` entrance motion.
-- `src/components/` — `CountdownDisplay` (the shared digits unit; hero/card/share sizes; reads the clock), `CountdownHero`, `CountdownCard`, `CountdownComposerDialog` (create/edit; native date/time → absolute UTC ISO), `ShareDialog`, `EmptyState`, `User`, `ai/*` (copilot UI).
+- `src/components/` (app components, imported via `$src/components/*`) — `CountdownDisplay` (the shared digits unit; hero/card/share sizes; reads the clock), `CountdownHero`, `CountdownCard`, `CountdownComposerDialog` (create/edit; native date/time → absolute UTC ISO), `ShareDialog`, `SectionEyebrow`, `EmptyState`, `User`, `ai/*` (copilot UI). shadcn-svelte primitives live separately in `$lib/components/ui/*` (auto-generated — don't hand-edit).
+- `src/routes/changelog/+page.svelte` — public, static changelog page; entries sourced from `src/lib/data/changelog.ts`.
 - `src/lib/countdown/format.ts` — pure, SSR-safe time math (`remaining`, `humanize`, `formatTargetDate`). Granularity rule: ≥1 day → D/H/M (+ seconds only for timed goals within 30 days); <1 day → H/M/S. `now` is passed in (never read inside) so server/first-client renders match.
 
 ### Share (public)
