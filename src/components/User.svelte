@@ -69,7 +69,9 @@
 	</div>
 {/snippet}
 
-<div class="fixed top-4 right-4 z-50 sm:top-6 sm:right-6">
+<div
+	class="fixed top-4 right-4 z-50 sm:top-6 sm:right-6 lg:right-[calc(var(--copilot-rail-width)+1.5rem)] xl:right-[calc(var(--copilot-rail-width-xl)+1.5rem)]"
+>
 	<div class="sm:hidden">
 		<Dialog.Root bind:open={mobileOpen}>
 			<Dialog.Trigger

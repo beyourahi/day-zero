@@ -14,6 +14,7 @@
 	import { ai } from "$lib/stores/ai.svelte";
 	import { reveal } from "$lib/motion";
 	import { Cta } from "$lib/ds";
+	import Heading from "$lib/components/ui/heading/heading.svelte";
 	import User from "$src/components/User.svelte";
 	import CountdownHero from "$src/components/CountdownHero.svelte";
 	import CountdownCard from "$src/components/CountdownCard.svelte";
@@ -63,20 +64,12 @@
 {/if}
 
 <main class="mx-auto flex w-full max-w-6xl grow flex-col px-4 pt-20 pb-12 sm:px-6 sm:pt-24">
-	<header class="mb-12 flex items-end justify-between gap-4 sm:mb-16" use:reveal>
-		<div>
-			<p class="text-ink-muted font-mono text-micro tracking-[0.24em] uppercase">Dropout Studio · Countdowns</p>
-			<h1
-				class="text-foreground mt-1.5 font-sans text-title leading-none lowercase"
-				style="font-variation-settings: 'wght' 600"
-			>
-				day zero
-			</h1>
-		</div>
+	<div class="mb-12 flex flex-col items-center gap-8 sm:mb-16" use:reveal>
+		<Heading />
 		{#if !isEmpty}
-			<Cta variant="primary" arrow={false} dot onclick={openNew} class="shrink-0">new</Cta>
+			<Cta variant="primary" arrow={false} dot onclick={openNew}>new countdown</Cta>
 		{/if}
-	</header>
+	</div>
 
 	{#if isEmpty}
 		<EmptyState onNew={openNew} />
