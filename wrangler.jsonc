@@ -1,0 +1,52 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"account_id": "75321bb4297a25f524624ba0f3f81443",
+	"name": "day-zero",
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	// nodejs_compat is required: better-auth and parts of the AI layer rely on Node built-ins.
+	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_date": "2025-05-29",
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	// DB: D1 binding consumed by hooks.server.ts (auth) and $lib/server/api requireApiContext.
+	// Required at runtime — absent, auth degrades to unauthenticated and /api/* routes return 503.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "day_zero",
+			"database_id": "a7bc6fff-862b-4e0d-afeb-2152ec7c0a20",
+			"migrations_dir": "migrations"
+		}
+	],
+	// AI: Workers AI binding used for the Copilot gateway chat turn.
+	// `remote: true` so `wrangler dev` (local) reaches real Workers AI.
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	},
+	// AI_QUOTA_KV: optional — backs the Copilot daily turn quota + monthly USD spend cap.
+	// When absent, both limits are disabled (see $lib/server/ai-quota.ts, ai-spend.ts).
+	"kv_namespaces": [
+		{
+			"binding": "AI_QUOTA_KV",
+			"id": "f37c21ce991042f88c0de7f227a0d589",
+			"remote": true
+		}
+	],
+	// Non-secret vars only. Secrets (BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID/SECRET)
+	// are set via `wrangler secret put`. AI_COPILOT_ENABLED="false" disables the Copilot.
+	// The Copilot calls the Workers AI binding (AI) directly — no AI Gateway slug needed.
+	"vars": {
+		"BETTER_AUTH_URL": "https://day-zero.beyourahi.workers.dev",
+		"AI_COPILOT_ENABLED": "true",
+		"AI_MONTHLY_CAP_USD": "1.00"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"limits": {
+		"cpu_ms": 300000
+	}
+}

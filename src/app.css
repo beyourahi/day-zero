@@ -1,0 +1,718 @@
+/**
+ * Global stylesheet — Tailwind v4 CSS-first (no tailwind.config.js).
+ *
+ * Color / type / space / motion-ease tokens come from @dropout/ds — the single
+ * source of visual truth. DS tokens.css supplies the ink ramp, semantic aliases,
+ * the editorial layer (signal / ink-muted / hair), the type scale, fonts, radius,
+ * shadows, --ease, the shell vars, the @custom-variant set, and the base layer.
+ * DS is VENDORED at src/lib/ds (run `bun run sync-ds` to refresh from the DS
+ * repo). Tailwind v4 auto-scans src/, so the DS component classes (bg-signal,
+ * border-hair, …) are generated with no `@source` needed.
+ *
+ * This file keeps ONLY what DS doesn't cover: tool-specific token aliases
+ * (--popover, --status-*, --chat-*, --surface, copilot-rail, --preview-paper)
+ * repointed to DS tokens so every existing utility stays strictly monochrome,
+ * plus app keyframes, the invoice-preview stage, and view-transition rules.
+ * App is DARK-ONLY (app.html hardcodes <html class="dark">) — the DS canonical theme.
+ */
+@import "tailwindcss";
+@import "./lib/ds/styles/tokens.css";
+@import "./lib/ds/styles/animations.css";
+@import "tw-animate-css";
+@import "./lib/styles/chat-animations.css";
+
+@font-face {
+	font-family: "Google Sans Flex Fallback";
+	src: local("Arial");
+	size-adjust: 98%;
+	ascent-override: 95%;
+	descent-override: 25%;
+	line-gap-override: 0%;
+}
+
+/* =============================================================================
+   TOOL-EXTRAS — tokens DS doesn't define, repointed to DS primitives so every
+   existing utility (bg-chat-surface, border-status-active-border, bg-popover …)
+   keeps working but resolves to strict-monochrome DS values. App is dark-only,
+   so var(--signal)/var(--hair)/var(--ink-muted)/… resolve to their .dark
+   (white-led) values everywhere. DS owns the semantic palette; we never redefine it.
+   ============================================================================= */
+:root {
+	/* shadcn popover surface → DS card */
+	--popover: var(--card);
+	--popover-foreground: var(--card-foreground);
+
+	/* a touch stronger than the DS hairline; legacy accent → signal (monochrome) */
+	--border-strong: var(--color-ink-600);
+	--courier-accent: var(--signal);
+	--scrollbar: var(--background);
+
+	/* success / brand — original real colors (the payment chips + completeness
+	   badge read green from these; primary action buttons are decoupled to signal). */
+	--success: hsl(160 60% 70%);
+	--success-foreground: hsl(160 30% 12%);
+	--brand: hsl(160 84% 28%);
+	--brand-foreground: hsl(0 0% 98%);
+
+	/* the generated invoice PDF preview paper stays literally white (out-of-scope doc) */
+	--preview-paper: hsl(0 0% 100%);
+
+	/* status badges — original real colors (active green / inactive warm red) */
+	--status-active: hsl(150 42% 56%);
+	--status-active-foreground: hsl(150 48% 76%);
+	--status-active-bg: hsl(150 42% 56% / 0.1);
+	--status-active-border: hsl(150 42% 56% / 0.7);
+	--status-active-track: hsl(150 44% 46%);
+	--status-inactive: hsl(8 44% 60%);
+	--status-inactive-foreground: hsl(8 50% 78%);
+	--status-inactive-bg: hsl(8 44% 60% / 0.09);
+	--status-inactive-border: hsl(8 44% 60% / 0.8);
+	--status-inactive-track: hsl(8 34% 52%);
+	--status-transition:
+		color 200ms ease, background-color 200ms ease, border-color 200ms ease, opacity 200ms ease;
+
+	/* AI Copilot surfaces → DS semantic tokens (already monochrome; signal is the accent) */
+	--chat-bg: var(--background);
+	--chat-surface: var(--card);
+	--chat-surface-hover: var(--ink-2);
+	--chat-accent: var(--signal);
+	--chat-accent-muted: oklch(1 0 0 / 0.1);
+	--chat-accent-subtle: oklch(1 0 0 / 0.06);
+	--chat-text-primary: var(--foreground);
+	--chat-text-secondary: var(--ink-muted);
+	--chat-text-muted: var(--ink-muted);
+	--chat-border: var(--hair);
+	--chat-border-subtle: var(--hair-soft);
+	--chat-icon-muted: var(--ink-muted);
+	--chat-user-bubble: oklch(1 0 0 / 0.1);
+	--chat-bot-bubble: var(--card);
+	--chat-shadow: 0 8px 32px oklch(0 0 0 / 0.4), 0 2px 8px oklch(0 0 0 / 0.2);
+
+	/* Copilot right-rail sizing (CLAUDE.md #21 — change tokens, never the calc()s) */
+	--copilot-rail-width: 26rem;
+	--copilot-rail-width-xl: 28rem;
+}
+
+@theme inline {
+	/* shadcn popover + tool-only color utilities. The semantic palette
+	   (background/foreground/card/primary/…/destructive/border/input/ring),
+	   fonts, radius-*, shadow-*, text-*, and leading-* all come from DS. */
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-border-strong: var(--border-strong);
+	--color-courier-accent: var(--courier-accent);
+
+	--color-success: var(--success);
+	--color-success-foreground: var(--success-foreground);
+	--color-brand: var(--brand);
+	--color-brand-foreground: var(--brand-foreground);
+	--color-preview-paper: var(--preview-paper);
+
+	--color-status-active: var(--status-active);
+	--color-status-active-foreground: var(--status-active-foreground);
+	--color-status-active-bg: var(--status-active-bg);
+	--color-status-active-border: var(--status-active-border);
+	--color-status-active-track: var(--status-active-track);
+	--color-status-inactive: var(--status-inactive);
+	--color-status-inactive-foreground: var(--status-inactive-foreground);
+	--color-status-inactive-bg: var(--status-inactive-bg);
+	--color-status-inactive-border: var(--status-inactive-border);
+	--color-status-inactive-track: var(--status-inactive-track);
+
+	--color-chat-bg: var(--chat-bg);
+	--color-chat-surface: var(--chat-surface);
+	--color-chat-surface-hover: var(--chat-surface-hover);
+	--color-chat-accent: var(--chat-accent);
+	--color-chat-accent-muted: var(--chat-accent-muted);
+	--color-chat-accent-subtle: var(--chat-accent-subtle);
+	--color-chat-text-primary: var(--chat-text-primary);
+	--color-chat-text-secondary: var(--chat-text-secondary);
+	--color-chat-text-muted: var(--chat-text-muted);
+	--color-chat-border: var(--chat-border);
+	--color-chat-border-subtle: var(--chat-border-subtle);
+	--color-chat-icon-muted: var(--chat-icon-muted);
+	--color-chat-user-bubble: var(--chat-user-bubble);
+	--color-chat-bot-bubble: var(--chat-bot-bubble);
+
+	--tracking-tight-custom: -0.025em;
+	--tracking-caption-custom: 0.1em;
+}
+
+@layer base {
+	* {
+		@apply border-none;
+	}
+	body {
+		@apply bg-background text-foreground;
+		touch-action: pan-y;
+		position: relative;
+	}
+	html {
+		scroll-behavior: auto;
+		overscroll-behavior: none;
+		-webkit-overflow-scrolling: auto;
+		touch-action: manipulation;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-rendering: optimizeLegibility;
+		font-optical-sizing: auto;
+	}
+}
+
+@layer base {
+	button,
+	[data-slot="button"],
+	[data-slot="tabs-trigger"],
+	[data-slot="accordion-trigger"],
+	[data-slot="dialog-close"] {
+		@apply select-none;
+	}
+
+	button:not(:disabled),
+	[type="button"]:not(:disabled),
+	[type="submit"]:not(:disabled),
+	[type="reset"]:not(:disabled),
+	a[href],
+	[role="button"]:not([aria-disabled="true"]),
+	[role="tab"],
+	[role="radio"],
+	[role="menuitem"],
+	[role="option"],
+	[role="switch"],
+	[role="link"],
+	summary,
+	select:not(:disabled),
+	label[for],
+	input[type="checkbox"]:not(:disabled),
+	input[type="radio"]:not(:disabled),
+	input[type="range"]:not(:disabled),
+	input[type="file"]:not(:disabled),
+	[data-slot="accordion-trigger"],
+	[data-slot="dialog-close"],
+	[data-slot="tabs-trigger"] {
+		cursor: pointer;
+	}
+}
+
+@layer base {
+	* {
+		outline: none;
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--ring);
+		outline-offset: 2px;
+	}
+}
+
+html,
+body {
+	overflow-x: clip;
+	max-width: 100%;
+}
+
+*::-webkit-scrollbar {
+	width: 0.5rem;
+	background-color: var(--scrollbar);
+}
+
+*::-webkit-scrollbar-thumb {
+	border-radius: 10px;
+	background-color: var(--scrollbar);
+}
+
+*::-webkit-scrollbar-track {
+	border-radius: 10px;
+	background-color: var(--scrollbar);
+}
+
+.scrollbar-hide,
+.no-scrollbar,
+.hide-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+.no-scrollbar *::-webkit-scrollbar {
+	display: none;
+}
+
+input,
+textarea,
+[contenteditable="true"] {
+	user-select: auto;
+	-webkit-user-select: auto;
+	-moz-user-select: auto;
+	-ms-user-select: auto;
+}
+
+@media (hover: none) and (pointer: coarse) {
+	* {
+		cursor: auto !important;
+	}
+}
+
+@supports (-webkit-touch-callout: none) {
+	@media (hover: none) and (pointer: coarse) {
+		input,
+		textarea,
+		select {
+			font-size: 1rem;
+		}
+	}
+}
+
+.sleek {
+	@apply transform-gpu transition-all duration-200 ease-in-out;
+}
+
+.status-transition {
+	transition: var(--status-transition);
+}
+
+@keyframes status-pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+.status-dot-pulse {
+	animation: status-pulse 2.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.status-dot-pulse {
+		animation: none;
+	}
+}
+
+/* ───────────────────────────────  AI Copilot  ─────────────────────────────── */
+
+@keyframes ai-in-up {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes ai-in-right {
+	from {
+		opacity: 0;
+		transform: translateX(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes ai-wave {
+	0%,
+	100% {
+		transform: scaleY(0.35);
+		opacity: 0.3;
+	}
+	50% {
+		transform: scaleY(1);
+		opacity: 0.85;
+	}
+}
+
+@keyframes ai-dot {
+	0%,
+	100% {
+		transform: translateY(0);
+		opacity: 0.4;
+	}
+	50% {
+		transform: translateY(-2.5px);
+		opacity: 1;
+	}
+}
+
+.ai-enter {
+	animation: ai-in-up 0.25s ease-out both;
+}
+
+.ai-enter-right {
+	animation: ai-in-right 0.25s ease-out both;
+}
+
+.ai-rise {
+	animation: ai-in-up 0.4s ease-out both;
+}
+
+.ai-wave-bar {
+	transform-origin: bottom;
+	animation: ai-wave 1.1s ease-in-out infinite;
+}
+
+.ai-dot {
+	animation: ai-dot 1.1s ease-in-out infinite;
+}
+
+.ai-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: oklch(from var(--muted-foreground) l c h / 0.4) transparent;
+}
+
+.ai-scroll::-webkit-scrollbar {
+	width: 4px;
+	background: transparent;
+}
+
+.ai-scroll::-webkit-scrollbar-thumb {
+	background: oklch(from var(--muted-foreground) l c h / 0.4);
+	border-radius: 4px;
+}
+
+.ai-scroll::-webkit-scrollbar-thumb:hover {
+	background: oklch(from var(--muted-foreground) l c h / 0.6);
+}
+
+.ai-scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* ── Identity mark — the dancing 4-box launcher ── */
+
+@keyframes launcher-box-a {
+	0% {
+		transform: translate(0, 0);
+	}
+	7% {
+		transform: translate(7px, -4px);
+	}
+	14% {
+		transform: translate(14px, 0);
+	}
+	21% {
+		transform: translate(14px, 3px);
+	}
+	29% {
+		transform: translate(14px, 14px);
+	}
+	36% {
+		transform: translate(7px, 10px);
+	}
+	43% {
+		transform: translate(0, 14px);
+	}
+	50% {
+		transform: translate(0, 3px);
+	}
+	57%,
+	100% {
+		transform: translate(0, 0);
+	}
+}
+
+@keyframes launcher-box-b {
+	0% {
+		transform: translate(0, 0);
+	}
+	7% {
+		transform: translate(0, 3px);
+	}
+	14% {
+		transform: translate(0, 14px);
+	}
+	21% {
+		transform: translate(-7px, 10px);
+	}
+	29% {
+		transform: translate(-14px, 14px);
+	}
+	36% {
+		transform: translate(-14px, 3px);
+	}
+	43% {
+		transform: translate(-14px, 0);
+	}
+	50% {
+		transform: translate(-7px, -4px);
+	}
+	57%,
+	100% {
+		transform: translate(0, 0);
+	}
+}
+
+@keyframes launcher-box-c {
+	0% {
+		transform: translate(0, 0);
+	}
+	7% {
+		transform: translate(0, -11px);
+	}
+	14% {
+		transform: translate(0, -14px);
+	}
+	21% {
+		transform: translate(7px, -18px);
+	}
+	29% {
+		transform: translate(14px, -14px);
+	}
+	36% {
+		transform: translate(14px, -11px);
+	}
+	43% {
+		transform: translate(14px, 0);
+	}
+	50% {
+		transform: translate(7px, -4px);
+	}
+	57%,
+	100% {
+		transform: translate(0, 0);
+	}
+}
+
+@keyframes launcher-box-d {
+	0% {
+		transform: translate(0, 0);
+	}
+	7% {
+		transform: translate(-7px, -4px);
+	}
+	14% {
+		transform: translate(-14px, 0);
+	}
+	21% {
+		transform: translate(-14px, -11px);
+	}
+	29% {
+		transform: translate(-14px, -14px);
+	}
+	36% {
+		transform: translate(-7px, -18px);
+	}
+	43% {
+		transform: translate(0, -14px);
+	}
+	50% {
+		transform: translate(0, -11px);
+	}
+	57%,
+	100% {
+		transform: translate(0, 0);
+	}
+}
+
+.launcher-icon {
+	--launcher-gap: 4px;
+	--launcher-cycle: 3.5s;
+	--launcher-stagger: 100ms;
+	--launcher-radius: 2.5px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	gap: var(--launcher-gap);
+}
+
+.launcher-icon > div {
+	background: oklch(from var(--foreground) l c h / 0.8);
+	border-radius: var(--launcher-radius);
+	will-change: transform;
+}
+
+.launcher-idle > .launcher-box-a {
+	animation: launcher-box-a var(--launcher-cycle) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.launcher-idle > .launcher-box-b {
+	animation: launcher-box-b var(--launcher-cycle) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+	animation-delay: var(--launcher-stagger);
+}
+
+.launcher-idle > .launcher-box-c {
+	animation: launcher-box-c var(--launcher-cycle) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+	animation-delay: calc(var(--launcher-stagger) * 2);
+}
+
+.launcher-idle > .launcher-box-d {
+	animation: launcher-box-d var(--launcher-cycle) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+	animation-delay: calc(var(--launcher-stagger) * 3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.group:hover .launcher-idle {
+		--launcher-cycle: 2.8s;
+	}
+}
+
+@keyframes launcher-wave {
+	0% {
+		transform: translateY(0) scale(1);
+	}
+	8% {
+		transform: translateY(-8px) scale(1.15);
+	}
+	16% {
+		transform: translateY(1px) scale(0.95);
+	}
+	22%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+}
+
+.launcher-icon-row {
+	--launcher-box-row: 24px;
+	--launcher-gap-row: 6px;
+	--launcher-cycle-row: 1.8s;
+	--launcher-stagger-row: 80ms;
+	--launcher-radius-row: 6px;
+	display: grid;
+	grid-template-columns: repeat(4, var(--launcher-box-row));
+	grid-template-rows: var(--launcher-box-row);
+	gap: var(--launcher-gap-row);
+}
+
+.launcher-icon-row > div {
+	background: oklch(from var(--foreground) l c h / 0.8);
+	border-radius: var(--launcher-radius-row);
+	will-change: transform;
+}
+
+.launcher-idle-row > div:nth-child(1) {
+	animation: launcher-wave var(--launcher-cycle-row) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.launcher-idle-row > div:nth-child(2) {
+	animation: launcher-wave var(--launcher-cycle-row) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+	animation-delay: var(--launcher-stagger-row);
+}
+
+.launcher-idle-row > div:nth-child(3) {
+	animation: launcher-wave var(--launcher-cycle-row) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+	animation-delay: calc(var(--launcher-stagger-row) * 2);
+}
+
+.launcher-idle-row > div:nth-child(4) {
+	animation: launcher-wave var(--launcher-cycle-row) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+	animation-delay: calc(var(--launcher-stagger-row) * 3);
+}
+
+@keyframes chat-btn-ripple {
+	0% {
+		transform: scale(1);
+		opacity: 0.35;
+	}
+	100% {
+		transform: scale(2.2);
+		opacity: 0;
+	}
+}
+
+.chat-btn-ripple-ring {
+	position: absolute;
+	inset: 0;
+	border-radius: 9999px;
+	border: 1.5px solid oklch(from var(--muted-foreground) l c h / 0.4);
+	pointer-events: none;
+	animation: chat-btn-ripple 3s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ai-enter,
+	.ai-enter-right,
+	.ai-rise,
+	.ai-dot,
+	.chat-btn-ripple-ring,
+	.launcher-idle > div,
+	.launcher-idle-row > div {
+		animation: none;
+	}
+	.ai-wave-bar {
+		animation: none;
+		transform: scaleY(0.7);
+		opacity: 0.6;
+	}
+}
+
+/* --preview-scale and --preview-height are set at runtime by InvoicePreview.svelte's
+   ResizeObserver action (scale = stageWidth / 794, the A4 pixel width). */
+.invoice-preview-stage {
+	display: flex;
+	justify-content: center;
+	height: var(--preview-height);
+}
+
+.invoice-preview-frame {
+	display: block;
+	width: 794px;
+	height: 1123px;
+	flex: none;
+	border: 0;
+	transform: scale(var(--preview-scale));
+	transform-origin: top center;
+}
+
+[data-slot="dialog-overlay"] {
+	--tw-duration: 200ms;
+	background-color: hsl(0 0% 0% / 0.6);
+	backdrop-filter: blur(6px);
+}
+
+[data-slot="dialog-content"] {
+	--tw-duration: 200ms;
+	animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-slot="dialog-overlay"],
+	[data-slot="dialog-content"] {
+		--tw-duration: 0ms;
+		animation: none;
+	}
+}
+
+:root {
+	--motion-fast: 150ms;
+	--motion-base: 250ms;
+	--motion-slow: 350ms;
+	--motion-ease-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	--motion-ease-emphasized: cubic-bezier(0.65, 0, 0.35, 1);
+	--motion-ease-decelerate: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: var(--motion-base);
+	animation-timing-function: var(--motion-ease-emphasized);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation: none;
+	}
+}
+
+[data-slot="progress-indicator"] {
+	transition:
+		transform var(--motion-base) var(--motion-ease-standard),
+		background-color var(--motion-base) var(--motion-ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-slot="progress-indicator"] {
+		transition: none;
+	}
+}

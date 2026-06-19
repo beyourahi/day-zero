@@ -1,0 +1,152 @@
+/**
+ * AI Copilot animation library: keyframes + `chat-*` utility classes consumed by the
+ * src/components/ai/* components (message entrance, typing dots, generating wave, orb float,
+ * custom scrollbar). Imported via src/app.css. Every animation has a prefers-reduced-motion
+ * fallback below. Distinct from the `ai-*` / `launcher-*` animations, which live in app.css.
+ */
+@keyframes chat-message-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes chat-message-in-right {
+	from {
+		opacity: 0;
+		transform: translateX(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes chat-orb-float {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-6px);
+	}
+}
+
+@keyframes chat-gen-wave {
+	0%,
+	100% {
+		transform: scaleY(0.35);
+		opacity: 0.3;
+	}
+	50% {
+		transform: scaleY(1);
+		opacity: 0.85;
+	}
+}
+
+@keyframes chat-greeting-stagger {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes chat-dot-pulse {
+	0%,
+	100% {
+		transform: translateY(0);
+		opacity: 0.4;
+	}
+	50% {
+		transform: translateY(-2.5px);
+		opacity: 1;
+	}
+}
+
+.chat-message-enter {
+	animation: chat-message-in 0.25s ease-out both;
+}
+
+.chat-message-enter-right {
+	animation: chat-message-in-right 0.25s ease-out both;
+}
+
+.chat-orb {
+	animation: chat-orb-float 4s ease-in-out infinite;
+}
+
+.chat-gen-bar {
+	transform-origin: bottom;
+	animation: chat-gen-wave 1.1s ease-in-out infinite;
+}
+
+.chat-gen-bar-1 {
+	animation-delay: 0s;
+}
+
+.chat-gen-bar-2 {
+	animation-delay: 0.12s;
+}
+
+.chat-gen-bar-3 {
+	animation-delay: 0.24s;
+}
+
+.chat-gen-bar-4 {
+	animation-delay: 0.36s;
+}
+
+.chat-gen-bar-5 {
+	animation-delay: 0.48s;
+}
+
+.chat-dot-pulse {
+	animation: chat-dot-pulse 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.chat-message-enter,
+	.chat-message-enter-right,
+	.chat-orb,
+	.chat-dot-pulse {
+		animation: none;
+	}
+	.chat-gen-bar {
+		animation: none;
+		opacity: 0.4;
+		transform: scaleY(0.6);
+	}
+}
+
+.chat-scrollbar::-webkit-scrollbar {
+	width: 4px;
+	background: transparent;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+	background: oklch(0.3 0 0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+		background: oklch(0.4 0 0);
+	}
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.chat-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: oklch(0.3 0 0) transparent;
+}
