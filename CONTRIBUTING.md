@@ -1,6 +1,6 @@
-# Contributing to Invoice Generator
+# Contributing
 
-Thank you for taking the time to contribute. This document provides everything you need to understand the project's conventions, tooling, and expectations before opening a pull request.
+Thank you for taking the time to contribute. This guide covers everything you need to work on the project effectively — local setup, conventions, and how to submit changes.
 
 ---
 
@@ -9,13 +9,13 @@ Thank you for taking the time to contribute. This document provides everything y
 1. [Contribution Philosophy](#contribution-philosophy)
 2. [Local Development Setup](#local-development-setup)
 3. [Project Structure](#project-structure)
-4. [Architecture Guidelines](#architecture-guidelines)
-5. [Coding Standards](#coding-standards)
-6. [Git Workflow](#git-workflow)
-7. [Commit Message Conventions](#commit-message-conventions)
-8. [Reporting Issues and Feature Requests](#reporting-issues-and-feature-requests)
-9. [Pull Request Workflow](#pull-request-workflow)
-10. [Testing and Validation](#testing-and-validation)
+4. [Coding Standards](#coding-standards)
+5. [Git Workflow](#git-workflow)
+6. [Commit Message Conventions](#commit-message-conventions)
+7. [Reporting Issues and Feature Requests](#reporting-issues-and-feature-requests)
+8. [Pull Request Workflow](#pull-request-workflow)
+9. [Testing and Validation](#testing-and-validation)
+10. [Database Migrations](#database-migrations)
 11. [Documentation Standards](#documentation-standards)
 12. [Code of Conduct](#code-of-conduct)
 
@@ -23,13 +23,16 @@ Thank you for taking the time to contribute. This document provides everything y
 
 ## Contribution Philosophy
 
-Invoice Generator is a focused, single-purpose tool. Contributions should respect that scope:
+This is a small, focused, single-purpose tool. Correctness and reliability matter more than feature breadth. Contributions should:
 
-- **Solve the problem at hand.** A bug fix does not need surrounding refactors. A new theme does not need a theme-switcher UI unless explicitly requested.
-- **Prefer existing abstractions.** Before adding a utility, check `src/lib/` — the resolver, generator, and zip modules already cover the core pipeline.
-- **No speculative features.** Implement what is asked, not what might be useful in the future. Three explicit lines beat a premature abstraction.
-- **Type safety is non-negotiable.** TypeScript strict mode is enabled. No `any`, no loose casts, no suppression comments.
-- **Zero comments in shipped code.** Code should be self-documenting through naming and structure. If the _why_ is truly non-obvious, one short inline comment is acceptable — nothing more.
+- **Solve a concrete problem.** A bug fix does not need surrounding refactors; avoid speculative features and premature abstractions. Three explicit lines beat a premature abstraction.
+- **Prefer existing abstractions.** Read the codebase before adding a new utility — the core pipeline is usually already covered under `src/lib/`.
+- **Leave the codebase cleaner than you found it.** Small, focused changes over large rewrites.
+- **Not introduce security regressions.** Auth flows, session handling, and security headers are sensitive — flag any change that touches them.
+- **Respect type safety.** TypeScript strict mode is enabled. No `any`, no loose casts, no suppression comments.
+- **Ship self-documenting code.** Code should explain itself through naming and structure. A comment is warranted only when the _why_ is genuinely non-obvious.
+
+When in doubt, open an issue to discuss the change before writing code.
 
 ---
 
@@ -37,18 +40,20 @@ Invoice Generator is a focused, single-purpose tool. Contributions should respec
 
 ### Prerequisites
 
-| Tool                                                            | Minimum Version | Notes                                 |
-| --------------------------------------------------------------- | --------------- | ------------------------------------- |
-| [Bun](https://bun.sh)                                           | 1.2+            | Package manager and runtime           |
-| [Node.js](https://nodejs.org)                                   | 20.19+ / 22.12+ | Required by Vite 8 and the toolchain  |
-| [Wrangler](https://developers.cloudflare.com/workers/wrangler/) | 4.x             | Installed as a dev dependency via Bun |
-| Git                                                             | 2.5+            | Required for worktree support         |
+| Tool                                                            | Minimum Version | Notes                                                |
+| --------------------------------------------------------------- | --------------- | ---------------------------------------------------- |
+| [Bun](https://bun.sh)                                           | 1.2+            | Package manager and runtime                          |
+| [Node.js](https://nodejs.org)                                   | 20.19+ / 22.12+ | Required by the Vite/SvelteKit toolchain             |
+| [Wrangler](https://developers.cloudflare.com/workers/wrangler/) | 4.x             | Cloudflare Workers CLI, installed as a dev dependency |
+| Git                                                             | 2.5+            | Required for worktree support                        |
+
+Authentication uses Google OAuth, so a Google Cloud Console project with OAuth 2.0 credentials is required to exercise auth-gated routes during development.
 
 ### Installation
 
 ```bash
 git clone <repository-url>
-cd invoice-generator
+cd <project>
 bun install
 ```
 
@@ -58,38 +63,47 @@ bun install
 bun run dev
 ```
 
-This runs `vite dev --open --host`: it starts the Vite dev server, opens the app in your default browser, and exposes it on your local network.
+This starts the Vite dev server and opens the app in your browser.
 
-> **Note:** The Vite dev server does not provide a Cloudflare D1 binding. Authentication will be silently disabled and all routes will treat the session as unauthenticated. Use `bun run preview` (Wrangler-backed) to test auth locally.
+> **Note:** The plain Vite dev server does not provide a Cloudflare D1 binding. Authentication is silently disabled and every route treats the session as unauthenticated. Use `bun run preview` (Wrangler-backed) to test auth and D1 locally.
 
 ### Environment Variables
 
-Two gitignored env files live at the project root, each read by a different tool. Copy the committed templates and fill in the values:
+Two gitignored env files live at the project root, each read by a different tool. Create them and fill in the values:
 
 ```bash
-cp .dev.vars.example .dev.vars   # auth secrets — read by `wrangler dev`
-cp .env.example .env             # Cloudflare credentials — read by drizzle-kit
+# .dev.vars — read by `wrangler dev` / `bun run preview`
+BETTER_AUTH_SECRET     # generate with: openssl rand -base64 32
+BETTER_AUTH_URL        # your local dev origin
+GOOGLE_CLIENT_ID       # from Google Cloud Console
+GOOGLE_CLIENT_SECRET   # from Google Cloud Console
+
+# .env — read by drizzle-kit for remote D1 commands
+CLOUDFLARE_ACCOUNT_ID
+CLOUDFLARE_DATABASE_ID
+CLOUDFLARE_D1_TOKEN
 ```
 
-`.dev.vars` holds the auth secrets used by local `bun run preview`: `BETTER_AUTH_SECRET` (generate with `openssl rand -base64 32`), `BETTER_AUTH_URL` (`http://localhost:8787` — the Wrangler dev server), `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`. `.env` holds `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_DATABASE_ID`, and `CLOUDFLARE_D1_TOKEN` for drizzle-kit's remote D1 commands.
+Wrangler reads `.dev.vars` for the Worker runtime; Bun loads `.env` for `bun run` scripts. **Never commit `.dev.vars` or `.env`** — they contain secrets.
 
-Wrangler reads `.dev.vars` for the Worker runtime — not `.env` — while Bun loads `.env` for `bun run` scripts. Never commit `.dev.vars` or `.env`.
+### Common Scripts
 
-### Database (D1)
-
-Migrations live in `migrations/`. Apply once per environment:
-
-```bash
-# Local (Wrangler preview)
-bun run db:migrate:local
-
-# Remote (production)
-bun run db:migrate
-```
+| Script                     | Description                                              |
+| -------------------------- | ------------------------------------------------------- |
+| `bun run dev`              | Vite dev server                                         |
+| `bun run build`            | Production build                                        |
+| `bun run preview`          | Build + Wrangler local Workers preview (real D1/runtime) |
+| `bun run check`            | TypeScript + Svelte type checking                       |
+| `bun run lint`             | Prettier check + ESLint                                 |
+| `bun run format`           | Auto-format with Prettier                               |
+| `bun run cf-typegen`       | Regenerate Cloudflare Worker type definitions           |
+| `bun run db:generate`      | Generate a Drizzle migration from schema changes        |
+| `bun run db:migrate:local` | Apply migrations to the local D1 instance               |
+| `bun run db:migrate`       | Apply migrations to the remote (production) D1 instance |
 
 ### Regenerating Cloudflare Types
 
-After any changes to `wrangler.jsonc`, regenerate the worker type definitions:
+After any change to `wrangler.jsonc`, regenerate the Worker type definitions:
 
 ```bash
 bun run cf-typegen
@@ -107,135 +121,35 @@ rm -rf node_modules/ .wrangler/ .svelte-kit/ && bun install
 
 ## Project Structure
 
+The project follows the standard SvelteKit layout:
+
 ```
-invoice-generator/
-├── migrations/                  # D1 SQL migration files
+.
+├── migrations/          # Drizzle-generated D1 SQL migrations (never edit by hand)
 ├── src/
-│   ├── app.css                  # Tailwind v4 CSS-first config + global styles
-│   ├── app.html                 # HTML shell
-│   ├── app.d.ts                 # Global TypeScript declarations
-│   ├── hooks.server.ts          # Auth session + CSP/security headers
-│   ├── hooks.client.ts          # Client-side error handling
-│   ├── components/              # Route-level UI components (uses $src alias)
-│   │   ├── ai/                  # AI Copilot UI (sidebar, dialogs, mobile sheet)
-│   │   └── *.svelte             # ClientCard, FixedSenderPanel, GenerationPanel, etc.
+│   ├── routes/          # SvelteKit file-based routing (+page, +layout, +server, api/)
 │   ├── lib/
-│   │   ├── auth-client.ts       # Better Auth Svelte client
-│   │   ├── types.ts             # Shared TypeScript types
-│   │   ├── utils.ts             # cn() and shared utilities
-│   │   ├── ai/                  # AI Copilot client layer (model, tools, streaming, undo)
-│   │   ├── api/
-│   │   │   └── client.ts        # Typed fetch wrapper + sync/debounceSync
-│   │   ├── assets/
-│   │   ├── components/
-│   │   │   └── ui/              # shadcn-svelte components (AUTO-GENERATED — do not edit)
-│   │   ├── config/
-│   │   │   ├── app.ts           # APP_CONFIG (name, description, url, author)
-│   │   │   └── index.ts
-│   │   ├── format/
-│   │   │   └── currency.ts      # formatAmount() + currencySymbol()
-│   │   ├── hooks/               # use-current-user() and re-exports
-│   │   ├── invoice/
-│   │   │   ├── active.ts        # Active-filter helpers (generation queue source)
-│   │   │   ├── builder.ts       # buildInvoiceHtml() + ID/filename helpers
-│   │   │   ├── months.ts        # MONTHS array + MONTH_TO_NUMBER map
-│   │   │   └── resolver.ts      # resolveTokens() — pure token substitution
-│   │   ├── payments/
-│   │   │   └── registry.ts      # Payment method type definitions
-│   │   ├── pdf/
-│   │   │   ├── generator.ts            # iframe → html2canvas → jsPDF pipeline
-│   │   │   ├── sequential-download.ts  # File System Access API + sequential fallback
-│   │   │   └── zip.ts                  # fflate zipSync wrapper
-│   │   ├── server/
-│   │   │   ├── auth.ts          # createAuth() factory (Better Auth + Drizzle)
-│   │   │   ├── schema.ts        # Drizzle schema (all tables)
-│   │   │   ├── db.ts            # getDatabase() Drizzle factory
-│   │   │   ├── api.ts           # requireApiContext() + request helpers
-│   │   │   ├── dto.ts           # Row-to-domain mappers + AppState
-│   │   │   ├── validation.ts    # Shared Zod request schemas
-│   │   │   ├── ai-quota.ts      # Per-user AI daily turn quota (KV-backed)
-│   │   │   ├── ai-spend.ts      # Per-user AI monthly spend cap (KV-backed)
-│   │   │   ├── ai-undo.ts       # Server-side action reversal
-│   │   │   ├── log.ts           # Structured AI logging
-│   │   │   └── repositories/    # D1 data access (clients, payment methods, AI, ...)
-│   │   ├── stores/
-│   │   │   ├── session.svelte.ts  # Client/invoice state, synced to D1
-│   │   │   ├── fixed.svelte.ts    # Sender/bank state, synced to D1
-│   │   │   └── ai.svelte.ts       # AI Copilot session state
-│   │   └── themes/
-│   │       ├── default.ts       # Default invoice theme
-│   │       └── registry.ts      # ThemeId → Theme map + ACTIVE_THEME_ID
-│   └── routes/
-│       ├── +error.svelte        # Error boundary page
-│       ├── +layout.svelte       # Footer + app shell
-│       ├── +layout.server.ts    # Passes user/session/currentUser + aiEnabled to PageData
-│       ├── +page.svelte         # Main invoice app (auth-gated)
-│       ├── +page.server.ts      # Auth guard + server-side data hydration
-│       ├── api/                 # REST API: clients, payment methods, fixed, AI Copilot, logout
-│       └── login/               # Google sign-in page
-├── static/                      # Static assets
-├── wrangler.jsonc               # Cloudflare Workers config + D1/AI/KV bindings
-├── svelte.config.js             # SvelteKit config + path aliases ($src, $lib)
-├── vite.config.ts               # Vite config with Tailwind plugin
-├── drizzle.config.ts            # Drizzle ORM config
-├── tsconfig.json                # TypeScript strict config
-├── eslint.config.js             # ESLint 10 flat config
-└── components.json              # shadcn-svelte registry config
+│   │   ├── server/      # Server-only code: auth factory, Drizzle schema, repositories, validation
+│   │   ├── stores/      # Closure-based Svelte 5 rune stores (*.svelte.ts)
+│   │   ├── components/  # UI components (ui/ holds auto-generated shadcn-svelte primitives)
+│   │   └── ...          # Domain libraries, utilities, types, config
+│   ├── app.css          # Tailwind v4 CSS-first config + global styles
+│   ├── app.d.ts         # App.Locals / App.Platform / App.PageData / App.Error types
+│   ├── app.html         # HTML shell
+│   ├── hooks.server.ts  # Auth session middleware + security headers
+│   └── hooks.client.ts  # Client-side error handling
+├── static/              # Static assets
+├── wrangler.jsonc       # Cloudflare Workers config + bindings
+├── svelte.config.js     # SvelteKit config + path aliases
+├── vite.config.ts       # Vite config
+├── drizzle.config.ts    # Drizzle ORM config
+├── tsconfig.json        # TypeScript strict config
+└── eslint.config.js     # ESLint flat config
 ```
 
 ### Path Aliases
 
-| Alias  | Resolves to | Used in                                      |
-| ------ | ----------- | -------------------------------------------- |
-| `$lib` | `src/lib/`  | Library files, stores, utilities             |
-| `$src` | `src/`      | Route files importing from `src/components/` |
-
-Never use relative paths from route files. Always use the appropriate alias.
-
----
-
-## Architecture Guidelines
-
-### PDF Pipeline (client-side only)
-
-The entire PDF generation pipeline runs in the browser. No server actions, no API routes:
-
-1. `active.ts` resolves the generation queue — only clients and entries that are both active
-2. `builder.ts` assembles the HTML document string from the theme template and client data
-3. `generator.ts` injects that HTML into a hidden off-screen `<iframe>`, waits for fonts, captures it with `html2canvas` at 2× scale, then writes to jsPDF
-4. `sequential-download.ts` saves the generated Blobs via the File System Access API (directory picker) or sequential downloads; `zip.ts` is the ZIP fallback
-
-**Critical constraints:**
-
-- PDF generation is sequential and blocking by design. Do not parallelize `generatePdf()` calls — concurrent canvas operations cause corruption.
-- The iframe uses `position: fixed; top: -9999px; left: -9999px; visibility: hidden`. Do not change this. `display: none` prevents `html2canvas` from rendering.
-- Token substitution uses `String.prototype.replaceAll` — not regex. Tokens are case-sensitive literals (e.g. `{MONTH}`).
-
-### Store Pattern
-
-All three stores use the factory function + `$state` closure pattern, exported as singletons:
-
-- `session.svelte.ts` — client/invoice state and the generation lifecycle, synced to D1
-- `fixed.svelte.ts` — sender/bank data, synced to D1
-- `ai.svelte.ts` — AI Copilot conversations, messages, and chat UI state
-
-Each store exposes a `hydrate()` method seeded once from server-loaded data inside `+page.svelte`'s `untrack()` block. Never call `hydrate()` a second time or at module scope.
-
-### Theme System
-
-Themes are registered in `$lib/themes/registry.ts`. `ACTIVE_THEME_ID` is hardcoded — there is no runtime switcher. Adding a theme means implementing the `Theme` interface and registering it in the `themes` map.
-
-### Authentication
-
-Google OAuth via Better Auth is the only sign-in method. `emailAndPassword` is explicitly disabled. The server layer handles auth session management, plus D1 data persistence and AI Copilot inference via the REST API under `src/routes/api/`. The PDF pipeline is unaffected by auth state and stays entirely client-side.
-
-### shadcn-svelte Components
-
-Files under `src/lib/components/ui/` are auto-generated by the shadcn-svelte CLI. **Never modify them by hand.** Create wrapper components in other directories. Add or update components via:
-
-```bash
-bunx shadcn-svelte@latest add <component>
-```
+Use the path aliases configured in `svelte.config.js` (`$lib` for `src/lib/`, plus any others the project defines). **Never use relative paths from route files** — always import through an alias.
 
 ---
 
@@ -243,117 +157,91 @@ bunx shadcn-svelte@latest add <component>
 
 ### Svelte 5 Runes (mandatory)
 
-Use Svelte 5 rune syntax exclusively. Legacy `export let`, `$:` reactive statements, and `writable` stores are not permitted in component files.
+Use Svelte 5 rune syntax exclusively. Legacy `export let`, `$:` reactive statements, and `writable` stores for component-local state are not permitted in new code.
 
 ```svelte
 <script lang="ts">
 	// Props
-	let { client, onUpdate }: ClientCardProps = $props();
+	let { user, onSubmit }: Props = $props();
 
 	// State
-	let expanded = $state(false);
+	let value = $state("");
 
 	// Derived
-	let isValid = $derived(client.name.length > 0);
+	let length = $derived(value.length);
 
-	// Effects — only for side effects with external systems
+	// Effects — only for synchronizing with external systems
 	$effect(() => {
-		document.title = client.name;
+		document.title = value;
 	});
 </script>
 ```
 
-Use `onMount` for DOM/lifecycle work. Use `$effect` only when reacting to reactive state changes that must synchronize with an external system.
+Use `onMount` for DOM/lifecycle work. Reach for `$effect` only when reacting to state changes that must synchronize with an external system. Cross-component global state lives in closure-based rune stores in `src/lib/stores/*.svelte.ts` — not Svelte `writable()` stores.
 
 ### TypeScript
 
-- Strict mode is enforced (`tsconfig.json`). No `any`. No type assertions (`as T`) without justification.
+- Strict mode is enforced. No `any`. No type assertions (`as T`) without justification.
 - Use `import type { ... }` for type-only imports.
-- Define all component prop types explicitly — never implicit.
-- Use `cn()` from `$lib/utils` for conditional class merging.
+- Define all component prop types explicitly.
+- Use `cn()` from `$lib/utils` for conditional or merged class names.
 
 ### Tailwind CSS v4
 
-Configuration lives entirely in `src/app.css` under `@theme inline`. There is no `tailwind.config.js` — do not create one.
+Configuration is CSS-first, living entirely in `src/app.css` via `@import "tailwindcss"` and `@theme`. **There is no `tailwind.config.js` — do not create one.**
 
-```css
-/* Correct — extend via @theme inline in app.css */
-@theme inline {
-	--color-brand: oklch(0.62 0.21 265);
-}
-```
+- Reference CSS variables for colors; never hardcode raw hex/rgb/oklch values in class attributes.
+- The design is dark-only — there is no light mode.
 
-- Never hardcode hex, rgb, or oklch values directly in class attributes.
-- The design is dark-only. No light mode. All `--color-*` tokens are dark values.
-- CSS variables for all colors — class utilities reference variables, not raw values.
+### Vendored & Generated Code — Do Not Hand-Edit
 
-### Arrow Functions
-
-```typescript
-// Correct
-const generateAll = async () => { ... };
-const getFileName = (client: Client) => `${client.name}.pdf`;
-
-// Wrong — no function declarations
-function generateAll() { ... }
-```
+- Files under `src/lib/components/ui/` are auto-generated by the shadcn-svelte CLI. Never modify them by hand — add or update them via `bunx shadcn-svelte@latest add <component>` and wrap them elsewhere if customization is needed.
+- If the project vendors a shared design system under `src/lib/ds/`, treat it as read-only — it is a mirror refreshed from upstream, and local edits are overwritten on the next sync.
 
 ### Formatting
 
-| Setting               | Value                   |
-| --------------------- | ----------------------- |
-| Indentation           | Tabs                    |
-| Tab width (`.svelte`) | 4 spaces                |
-| Quotes                | Double                  |
-| Trailing commas       | None                    |
-| Print width           | 100 (120 for `.svelte`) |
-| Arrow parens          | Avoid (`x => x`)        |
-
-Run Prettier before committing:
+Formatting is owned entirely by Prettier (with the Svelte and Tailwind plugins). Do not hand-format or fight the formatter — run it before committing:
 
 ```bash
 bun run format
 ```
 
+The CI-equivalent check is `bun run lint`.
+
 ### Comments
 
-Write zero comments in shipped code. If the _why_ behind a decision is genuinely non-obvious — a hidden constraint, a subtle invariant, a workaround for a specific upstream bug — one short line is acceptable. Never write multi-line comment blocks or JSDoc in application code.
+Default to zero comments in shipped code. The only acceptable comment is one that explains a non-obvious _why_ — a hidden constraint, a subtle invariant, or a workaround for a specific upstream bug. Never describe _what_ the code does; that belongs in the names and structure of the code itself. Never remove load-bearing directives (`@ts-*`, `eslint-disable*`, `svelte-ignore`, license headers).
 
 ---
 
 ## Git Workflow
 
-This project uses **git worktrees** for parallel development. **Never create branches.**
+This project uses **git worktrees** for parallel development. **Never create branches** (`git checkout -b` or `git branch`) — this is a hard requirement of the workspace workflow. All commits go directly to `main`.
 
 ### Why Worktrees Instead of Branches
 
 - Multiple contributors (or AI agents) can work on separate features simultaneously without stashing or checkout conflicts.
-- Git history remains linear and readable.
-- No branch management overhead.
+- Git history stays linear and readable.
+- No branch-management overhead.
 
 ### Working with Worktrees
 
 ```bash
-# Start work on a new feature
-cd invoice-generator
-git worktree add ../invoice-generator-<feature-name>
-cd ../invoice-generator-<feature-name>
+# Start work on a new feature (run from the project root)
+git worktree add ../<project>-<feature-name>
+cd ../<project>-<feature-name>
 
 # List all active worktrees
 git worktree list
 
 # Remove a worktree when the work is merged
-git worktree remove ../invoice-generator-<feature-name>
+git worktree remove ../<project>-<feature-name>
 
 # Clean up stale references
 git worktree prune
 ```
 
 Each worktree shares the same `.git` directory, so commits from any worktree are immediately visible to all others.
-
-### Merging Work
-
-Once your changes are validated (see [Testing and Validation](#testing-and-validation)), merge them directly into `main` from the worktree. There are no feature branch PRs in the traditional sense — submit your changes as a patch or merge commit against `main`.
 
 ---
 
@@ -384,23 +272,12 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 
 ### Rules
 
-- Subject line: 50–70 characters, imperative mood ("add", "fix", "remove" — not "added", "fixes")
-- Body: optional; explain _why_, not _what_
-- One logical change per commit (atomic)
-- Never commit `.env`, `.dev.vars`, or any file containing secrets
-- The build must pass at every commit — no broken intermediate states
-
-### Examples
-
-```
-feat: add ZIP download button to generation panel
-
-fix: prevent canvas corruption when generating multiple PDFs sequentially
-
-refactor: extract invoice filename logic into standalone helper
-
-chore: remove unused gsap dependency
-```
+- Subject line: 50–70 characters, imperative mood ("add", "fix", "remove" — not "added", "fixes"), lowercase, no trailing period.
+- Body: optional; explain _why_, not _what_.
+- One logical change per commit (atomic).
+- Never commit `.env`, `.dev.vars`, or any file containing secrets.
+- The build must pass at every commit — no broken intermediate states.
+- Never reference an AI agent in commit messages (no AI `Co-Authored-By` trailers).
 
 ---
 
@@ -409,143 +286,138 @@ chore: remove unused gsap dependency
 ### Before Opening an Issue
 
 1. Search existing issues to avoid duplicates.
-2. Confirm the problem is reproducible on the latest commit of `main`.
-3. For PDF rendering issues, test across Chrome and Firefox — `html2canvas` behavior differs between browsers.
+2. Confirm the problem reproduces on the latest commit of `main`.
 
-### Issue Content
+### Bug Reports
 
 A useful bug report includes:
 
-- **Environment**: Browser, OS, Bun version, Wrangler version
-- **Steps to reproduce**: Minimal, numbered, and precise
-- **Expected behavior**: What should have happened
-- **Actual behavior**: What happened instead
-- **Screenshots or console output**: Attach where relevant
+- **Environment** — OS, browser, Bun version, Wrangler version (never paste secrets).
+- **Steps to reproduce** — minimal, numbered, and precise.
+- **Expected behavior** — what should have happened.
+- **Actual behavior** — what happened instead.
+- **Evidence** — error messages, console output, or screenshots where relevant.
+
+### Feature Requests
 
 A useful feature request includes:
 
-- **Problem statement**: What are you trying to accomplish?
-- **Proposed solution**: How would you implement it?
-- **Alternatives considered**: What else did you explore?
-- **Scope consideration**: Does this fit within the tool's focused purpose?
+- **Problem statement** — what are you trying to accomplish?
+- **Proposed solution** — how would it work?
+- **Alternatives considered** — what else did you evaluate?
+- **Scope** — does it fit the tool's focused purpose, or is it a larger architectural change?
 
-Features that expand scope significantly (e.g. a theme switcher, multi-user workspaces, server-side PDF rendering) require explicit discussion before implementation begins.
+Changes that touch the auth flow, security headers, or Cloudflare bindings warrant extra scrutiny — flag them explicitly.
 
 ---
 
 ## Pull Request Workflow
+
+Because the project commits directly to `main` via worktrees, "pull requests" are collaborative review requests opened against `main`.
 
 ### Before Opening a PR
 
 Run the full validation suite and confirm everything passes:
 
 ```bash
-bun run format       # Auto-format all files
-bun run lint         # ESLint validation
-bun run check        # svelte-check TypeScript validation
+bun run format   # Auto-format all files
+bun run lint     # ESLint + Prettier check
+bun run check    # svelte-check TypeScript validation
+bun run build    # Confirm the production build succeeds
 ```
 
-No PR should be opened with failing lint or type errors.
+No PR should be opened with failing lint, type, or build errors.
 
 ### PR Checklist
 
-Before marking a PR ready for review, confirm:
-
-- [ ] `bun run lint` passes with no errors or warnings
-- [ ] `bun run check` passes with no TypeScript errors
-- [ ] `bun run format` has been run and changes are committed
-- [ ] The build succeeds: `bun run build`
+- [ ] `bun run check` passes (no TypeScript or Svelte type errors)
+- [ ] `bun run lint` passes (no errors or warnings)
+- [ ] `bun run format` has been run and the changes are committed
+- [ ] `bun run build` succeeds
 - [ ] No `.env`, `.dev.vars`, or secret values are committed
-- [ ] No `tmp_screenshots/` or `.playwright-mcp/` directories are committed
+- [ ] No `tmp_screenshots/` or `.playwright-mcp/` artifacts are committed
 - [ ] No `any` types or suppressed TypeScript errors introduced
 - [ ] No legacy Svelte patterns (`export let`, `$:`) introduced in component files
-- [ ] No relative imports from route files (use `$lib` or `$src` aliases)
-- [ ] No modifications to files under `src/lib/components/ui/` (auto-generated)
-- [ ] PDF pipeline remains entirely client-side (no server actions added to the generation flow)
-- [ ] Commit messages follow Conventional Commits format
-- [ ] Each commit builds independently (no broken intermediate states)
+- [ ] No relative imports from route files (use path aliases)
+- [ ] No hand-edits to auto-generated files under `src/lib/components/ui/`
+- [ ] A database migration is generated and tested locally if the schema changed
+- [ ] Commit messages follow Conventional Commits and each commit builds independently
 
 ### PR Description
 
 Include:
 
-- **What changed**: Brief summary of the modification
-- **Why**: Motivation or issue reference
-- **How to test**: Steps to verify the change manually
-- **Screenshots**: For any UI changes, attach before/after screenshots
+- **What changed** — a brief summary of the modification.
+- **Why** — motivation or issue reference.
+- **How to test** — steps to verify the change manually.
+- **Screenshots** — before/after for any UI change.
 
 ### Review Expectations
 
-- Reviewers will check for adherence to the coding standards and architecture guidelines above.
-- Feedback is focused on correctness, scope, and consistency — not style preferences that Prettier already handles.
-- Address review comments with follow-up commits, not force-pushes.
-- Once approved, the author merges.
+- Reviews focus on correctness, security, scope, and fit with the existing architecture — not style preferences that Prettier already handles.
+- Expect extra scrutiny on auth-related changes, security headers, and new D1 queries.
+- Address review comments with follow-up commits, not force-pushes. Resolve threads explicitly.
 
 ---
 
 ## Testing and Validation
 
-There is currently no automated test suite configured. Validation is done through the type checker, linter, and manual testing.
+There is currently no automated test suite configured. Validation is done through the type checker, linter, build, and manual testing.
 
 ### Required Validation Steps
 
 ```bash
-bun run check        # svelte-check — catches TypeScript errors and Svelte-specific issues
-bun run lint         # ESLint — enforces code quality rules
-bun run format       # Prettier — enforces consistent formatting
-bun run build        # Confirms the production build succeeds
+bun run check   # svelte-check — TypeScript and Svelte-specific issues
+bun run lint    # ESLint + Prettier
+bun run build   # Confirms the production build succeeds
 ```
 
-Run all four before every commit. Never commit a build that fails any of these.
-
-### Manual Testing
-
-For changes touching the invoice pipeline:
-
-1. Start `bun run dev` and open the app.
-2. Fill in sender and bank details in `FixedSenderPanel`.
-3. Add at least two clients, each with multiple invoice entries across different months.
-4. Generate invoices and verify:
-   - File names match the format `invoice-{PREFIX}-{MMDD}-{YEAR}.pdf`
-   - Invoice IDs match `{PREFIX}-{MMDD}-{YEAR}`
-   - `{MONTH}` token substitutes correctly in service descriptions
-   - Directory-picker and sequential downloads save files under `invoices/`, with a `{ClientName}-{Year}-Invoices/` subfolder per multi-invoice client
-   - The ZIP fallback produces a valid archive with the same folder structure
-5. Test with a single client and a single invoice entry as well.
-
-For changes touching auth:
-
-1. Use `bun run preview` (Wrangler-backed) with `.dev.vars` configured.
-2. Verify the Google OAuth redirect flow completes successfully.
-3. Verify that `/login` redirects to `/` when already authenticated.
-4. Verify that `/` redirects to `/login` when unauthenticated.
+Run all three before every commit. Never commit a build that fails any of them. For UI changes, verify visually (screenshot or Playwright) and check both desktop and mobile breakpoints.
 
 ### Adding Tests
 
-When tests are added, use [Vitest](https://vitest.dev/) — it integrates with the existing Vite setup. Place test files alongside source files using the `.test.ts` suffix:
+When tests are added, use [Vitest](https://vitest.dev/) — it integrates with the existing Vite setup. Add `vitest` to `devDependencies` and a `test` script to `package.json`, and co-locate test files with their source using the `.test.ts` (or `.spec.ts`) suffix. Prioritize pure functions and the core data pipeline — they give the most coverage per test.
 
-```
-src/lib/invoice/resolver.test.ts
-src/lib/invoice/builder.test.ts
-src/lib/pdf/zip.test.ts
+---
+
+## Database Migrations
+
+Persistence uses Cloudflare D1 (SQLite) through Drizzle ORM. **Never edit existing files in `migrations/`** — Drizzle tracks state against them, and modifying them causes schema drift.
+
+### Migration Workflow
+
+```bash
+# 1. Edit the schema (src/lib/server/schema.ts)
+# 2. Generate a new migration SQL file
+bun run db:generate
+
+# 3. Review the generated SQL in migrations/ — verify it does exactly what you intended
+
+# 4. Apply locally and verify the app works
+bun run db:migrate:local
+bun run dev
+
+# 5. Commit the schema change and migration file together
+# 6. Apply to production after merge
+bun run db:migrate
 ```
 
-Priority test targets are the pure functions: `resolver.ts` (token substitution), `builder.ts` (ID/filename format), and `zip.ts` (archive path generation).
+### Schema Rules
+
+- All column names use `snake_case` — required by the Better Auth Drizzle adapter. Deviations cause silent auth failures.
+- Index names should be descriptive and prefixed with the table name.
+- Always pair a schema change with a generated migration; never use `db:push` against production.
 
 ---
 
 ## Documentation Standards
 
-### CLAUDE.md
-
-`CLAUDE.md` at the project root is the authoritative reference for AI coding assistants. Keep it accurate and up-to-date when making architectural changes. Structure follows the template defined in the workspace-level `CLAUDE.md`.
-
-### Code Comments
-
-Ship zero comments by default. The only acceptable comment is one that explains a non-obvious _why_: a subtle invariant, a workaround for a specific upstream bug, or a hidden external constraint. Never describe _what_ the code does — that belongs in the names and structure of the code itself.
+- **`CLAUDE.md`** at the project root is the authoritative architectural reference for AI coding assistants. Keep it accurate and up to date when making structural changes.
+- **`CONTRIBUTING.md`** (this file) covers workflow and contributor process.
+- **Inline comments** are reserved for non-obvious constraints — never for describing what the code does.
 
 ---
 
 ## Code of Conduct
 
-This project adopts the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). By participating, you agree to uphold these standards. Instances of unacceptable behavior may be reported to the project maintainer at **beyourahi@gmail.com**.
+This project adopts the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). By participating, you agree to uphold these standards. Report instances of unacceptable behavior to the project maintainer at **beyourahi@gmail.com**.
