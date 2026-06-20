@@ -8,9 +8,9 @@
 </script>
 
 <footer
-	class="border-hair text-ink-muted flex w-full flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t px-4 py-8 font-mono text-micro tracking-[0.22em] uppercase sm:px-6 sm:py-10"
+	class="border-hair text-ink-muted flex w-full flex-col items-center justify-center gap-x-6 gap-y-3 border-t px-4 py-8 text-center font-mono text-micro tracking-[0.22em] uppercase sm:flex-row sm:flex-wrap sm:justify-between sm:text-left sm:px-6 sm:py-10"
 >
-	<p class="flex flex-wrap items-center gap-x-3 gap-y-2">
+	<p class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:justify-start">
 		<a
 			href="/changelog"
 			class="ease-[var(--ease)] whitespace-nowrap transition-colors pointer-fine:hover:text-foreground"

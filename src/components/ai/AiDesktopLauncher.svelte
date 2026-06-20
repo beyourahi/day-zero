@@ -17,10 +17,13 @@
 		<button
 			type="button"
 			onclick={() => ai.openDesktop()}
-			class="group border-chat-border bg-chat-surface hover:border-chat-text-muted hover:bg-chat-surface-hover relative z-10 flex size-14 items-center justify-center rounded-full border border-solid shadow-[var(--chat-shadow)] transition-all duration-300 ease-out active:scale-95"
+			class="group border-chat-border bg-chat-surface hover:border-chat-text-muted hover:bg-chat-surface-hover relative z-10 flex h-14 items-center justify-center gap-2.5 rounded-full border border-solid pr-6 pl-5 shadow-[var(--chat-shadow)] transition-all duration-300 ease-out active:scale-95"
 			aria-label="Open AI chat"
 		>
 			<AiLauncherIcon variant="grid" class="size-6" />
+			<span class="text-chat-text-primary font-mono text-micro tracking-[0.18em] whitespace-nowrap uppercase">
+				AI Assistant
+			</span>
 		</button>
 	</div>
 {/if}
