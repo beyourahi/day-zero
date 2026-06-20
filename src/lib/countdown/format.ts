@@ -3,19 +3,15 @@
  * (never read from the clock here) so these functions are deterministic and
  * unit-testable, and the server render matches the first client paint.
  *
- * GRANULARITY RULE (tune the constants below to change the feel):
- *  - ≥ 1 day remaining → show Days / Hours / Minutes. Seconds are added only for
- *    timed goals (hasTime) and only within FINE_STRETCH_DAYS, because a ticking
- *    seconds digit on a goal months away is noise and a date-only goal has no
- *    meaningful sub-day precision.
- *  - < 1 day remaining → always show Hours / Minutes / Seconds (the final stretch
- *    earns the live seconds).
+ * GRANULARITY RULE:
+ *  - Live seconds are ALWAYS shown — every countdown ticks to the second, on the
+ *    board hero, the grid cards, the share view, and zen mode alike.
+ *  - The Days segment only appears once at least a full day remains; under a day
+ *    the display is Hours / Minutes / Seconds. (tabular-nums keeps the ticking
+ *    seconds digit from shifting the layout.)
  */
 
 const MS = { sec: 1000, min: 60_000, hour: 3_600_000, day: 86_400_000 } as const;
-
-/** Within this many days, a timed goal also shows a live seconds segment. */
-const FINE_STRETCH_DAYS = 30;
 
 export interface RemainingSegment {
 	value: number;
@@ -42,9 +38,13 @@ const pluralize = (value: number, singular: string): string =>
 
 /**
  * Breaks the absolute distance between `now` and `targetAtMs` into D/H/M/S and
- * the adaptive segment list. Works symmetrically for past targets (isPast true).
+ * the segment list. Always emits live H/M/S; the Days segment leads only once a
+ * full day remains. Works symmetrically for past targets (isPast true).
+ *
+ * `_hasTime` is retained for call-site compatibility (callers pass the goal's
+ * hasTime), but no longer affects which segments render — seconds are universal.
  */
-export const remaining = (targetAtMs: number, now: number, hasTime: boolean): Remaining => {
+export const remaining = (targetAtMs: number, now: number, _hasTime: boolean): Remaining => {
 	const total = targetAtMs - now;
 	const abs = Math.abs(total);
 
@@ -56,16 +56,10 @@ export const remaining = (targetAtMs: number, now: number, hasTime: boolean): Re
 	const segments: RemainingSegment[] = [];
 	if (days >= 1) {
 		segments.push({ value: days, label: pluralize(days, "day"), unit: "days" });
-		segments.push({ value: hours, label: pluralize(hours, "hr"), unit: "hours" });
-		segments.push({ value: minutes, label: pluralize(minutes, "min"), unit: "minutes" });
-		if (hasTime && days < FINE_STRETCH_DAYS) {
-			segments.push({ value: seconds, label: pluralize(seconds, "sec"), unit: "seconds" });
-		}
-	} else {
-		segments.push({ value: hours, label: pluralize(hours, "hr"), unit: "hours" });
-		segments.push({ value: minutes, label: pluralize(minutes, "min"), unit: "minutes" });
-		segments.push({ value: seconds, label: pluralize(seconds, "sec"), unit: "seconds" });
 	}
+	segments.push({ value: hours, label: pluralize(hours, "hr"), unit: "hours" });
+	segments.push({ value: minutes, label: pluralize(minutes, "min"), unit: "minutes" });
+	segments.push({ value: seconds, label: pluralize(seconds, "sec"), unit: "seconds" });
 
 	return { total, isPast: total <= 0, days, hours, minutes, seconds, segments };
 };

@@ -67,7 +67,11 @@
 		</span>
 	</div>
 {:else}
-	<div class={cn("flex flex-wrap tabular-nums", alignClass, c.gap)} role="timer" aria-label="time remaining">
+	<div
+		class={cn("flex flex-wrap tabular-nums", alignClass, align === "center" && "justify-center", c.gap)}
+		role="timer"
+		aria-label="time remaining"
+	>
 		{#each r.segments as seg (seg.unit)}
 			<div class={cn("flex flex-col", align === "center" ? "items-center" : "items-start")}>
 				<span
