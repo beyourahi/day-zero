@@ -296,6 +296,21 @@ textarea,
 	}
 }
 
+/* Countdown digit tick — the incoming digit slides down from above and fades in,
+   clipped by the box's overflow-hidden; replays on each value change via {#key}.
+   Mirrors the DS Horcrux banner's hxTick. Gated by the motion-safe: variant in
+   markup, so reduced-motion users get an instant swap with no slide. */
+@keyframes countdownTick {
+	0% {
+		transform: translateY(-58%);
+		opacity: 0;
+	}
+	100% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
 /* ───────────────────────────────  AI Copilot  ─────────────────────────────── */
 
 @keyframes ai-in-up {
