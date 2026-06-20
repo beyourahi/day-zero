@@ -1,9 +1,8 @@
 <!--
 	Create / edit composer. One dialog for both: pass `editing` to prefill. Fields
-	are a title, a target date (DS calendar), an optional exact time (Switch-gated
-	hour/minute selects), and an optional note. The picked local date+time is
-	converted to an absolute UTC ISO instant on save; a date-only goal defaults to
-	00:00 local (the day arrives → zero).
+	are a title, a target date (DS calendar), and an optional exact time (Switch-gated
+	hour/minute selects). The picked local date+time is converted to an absolute UTC
+	ISO instant on save; a date-only goal defaults to 00:00 local (the day arrives → zero).
 
 	Layout: a fixed header + footer with a scrollable body between, so the dialog
 	stays bounded on short viewports. The footer carries `mx-0 mb-0` to cancel the
@@ -18,6 +17,7 @@
 	import CountdownCalendar from "$src/components/CountdownCalendar.svelte";
 	import { Input, Cta, cn, inputBase, labelBase } from "$lib/ds";
 	import { formatTargetDate } from "$lib/countdown/format";
+	import { lockScroll } from "$lib/hooks";
 	import { CalendarDate, getLocalTimeZone, today, type DateValue } from "@internationalized/date";
 	import type { Countdown, CountdownInput } from "$lib/types";
 
@@ -34,16 +34,26 @@
 	let title = $state("");
 	let dateValue = $state<DateValue | undefined>(undefined);
 	let placeholder = $state<DateValue | undefined>(undefined);
-	let hourStr = $state("09");
+	let hour12 = $state("9");
 	let minStr = $state("00");
+	let meridiem = $state<"AM" | "PM">("AM");
 	let withTime = $state(false);
-	let note = $state("");
 	let saving = $state(false);
 	let wasOpen = false;
 
 	const pad = (n: number) => String(n).padStart(2, "0");
-	const hours = Array.from({ length: 24 }, (_, i) => pad(i));
+	// 12-hour clock values (minute stays zero-padded). The picked 12h value + AM/PM
+	// map to a 0–23 hour only when the absolute instant is built (and back, on edit),
+	// so the stored UTC instant is unchanged by this display format.
+	const hours = Array.from({ length: 12 }, (_, i) => String(i === 0 ? 12 : i));
 	const minutes = Array.from({ length: 60 }, (_, i) => pad(i));
+
+	const to24 = (h12: number, mer: "AM" | "PM") =>
+		mer === "AM" ? (h12 === 12 ? 0 : h12) : h12 === 12 ? 12 : h12 + 12;
+	const from24 = (h24: number): { h12: string; mer: "AM" | "PM" } => ({
+		h12: String(h24 % 12 === 0 ? 12 : h24 % 12),
+		mer: h24 < 12 ? "AM" : "PM"
+	});
 
 	// New countdowns can't target a past day; an existing goal may already be past,
 	// so editing leaves the calendar unconstrained.
@@ -53,7 +63,7 @@
 	// reused for the live summary line so the user sees exactly what lands.
 	const resolvedIso = $derived.by(() => {
 		if (!dateValue) return null;
-		const h = withTime ? Number(hourStr) : 0;
+		const h = withTime ? to24(Number(hour12), meridiem) : 0;
 		const m = withTime ? Number(minStr) : 0;
 		const local = new Date(dateValue.year, dateValue.month - 1, dateValue.day, h, m, 0, 0);
 		return Number.isNaN(local.getTime()) ? null : local.toISOString();
@@ -69,20 +79,30 @@
 				dateValue = new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
 				placeholder = dateValue;
 				withTime = editing.hasTime;
-				hourStr = pad(d.getHours());
+				const { h12, mer } = from24(d.getHours());
+				hour12 = h12;
+				meridiem = mer;
 				minStr = pad(d.getMinutes());
-				note = editing.note;
 			} else {
 				title = "";
 				dateValue = undefined;
 				placeholder = today(getLocalTimeZone());
 				withTime = false;
-				hourStr = "09";
+				hour12 = "9";
+				meridiem = "AM";
 				minStr = "00";
-				note = "";
 			}
 		}
 		wasOpen = open;
+	});
+
+	// Lock background scroll while open. bits-ui's own preventScroll locks <body>,
+	// but `html { overflow-x: clip }` (app.css) keeps <html> the viewport scroller,
+	// so we own the lock here and disable bits-ui's (preventScroll={false} below) to
+	// avoid double scrollbar compensation. Releases on close / unmount.
+	$effect(() => {
+		if (!open) return;
+		return lockScroll();
 	});
 
 	const canSave = $derived(title.trim().length > 0 && !!resolvedIso && !saving);
@@ -95,8 +115,7 @@
 				{
 					title: title.trim(),
 					targetAt: resolvedIso,
-					hasTime: withTime,
-					note: note.trim()
+					hasTime: withTime
 				},
 				editing?.id ?? null
 			);
@@ -109,10 +128,22 @@
 	// Select trigger dressed as a DS input surface (inputBase), height freed from
 	// the shadcn h-8 variant so it matches the title field.
 	const timeTrigger = cn(inputBase, "flex !h-auto items-center justify-between gap-2 tabular-nums");
+
+	// Segmented AM/PM control — same DS vocabulary as the calendar's selected day
+	// (signal fill for the active half, quiet ink for the other), sized to sit flush
+	// with the hour/minute select triggers.
+	const meridiemBtn =
+		"flex items-center px-3.5 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors duration-200 ease-[var(--ease)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-signal";
+	const meridiemOn = "bg-signal font-semibold text-background";
+	const meridiemOff = "text-ink-muted hover:bg-white/[0.04] hover:text-foreground";
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="flex max-h-[90dvh] flex-col gap-0 overflow-hidden p-0 sm:max-w-md" showCloseButton={false}>
+	<Dialog.Content
+		class="flex max-h-[90dvh] flex-col gap-0 overflow-hidden p-0 sm:max-w-md"
+		showCloseButton={false}
+		preventScroll={false}
+	>
 		<Dialog.Header class="border-hair shrink-0 border-b px-5 py-4">
 			<Dialog.Title>
 				<span class="font-sans text-lead lowercase">
@@ -124,7 +155,7 @@
 			</Dialog.Description>
 		</Dialog.Header>
 
-		<div class="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-5">
+		<div class="flex flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-5 py-5">
 			<div>
 				<!-- svelte-ignore a11y_label_has_associated_control -->
 				<label class={labelBase}>Title</label>
@@ -146,11 +177,11 @@
 				</label>
 
 				{#if withTime}
-					<div class="flex items-center gap-2">
+					<div class="flex flex-wrap items-stretch gap-2">
 						<div class="flex-1">
-							<Select.Root type="single" bind:value={hourStr}>
+							<Select.Root type="single" bind:value={hour12}>
 								<Select.Trigger class={timeTrigger} aria-label="Hour">
-									{hourStr}
+									{hour12}
 								</Select.Trigger>
 								<Select.Content class="max-h-56">
 									{#each hours as h (h)}
@@ -159,7 +190,7 @@
 								</Select.Content>
 							</Select.Root>
 						</div>
-						<span class="text-ink-muted font-mono text-lead">:</span>
+						<span class="text-ink-muted self-center font-mono text-lead">:</span>
 						<div class="flex-1">
 							<Select.Root type="single" bind:value={minStr}>
 								<Select.Trigger class={timeTrigger} aria-label="Minute">
@@ -172,6 +203,32 @@
 								</Select.Content>
 							</Select.Root>
 						</div>
+						<div
+							role="group"
+							aria-label="Before or after noon"
+							class="border-hair flex shrink-0 overflow-hidden rounded-[11px] border"
+						>
+							<button
+								type="button"
+								aria-pressed={meridiem === "AM"}
+								onclick={() => (meridiem = "AM")}
+								class={cn(meridiemBtn, meridiem === "AM" ? meridiemOn : meridiemOff)}
+							>
+								AM
+							</button>
+							<button
+								type="button"
+								aria-pressed={meridiem === "PM"}
+								onclick={() => (meridiem = "PM")}
+								class={cn(
+									meridiemBtn,
+									"border-hair border-l",
+									meridiem === "PM" ? meridiemOn : meridiemOff
+								)}
+							>
+								PM
+							</button>
+						</div>
 					</div>
 				{/if}
 			</div>
@@ -183,17 +240,6 @@
 					counting down to <span class="text-foreground">{summary}</span>
 				</p>
 			{/if}
-
-			<div>
-				<!-- svelte-ignore a11y_label_has_associated_control -->
-				<label class={labelBase}>Note (optional)</label>
-				<textarea
-					bind:value={note}
-					rows="2"
-					maxlength={500}
-					placeholder="a line on why it matters"
-					class={cn(inputBase, "resize-none")}></textarea>
-			</div>
 		</div>
 
 		<Dialog.Footer

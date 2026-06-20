@@ -18,7 +18,6 @@ export const toCountdown = (row: CountdownRow): Countdown => ({
 	title: row.title,
 	targetAt: row.targetAt.toISOString(),
 	hasTime: row.hasTime,
-	note: row.note,
 	archived: row.archived,
 	shareToken: row.shareToken,
 	position: row.position,

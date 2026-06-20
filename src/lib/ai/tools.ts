@@ -41,8 +41,7 @@ export const executors: {
 		const created = await countdowns.add({
 			title: args.title,
 			targetAt: args.targetAt,
-			hasTime: args.hasTime ?? false,
-			note: args.note ?? ""
+			hasTime: args.hasTime ?? false
 		});
 		if (!created) throw new Error("Failed to create countdown");
 		return {
@@ -57,7 +56,6 @@ export const executors: {
 		if (args.title !== undefined) patch.title = args.title;
 		if (args.targetAt !== undefined) patch.targetAt = args.targetAt;
 		if (args.hasTime !== undefined) patch.hasTime = args.hasTime;
-		if (args.note !== undefined) patch.note = args.note;
 		if (args.archived !== undefined) patch.archived = args.archived;
 		countdowns.update(args.id, patch);
 		return {

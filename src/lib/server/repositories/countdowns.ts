@@ -56,7 +56,6 @@ export const create = async (
 			title: input.title,
 			targetAt: new Date(input.targetAt),
 			hasTime: input.hasTime ?? false,
-			note: input.note ?? "",
 			position
 		})
 		.run();
@@ -79,7 +78,6 @@ export const update = async (
 	if (patch.title !== undefined) fields.title = patch.title;
 	if (patch.targetAt !== undefined) fields.targetAt = new Date(patch.targetAt);
 	if (patch.hasTime !== undefined) fields.hasTime = patch.hasTime;
-	if (patch.note !== undefined) fields.note = patch.note;
 	if (patch.archived !== undefined) fields.archived = patch.archived;
 
 	await db

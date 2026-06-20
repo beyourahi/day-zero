@@ -26,8 +26,7 @@ export const TOOLS_CATALOG: ToolCatalogEntry[] = [
 				hasTime: {
 					type: "boolean",
 					description: "True if a specific time of day was given; false for a date-only goal."
-				},
-				note: { type: "string", description: "Optional free-form note." }
+				}
 			},
 			required: ["title", "targetAt"]
 		}
@@ -44,7 +43,6 @@ export const TOOLS_CATALOG: ToolCatalogEntry[] = [
 				title: { type: "string" },
 				targetAt: { type: "string", description: "New target instant as ISO-8601 (UTC)." },
 				hasTime: { type: "boolean" },
-				note: { type: "string" },
 				archived: { type: "boolean" }
 			},
 			required: ["id"]

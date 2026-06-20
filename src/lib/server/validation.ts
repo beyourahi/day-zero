@@ -14,8 +14,7 @@ const isoDateTime = z
 export const createCountdownSchema = z.object({
 	title: z.string().trim().min(1, "Give it a title").max(120),
 	targetAt: isoDateTime,
-	hasTime: z.boolean().optional(),
-	note: z.string().max(500).optional()
+	hasTime: z.boolean().optional()
 });
 
 export const updateCountdownSchema = z
@@ -23,7 +22,6 @@ export const updateCountdownSchema = z
 		title: z.string().trim().min(1).max(120).optional(),
 		targetAt: isoDateTime.optional(),
 		hasTime: z.boolean().optional(),
-		note: z.string().max(500).optional(),
 		archived: z.boolean().optional()
 	})
 	.refine((v) => Object.keys(v).length > 0, { message: "Empty patch" });

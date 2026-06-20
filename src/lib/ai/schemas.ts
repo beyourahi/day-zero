@@ -22,8 +22,7 @@ export const argSchemas = {
 	createCountdown: z.object({
 		title: z.string().min(1).max(200),
 		targetAt: isoDate,
-		hasTime: z.boolean().optional(),
-		note: z.string().max(2000).optional()
+		hasTime: z.boolean().optional()
 	}),
 	updateCountdown: z
 		.object({
@@ -31,7 +30,6 @@ export const argSchemas = {
 			title: z.string().min(1).max(200).optional(),
 			targetAt: isoDate.optional(),
 			hasTime: z.boolean().optional(),
-			note: z.string().max(2000).optional(),
 			archived: z.boolean().optional()
 		})
 		.refine(
@@ -39,7 +37,6 @@ export const argSchemas = {
 				v.title !== undefined ||
 				v.targetAt !== undefined ||
 				v.hasTime !== undefined ||
-				v.note !== undefined ||
 				v.archived !== undefined,
 			{ message: "Empty patch" }
 		),

@@ -39,10 +39,6 @@
 
 	<CountdownDisplay targetAt={countdown.targetAt} hasTime={countdown.hasTime} size="hero" align="center" />
 
-	{#if countdown.note}
-		<p class="text-ink-muted max-w-md text-label text-pretty">{countdown.note}</p>
-	{/if}
-
 	<div class="flex items-center gap-1.5">
 		<button
 			type="button"

@@ -4,7 +4,7 @@
  * factory and are exposed via getters).
  *
  * Persistence: mutations update local `$state` immutably and persist via the API
- * — text edits (title/note) through keyed debounceSync, structural changes
+ * — text edits (title) through keyed debounceSync, structural changes
  * (targetAt/hasTime/archived/order/share) immediately via sync(). hydrate() runs
  * exactly ONCE in +page.svelte under untrack(); do not add a second hydrate path.
  *
@@ -17,7 +17,7 @@ import { api, debounceSync, sync } from "$lib/api/client";
 import { clock } from "./clock.svelte";
 
 const TEXT_DEBOUNCE_MS = 400;
-const TEXT_KEYS = new Set<keyof CountdownPatch>(["title", "note"]);
+const TEXT_KEYS = new Set<keyof CountdownPatch>(["title"]);
 
 const isTextOnlyPatch = (patch: CountdownPatch): boolean => {
 	const keys = Object.keys(patch);
@@ -29,7 +29,6 @@ const applyPatch = (c: Countdown, patch: CountdownPatch): Countdown => ({
 	...(patch.title !== undefined ? { title: patch.title } : {}),
 	...(patch.targetAt !== undefined ? { targetAt: patch.targetAt } : {}),
 	...(patch.hasTime !== undefined ? { hasTime: patch.hasTime } : {}),
-	...(patch.note !== undefined ? { note: patch.note } : {}),
 	...(patch.archived !== undefined ? { archived: patch.archived } : {})
 });
 

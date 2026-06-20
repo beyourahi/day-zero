@@ -18,7 +18,6 @@ const FIELD_LABELS: Record<string, string> = {
 	title: "title",
 	targetAt: "target date",
 	hasTime: "time of day",
-	note: "note",
 	archived: "archived",
 	enabled: "sharing"
 };

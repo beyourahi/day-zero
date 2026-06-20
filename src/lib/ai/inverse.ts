@@ -19,7 +19,6 @@ export interface CountdownSnapshot {
 	title: string;
 	targetAt: string;
 	hasTime: boolean;
-	note: string;
 	archived: boolean;
 	shareToken: string | null;
 	position: number;
@@ -31,7 +30,6 @@ export const snapshotCountdown = (c: Countdown): CountdownSnapshot => ({
 	title: c.title,
 	targetAt: c.targetAt,
 	hasTime: c.hasTime,
-	note: c.note,
 	archived: c.archived,
 	shareToken: c.shareToken,
 	position: c.position
@@ -54,7 +52,6 @@ export const inverseForUpdateCountdown = (
 		title: snapshot.title,
 		targetAt: snapshot.targetAt,
 		hasTime: snapshot.hasTime,
-		note: snapshot.note,
 		archived: snapshot.archived
 	},
 	snapshot

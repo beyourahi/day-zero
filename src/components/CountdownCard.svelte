@@ -99,8 +99,4 @@
 	</div>
 
 	<CountdownDisplay targetAt={countdown.targetAt} hasTime={countdown.hasTime} size="card" align="start" />
-
-	{#if countdown.note}
-		<p class="text-ink-muted line-clamp-2 text-caption text-pretty">{countdown.note}</p>
-	{/if}
 </div>

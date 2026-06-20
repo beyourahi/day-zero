@@ -108,7 +108,6 @@ const insertCountdownFromSnapshot = async (
 			title: asString(snapshot.title) ?? "",
 			targetAt,
 			hasTime: asBool(snapshot.hasTime) ?? false,
-			note: asString(snapshot.note) ?? "",
 			archived: asBool(snapshot.archived) ?? false,
 			shareToken: asString(snapshot.shareToken) ?? null,
 			position: typeof snapshot.position === "number" ? snapshot.position : 0,
@@ -157,7 +156,6 @@ export const applyInverse = async (
 				title: asString(args.title),
 				targetAt: targetAt && !Number.isNaN(Date.parse(targetAt)) ? targetAt : undefined,
 				hasTime: asBool(args.hasTime),
-				note: asString(args.note),
 				archived: asBool(args.archived)
 			});
 			if (!ok) throw new UndoInvalidatedError("Countdown no longer exists.");

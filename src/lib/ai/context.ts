@@ -31,10 +31,7 @@ const projectCountdown = (c: Countdown, nowMs: number): string => {
 	const flags = [c.archived ? "archived" : null, c.shareToken ? "shared" : null]
 		.filter(Boolean)
 		.join(", ");
-	const noteBit = c.note
-		? ` note="${c.note.length > 60 ? `${c.note.slice(0, 57)}...` : c.note}"`
-		: "";
-	return `  id=${c.id} "${c.title || "(untitled)"}" target=${c.targetAt}${c.hasTime ? " (timed)" : ""}${rel}${flags ? ` [${flags}]` : ""}${noteBit}`;
+	return `  id=${c.id} "${c.title || "(untitled)"}" target=${c.targetAt}${c.hasTime ? " (timed)" : ""}${rel}${flags ? ` [${flags}]` : ""}`;
 };
 
 const renderSummary = (countdowns: Countdown[]): string => {

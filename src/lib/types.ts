@@ -18,7 +18,6 @@ export interface Countdown {
 	targetAt: string;
 	/** Whether a specific time-of-day was set (drives display granularity). */
 	hasTime: boolean;
-	note: string;
 	archived: boolean;
 	/** Unguessable token while publicly shared; null when private. */
 	shareToken: string | null;
@@ -31,7 +30,6 @@ export interface CountdownInput {
 	title: string;
 	targetAt: string;
 	hasTime?: boolean;
-	note?: string;
 }
 
 /** Partial update — only defined keys are written. */
@@ -39,7 +37,6 @@ export interface CountdownPatch {
 	title?: string;
 	targetAt?: string;
 	hasTime?: boolean;
-	note?: string;
 	archived?: boolean;
 }
 
