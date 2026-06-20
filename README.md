@@ -10,19 +10,19 @@ Part of the Dropout Studio tools, alongside [Order Processor](https://github.com
 
 ## Tech Stack
 
-| Layer             | Technology                            |
-| ----------------- | ------------------------------------- |
-| Framework         | SvelteKit 2 + Svelte 5 (runes)        |
-| Language          | TypeScript (strict)                   |
-| Styling           | Tailwind CSS v4                       |
-| UI / Design System| Dropout Design System (vendored) + shadcn-svelte |
-| Auth              | Better Auth (Google OAuth)            |
-| Database          | Cloudflare D1 + Drizzle ORM           |
-| AI Copilot        | Cloudflare Workers AI                 |
-| Motion            | GSAP                                  |
-| Dates             | @internationalized/date               |
-| Deployment        | Cloudflare Workers                    |
-| Package manager   | Bun                                   |
+| Layer              | Technology                                       |
+| ------------------ | ------------------------------------------------ |
+| Framework          | SvelteKit 2 + Svelte 5 (runes)                   |
+| Language           | TypeScript (strict)                              |
+| Styling            | Tailwind CSS v4                                  |
+| UI / Design System | Dropout Design System (vendored) + shadcn-svelte |
+| Auth               | Better Auth (Google OAuth)                       |
+| Database           | Cloudflare D1 + Drizzle ORM                      |
+| AI Copilot         | Cloudflare Workers AI                            |
+| Motion             | GSAP                                             |
+| Dates              | @internationalized/date                          |
+| Deployment         | Cloudflare Workers                               |
+| Package manager    | Bun                                              |
 
 ---
 
@@ -63,12 +63,12 @@ Two gitignored files at the project root, each read by a different tool. Never c
 
 `.dev.vars` — Worker runtime secrets, loaded by the dev server and Wrangler:
 
-| Variable               | Description                                |
-| ---------------------- | ------------------------------------------ |
-| `BETTER_AUTH_SECRET`   | Random secret for session signing          |
+| Variable               | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `BETTER_AUTH_SECRET`   | Random secret for session signing              |
 | `BETTER_AUTH_URL`      | App base URL — `http://localhost:5173` locally |
-| `GOOGLE_CLIENT_ID`     | Google OAuth client ID                     |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                 |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID                         |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                     |
 | `E2E_BYPASS_AUTH`      | Optional — `true` skips Google sign-in locally |
 
 `.env` — Cloudflare credentials for the Drizzle CLI, used only by the remote `db:*` commands (loaded by Bun):
@@ -119,8 +119,8 @@ wrangler deploy
 1. Go to [Google Cloud Console](https://console.cloud.google.com) → APIs & Services → Credentials
 2. Create an OAuth 2.0 Client ID (Web application)
 3. Add authorized redirect URIs:
-    - `http://localhost:5173/api/auth/callback/google` (local)
-    - `https://day-zero.beyourahi.workers.dev/api/auth/callback/google` (production)
+   - `http://localhost:5173/api/auth/callback/google` (local)
+   - `https://day-zero.beyourahi.workers.dev/api/auth/callback/google` (production)
 
 ---
 

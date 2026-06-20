@@ -40,12 +40,12 @@ When in doubt, open an issue to discuss the change before writing code.
 
 ### Prerequisites
 
-| Tool                                                            | Minimum Version | Notes                                                |
-| --------------------------------------------------------------- | --------------- | ---------------------------------------------------- |
-| [Bun](https://bun.sh)                                           | 1.2+            | Package manager and runtime                          |
-| [Node.js](https://nodejs.org)                                   | 20.19+ / 22.12+ | Required by the Vite/SvelteKit toolchain             |
+| Tool                                                            | Minimum Version | Notes                                                 |
+| --------------------------------------------------------------- | --------------- | ----------------------------------------------------- |
+| [Bun](https://bun.sh)                                           | 1.2+            | Package manager and runtime                           |
+| [Node.js](https://nodejs.org)                                   | 20.19+ / 22.12+ | Required by the Vite/SvelteKit toolchain              |
 | [Wrangler](https://developers.cloudflare.com/workers/wrangler/) | 4.x             | Cloudflare Workers CLI, installed as a dev dependency |
-| Git                                                             | 2.5+            | Required for worktree support                        |
+| Git                                                             | 2.5+            | Required for worktree support                         |
 
 Authentication uses Google OAuth, so a Google Cloud Console project with OAuth 2.0 credentials is required to exercise auth-gated routes during development.
 
@@ -89,17 +89,17 @@ Wrangler reads `.dev.vars` for the Worker runtime; Bun loads `.env` for `bun run
 ### Common Scripts
 
 | Script                     | Description                                              |
-| -------------------------- | ------------------------------------------------------- |
-| `bun run dev`              | Vite dev server                                         |
-| `bun run build`            | Production build                                        |
+| -------------------------- | -------------------------------------------------------- |
+| `bun run dev`              | Vite dev server                                          |
+| `bun run build`            | Production build                                         |
 | `bun run preview`          | Build + Wrangler local Workers preview (real D1/runtime) |
-| `bun run check`            | TypeScript + Svelte type checking                       |
-| `bun run lint`             | Prettier check + ESLint                                 |
-| `bun run format`           | Auto-format with Prettier                               |
-| `bun run cf-typegen`       | Regenerate Cloudflare Worker type definitions           |
-| `bun run db:generate`      | Generate a Drizzle migration from schema changes        |
-| `bun run db:migrate:local` | Apply migrations to the local D1 instance               |
-| `bun run db:migrate`       | Apply migrations to the remote (production) D1 instance |
+| `bun run check`            | TypeScript + Svelte type checking                        |
+| `bun run lint`             | Prettier check + ESLint                                  |
+| `bun run format`           | Auto-format with Prettier                                |
+| `bun run cf-typegen`       | Regenerate Cloudflare Worker type definitions            |
+| `bun run db:generate`      | Generate a Drizzle migration from schema changes         |
+| `bun run db:migrate:local` | Apply migrations to the local D1 instance                |
+| `bun run db:migrate`       | Apply migrations to the remote (production) D1 instance  |
 
 ### Regenerating Cloudflare Types
 
