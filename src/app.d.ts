@@ -44,7 +44,6 @@ declare global {
 
 		interface PageData {
 			user: Locals["user"];
-			session: Locals["session"];
 			currentUser: CurrentUser | null;
 			aiEnabled?: boolean;
 		}
