@@ -98,4 +98,27 @@
 	<p class="text-ink-muted max-w-sm text-center text-sm text-pretty">
 		Sign in with your Google account to get started
 	</p>
+
+	<Cta
+		variant="secondary"
+		href="/"
+		arrow={false}
+		class="min-w-[260px] justify-center py-[15px]"
+	>
+		<span class="inline-flex items-center gap-2.5">
+			<svg
+				class="size-4 transition-transform duration-300 ease-[var(--ease)] group-hover:-translate-x-0.5"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2.25"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"
+			>
+				<path d="M19 12H5M12 19l-7-7 7-7" />
+			</svg>
+			<span>Back to homepage</span>
+		</span>
+	</Cta>
 </div>
