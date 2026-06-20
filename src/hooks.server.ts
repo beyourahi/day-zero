@@ -15,13 +15,16 @@ import { createAuth } from "$lib/server/auth";
 import { users } from "$lib/server/schema";
 import { getCurrentUser } from "$lib/hooks";
 
+// Google One Tap loads the GSI script + renders a FedCM iframe from accounts.google.com,
+// so script-src/style-src/frame-src must allow it. Passkey/WebAuthn needs no CSP change.
 const CSP = [
 	"default-src 'self'",
-	"script-src 'self' 'unsafe-inline'",
-	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+	"script-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/client",
+	"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style",
 	"font-src https://fonts.gstatic.com",
 	"img-src 'self' data: https://lh3.googleusercontent.com",
-	"connect-src 'self'",
+	"connect-src 'self' https://accounts.google.com/gsi/",
+	"frame-src https://accounts.google.com/gsi/",
 	"frame-ancestors 'none'"
 ].join("; ");
 
@@ -30,7 +33,9 @@ const SECURITY_HEADERS = {
 	"X-Content-Type-Options": "nosniff",
 	"X-Frame-Options": "DENY",
 	"Referrer-Policy": "strict-origin-when-cross-origin",
-	"Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+	// `identity-credentials-get` is required for the modern FedCM-based Google One Tap prompt.
+	"Permissions-Policy":
+		'camera=(), microphone=(), geolocation=(), identity-credentials-get=(self "https://accounts.google.com")'
 } as const;
 
 /**

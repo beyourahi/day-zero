@@ -46,7 +46,11 @@
 	"vars": {
 		"BETTER_AUTH_URL": "https://day-zero.dropoutstudio.co",
 		"AI_COPILOT_ENABLED": "true",
-		"AI_MONTHLY_CAP_USD": "1.00"
+		"AI_MONTHLY_CAP_USD": "1.00",
+		// Browser-exposed Google OAuth client id for One Tap (NOT a secret — it appears in
+		// every OAuth redirect). Set the real value here, or via `wrangler secret put
+		// PUBLIC_GOOGLE_CLIENT_ID`. Empty → One Tap stays off; the Google button still works.
+		"PUBLIC_GOOGLE_CLIENT_ID": ""
 	},
 	"observability": {
 		"enabled": true
