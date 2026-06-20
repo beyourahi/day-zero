@@ -100,9 +100,7 @@
 {#if r.isPast}
 	<div class={cn("relative flex", justify)}>
 		<div class={cn(surfaceBase, c.box, "flex flex-col items-center gap-1.5 text-center")}>
-			<span
-				class={cn("block font-mono leading-none font-bold text-foreground lowercase", c.digit)}
-			>
+			<span class={cn("block font-mono leading-none font-bold text-foreground lowercase", c.digit)}>
 				reached
 			</span>
 			<span class={cn(labelBase, c.label, "tabular-nums")}>
@@ -129,7 +127,9 @@
 				<div class={c.group}>
 					<div class={cn(boxBase, c.box)}>
 						{#key seg.value}
-							<span class={cn(digitBase, c.digit, "motion-safe:animate-[countdownTick_0.5s_var(--ease)]")}>
+							<span
+								class={cn(digitBase, c.digit, "motion-safe:animate-[countdownTick_0.5s_var(--ease)]")}
+							>
 								{digit(seg.unit, seg.value)}
 							</span>
 						{/key}
