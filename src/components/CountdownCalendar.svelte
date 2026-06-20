@@ -74,10 +74,10 @@
 
 			<CalendarPrimitive.Grid class="w-full border-collapse">
 				<CalendarPrimitive.GridHead>
-					<CalendarPrimitive.GridRow class="flex">
+					<CalendarPrimitive.GridRow class="flex w-full">
 						{#each weekdays as weekday (weekday)}
 							<CalendarPrimitive.HeadCell
-								class="flex w-(--cell) items-center justify-center pb-1 font-mono text-[10px] tracking-[0.14em] text-ink-muted uppercase"
+								class="flex flex-1 items-center justify-center pb-1 font-mono text-[10px] tracking-[0.14em] text-ink-muted uppercase"
 							>
 								{weekday.slice(0, 2)}
 							</CalendarPrimitive.HeadCell>
@@ -88,7 +88,11 @@
 					{#each month.weeks as weekDates (weekDates)}
 						<CalendarPrimitive.GridRow class="mt-0.5 flex w-full">
 							{#each weekDates as date (date)}
-								<CalendarPrimitive.Cell {date} month={month.value} class="relative p-0 text-center">
+								<CalendarPrimitive.Cell
+									{date}
+									month={month.value}
+									class="relative flex flex-1 items-center justify-center p-0"
+								>
 									<CalendarPrimitive.Day class={dayCell} />
 								</CalendarPrimitive.Cell>
 							{/each}
