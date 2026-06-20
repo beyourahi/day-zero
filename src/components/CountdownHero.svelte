@@ -14,11 +14,14 @@
 	let {
 		countdown,
 		onEdit,
-		onShare
+		onShare,
+		canShare = true
 	}: {
 		countdown: Countdown;
 		onEdit: (c: Countdown) => void;
 		onShare: (id: string) => void;
+		/** Sharing needs a server token — hidden for logged-out (guest) boards. */
+		canShare?: boolean;
 	} = $props();
 </script>
 
@@ -47,12 +50,14 @@
 		>
 			<Pencil size={13} aria-hidden="true" /> Edit
 		</button>
-		<button
-			type="button"
-			class="text-ink-muted pointer-fine:hover:text-foreground inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-micro tracking-[0.16em] uppercase transition-colors"
-			onclick={() => onShare(countdown.id)}
-		>
-			<Share2 size={13} aria-hidden="true" /> Share
-		</button>
+		{#if canShare}
+			<button
+				type="button"
+				class="text-ink-muted pointer-fine:hover:text-foreground inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-micro tracking-[0.16em] uppercase transition-colors"
+				onclick={() => onShare(countdown.id)}
+			>
+				<Share2 size={13} aria-hidden="true" /> Share
+			</button>
+		{/if}
 	</div>
 </div>

@@ -1,4 +1,3 @@
-import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { getDatabase } from "$lib/server/db";
 import { loadAppState } from "$lib/server/repositories/state";
@@ -21,20 +20,18 @@ const emptyAi = (enabled: boolean): AiHydrationPayload => ({
 });
 
 /**
- * Home page load — the only authenticated route. Redirects to /login when
- * unauthenticated, else hydrates both the countdowns store and the AI Copilot
- * store from D1. appState/ai default to empty shells when D1 is absent so the page
- * still renders.
+ * Home page load. Auth is OPTIONAL: logged-out visitors get the full board (it
+ * persists to localStorage client-side). Signing in unlocks server storage +
+ * cross-device sync + shareable links + the AI Copilot. Server data is hydrated
+ * ONLY for an authenticated session; anonymous visitors get empty shells and
+ * re-seed from localStorage on mount. appState/ai also default to empty shells
+ * when D1 is absent so the page still renders.
  *
  * The AI block is skipped entirely when aiEnabled is false. Conversation/message/
  * action timestamps are serialized to ISO strings here because the wire payload
  * must be JSON-safe (Date does not survive load → client).
  */
 export const load: PageServerLoad = async ({ locals, platform }) => {
-	if (!locals.user) {
-		redirect(303, "/login");
-	}
-
 	const d1 = platform?.env?.DB;
 	const aiEnabled = platform?.env?.AI_COPILOT_ENABLED !== "false";
 	let appState: AppState = { countdowns: [] };

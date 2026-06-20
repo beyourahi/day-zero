@@ -30,7 +30,9 @@
 	// Wires cross-route View Transitions; no-ops when unavailable or motion is reduced.
 	onNavigate(handleViewTransition);
 
-	const showCopilot = $derived(data.aiEnabled && page.route.id === "/" && !page.error);
+	// Copilot is a signed-in perk: hidden for guests (paid AI calls + needs the
+	// server). Its /api/ai/* routes stay 401-gated regardless.
+	const showCopilot = $derived(data.aiEnabled && !!data.user && page.route.id === "/" && !page.error);
 </script>
 
 <svelte:head>

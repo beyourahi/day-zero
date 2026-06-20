@@ -8,7 +8,7 @@
 	hydration site (do not add another).
 -->
 <script lang="ts">
-	import { untrack } from "svelte";
+	import { untrack, onMount } from "svelte";
 	import { page } from "$app/state";
 	import { countdowns } from "$lib/stores/countdowns.svelte";
 	import { ai } from "$lib/stores/ai.svelte";
@@ -16,6 +16,7 @@
 	import { Cta } from "$lib/ds";
 	import Heading from "$lib/components/ui/heading/heading.svelte";
 	import User from "$src/components/User.svelte";
+	import SignInButton from "$src/components/SignInButton.svelte";
 	import CountdownHero from "$src/components/CountdownHero.svelte";
 	import CountdownCard from "$src/components/CountdownCard.svelte";
 	import EmptyState from "$src/components/EmptyState.svelte";
@@ -26,12 +27,25 @@
 
 	let { data }: { data: PageData } = $props();
 
-	// INVARIANT: the ONLY store-hydration site. Seeds from server data without
-	// registering it as a reactive dependency of this render.
+	// INVARIANT: the ONLY server-data hydration site. Seeds from server data
+	// without registering it as a reactive dependency of this render. For guests
+	// the server board is empty; the real local board loads in onMount below
+	// (localStorage is browser-only). `authed` routes writes to D1 vs local.
 	untrack(() => {
-		countdowns.hydrate({ countdowns: data.appState.countdowns });
+		countdowns.hydrate({ countdowns: data.appState.countdowns }, { authed: !!data.user });
 		ai.hydrate(data.ai);
 	});
+
+	// Browser-only persistence bridge: authed → import any prior guest board into
+	// the account once; guest → re-seed the board from localStorage.
+	onMount(() => {
+		if (data.user) void countdowns.migrateGuestToServer();
+		else countdowns.loadGuest();
+	});
+
+	// Sharing mints a server token, so it is a signed-in perk; hide the share
+	// control for guests.
+	const canShare = $derived(!!data.user);
 
 	let composerOpen = $state(false);
 	let editing = $state<Countdown | null>(null);
@@ -61,55 +75,59 @@
 
 {#if page.data.user && page.data.currentUser}
 	<User user={page.data.user} currentUser={page.data.currentUser} />
+{:else}
+	<SignInButton />
 {/if}
 
-<main class="mx-auto flex w-full max-w-6xl grow flex-col px-4 pt-20 pb-12 sm:px-6 sm:pt-24">
-	<div class="mb-12 flex flex-col items-center gap-8 sm:mb-16" use:reveal>
-		<Heading />
-		{#if !isEmpty}
-			<Cta variant="primary" arrow={false} dot onclick={openNew}>new countdown</Cta>
+<main class="flex w-full grow flex-col px-[var(--content-x)] py-16 sm:py-20">
+	<div class="m-auto flex w-full flex-col gap-12 sm:gap-20">
+		<div class="flex flex-col items-center gap-8" use:reveal>
+			<Heading />
+			{#if !isEmpty}
+				<Cta variant="primary" arrow={false} dot onclick={openNew}>new countdown</Cta>
+			{/if}
+		</div>
+
+		{#if isEmpty}
+			<EmptyState onNew={openNew} />
+		{:else}
+			{#if countdowns.hero}
+				<section use:reveal={{ distance: "sm" }}>
+					<CountdownHero countdown={countdowns.hero} onEdit={openEdit} onShare={openShare} {canShare} />
+				</section>
+			{/if}
+
+			{#if gridItems.length}
+				<section class="space-y-6" use:reveal={{ distance: "sm", onScroll: true }}>
+					<div class="flex items-center gap-3">
+						<span class="text-ink-muted font-mono text-micro tracking-[0.24em] uppercase">Upcoming</span>
+						<span class="bg-hair h-px grow" aria-hidden="true"></span>
+						<span class="text-ink-muted font-mono text-micro tabular-nums">{gridItems.length}</span>
+					</div>
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{#each gridItems as c (c.id)}
+							<CountdownCard countdown={c} onEdit={openEdit} onShare={openShare} {canShare} />
+						{/each}
+					</div>
+				</section>
+			{/if}
+
+			{#if countdowns.past.length}
+				<section class="space-y-6" use:reveal={{ distance: "sm", onScroll: true }}>
+					<div class="flex items-center gap-3">
+						<span class="text-ink-muted font-mono text-micro tracking-[0.24em] uppercase">Reached</span>
+						<span class="bg-hair h-px grow" aria-hidden="true"></span>
+						<span class="text-ink-muted font-mono text-micro tabular-nums">{countdowns.past.length}</span>
+					</div>
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{#each countdowns.past as c (c.id)}
+							<CountdownCard countdown={c} onEdit={openEdit} onShare={openShare} {canShare} />
+						{/each}
+					</div>
+				</section>
+			{/if}
 		{/if}
 	</div>
-
-	{#if isEmpty}
-		<EmptyState onNew={openNew} />
-	{:else}
-		{#if countdowns.hero}
-			<section class="mb-16 sm:mb-24" use:reveal={{ distance: "sm" }}>
-				<CountdownHero countdown={countdowns.hero} onEdit={openEdit} onShare={openShare} />
-			</section>
-		{/if}
-
-		{#if gridItems.length}
-			<section class="mb-16 space-y-6 sm:mb-20" use:reveal={{ distance: "sm", onScroll: true }}>
-				<div class="flex items-center gap-3">
-					<span class="text-ink-muted font-mono text-micro tracking-[0.24em] uppercase">Upcoming</span>
-					<span class="bg-hair h-px grow" aria-hidden="true"></span>
-					<span class="text-ink-muted font-mono text-micro tabular-nums">{gridItems.length}</span>
-				</div>
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{#each gridItems as c (c.id)}
-						<CountdownCard countdown={c} onEdit={openEdit} onShare={openShare} />
-					{/each}
-				</div>
-			</section>
-		{/if}
-
-		{#if countdowns.past.length}
-			<section class="space-y-6" use:reveal={{ distance: "sm", onScroll: true }}>
-				<div class="flex items-center gap-3">
-					<span class="text-ink-muted font-mono text-micro tracking-[0.24em] uppercase">Reached</span>
-					<span class="bg-hair h-px grow" aria-hidden="true"></span>
-					<span class="text-ink-muted font-mono text-micro tabular-nums">{countdowns.past.length}</span>
-				</div>
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{#each countdowns.past as c (c.id)}
-						<CountdownCard countdown={c} onEdit={openEdit} onShare={openShare} />
-					{/each}
-				</div>
-			</section>
-		{/if}
-	{/if}
 </main>
 
 <CountdownComposerDialog bind:open={composerOpen} {editing} {onSave} />

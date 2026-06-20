@@ -14,7 +14,11 @@
  */
 import type { Countdown, CountdownInput, CountdownPatch } from "$lib/types";
 import { api, debounceSync, sync } from "$lib/api/client";
+import { readLocal, writeLocal, clearLocal } from "$lib/persistence/local";
 import { clock } from "./clock.svelte";
+
+// Versioned localStorage key holding the logged-out user's board.
+const GUEST_KEY = "day-zero:guest:v1";
 
 const TEXT_DEBOUNCE_MS = 400;
 const TEXT_KEYS = new Set<keyof CountdownPatch>(["title"]);
@@ -36,20 +40,82 @@ const ms = (iso: string): number => Date.parse(iso);
 
 const createCountdownsStore = () => {
 	let countdowns = $state<Countdown[]>([]);
+	// Set once at hydration. Authed → mutations persist to D1 (cross-device).
+	// Guest → mutations persist to localStorage on this device only, and creates
+	// mint their own ids/positions client-side (no server round-trip).
+	let authed = false;
 
-	const hydrate = (initial: { countdowns: Countdown[] }) => {
+	const saveLocal = () => writeLocal(GUEST_KEY, countdowns);
+
+	const hydrate = (initial: { countdowns: Countdown[] }, opts?: { authed?: boolean }) => {
 		countdowns = initial.countdowns;
+		authed = opts?.authed ?? false;
+	};
+
+	// Browser-only: re-seed the guest board from localStorage after mount (SSR
+	// can't read it). Called from +page.svelte's onMount when there's no session.
+	// Additive over the empty server state — does not re-run server hydration, so
+	// the single-untrack-site invariant for authed data stays intact.
+	const loadGuest = () => {
+		const guest = readLocal<Countdown[]>(GUEST_KEY);
+		if (guest && guest.length > 0) countdowns = guest;
+	};
+
+	// Browser-only: on first authed load, recreate any guest countdowns in the
+	// account (append), reflect them on the board, then drop the guest key. Kept
+	// for retry if any create fails — only cleared once every item imported.
+	const migrateGuestToServer = async () => {
+		const guest = readLocal<Countdown[]>(GUEST_KEY);
+		if (!guest || guest.length === 0) {
+			clearLocal(GUEST_KEY);
+			return;
+		}
+		const ordered = [...guest].sort((a, b) => a.position - b.position);
+		const created: Countdown[] = [];
+		for (const g of ordered) {
+			const c = await sync(() =>
+				api.post<Countdown>("/api/countdowns", {
+					title: g.title,
+					targetAt: g.targetAt,
+					hasTime: g.hasTime
+				})
+			);
+			if (c) created.push(c);
+		}
+		if (created.length > 0) countdowns = [...countdowns, ...created];
+		if (created.length === ordered.length) clearLocal(GUEST_KEY);
 	};
 
 	const add = async (input: CountdownInput): Promise<Countdown | null> => {
-		const created = await sync(() => api.post<Countdown>("/api/countdowns", input));
-		if (!created) return null;
+		if (authed) {
+			const created = await sync(() => api.post<Countdown>("/api/countdowns", input));
+			if (!created) return null;
+			countdowns = [...countdowns, created];
+			return created;
+		}
+		// Guest: build the entity locally (server would assign these when authed).
+		const maxPos = countdowns.reduce((m, c) => Math.max(m, c.position), -1);
+		const created: Countdown = {
+			id: crypto.randomUUID(),
+			title: input.title,
+			targetAt: input.targetAt,
+			hasTime: input.hasTime ?? false,
+			archived: false,
+			shareToken: null,
+			position: maxPos + 1,
+			createdAt: new Date().toISOString()
+		};
 		countdowns = [...countdowns, created];
+		saveLocal();
 		return created;
 	};
 
 	const update = (id: string, patch: CountdownPatch) => {
 		countdowns = countdowns.map((c) => (c.id === id ? applyPatch(c, patch) : c));
+		if (!authed) {
+			saveLocal();
+			return;
+		}
 		const send = () => api.patch<void>(`/api/countdowns/${id}`, patch);
 		if (isTextOnlyPatch(patch)) {
 			debounceSync(`cd:${id}`, TEXT_DEBOUNCE_MS, send);
@@ -62,6 +128,10 @@ const createCountdownsStore = () => {
 
 	const remove = (id: string) => {
 		countdowns = countdowns.filter((c) => c.id !== id);
+		if (!authed) {
+			saveLocal();
+			return;
+		}
 		void sync(() => api.delete<void>(`/api/countdowns/${id}`));
 	};
 
@@ -78,12 +148,19 @@ const createCountdownsStore = () => {
 			if (!orderedIds.includes(c.id)) next.push(c);
 		}
 		countdowns = next;
+		if (!authed) {
+			saveLocal();
+			return;
+		}
 		void sync(() => api.put<void>("/api/countdowns", { orderedIds }));
 	};
 
 	// Returns the share token (or null when disabled). On enable failure the local
-	// state is left unchanged; disable is applied optimistically.
+	// state is left unchanged; disable is applied optimistically. Sharing requires
+	// a server-minted token, so it is a login-only perk — a no-op for guests (the
+	// share UI is hidden when logged out).
 	const setShare = async (id: string, enabled: boolean): Promise<string | null> => {
+		if (!authed) return null;
 		if (enabled) {
 			const res = await sync(() =>
 				api.post<{ shareToken: string; url: string }>(`/api/countdowns/${id}/share`)
@@ -144,6 +221,8 @@ const createCountdownsStore = () => {
 			return hero;
 		},
 		hydrate,
+		loadGuest,
+		migrateGuestToServer,
 		add,
 		update,
 		setArchived,

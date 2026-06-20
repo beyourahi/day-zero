@@ -17,11 +17,14 @@
 	let {
 		countdown,
 		onEdit,
-		onShare
+		onShare,
+		canShare = true
 	}: {
 		countdown: Countdown;
 		onEdit: (c: Countdown) => void;
 		onShare: (id: string) => void;
+		/** Sharing needs a server token — hidden for logged-out (guest) boards. */
+		canShare?: boolean;
 	} = $props();
 
 	const isPast = $derived(remaining(Date.parse(countdown.targetAt), clock.now, countdown.hasTime).isPast);
@@ -67,14 +70,16 @@
 			<button type="button" class={actionBtn} aria-label="Edit" onclick={() => onEdit(countdown)}>
 				<Pencil size={15} aria-hidden="true" />
 			</button>
-			<button
-				type="button"
-				class={cn(actionBtn, countdown.shareToken && "text-signal pointer-fine:hover:text-signal")}
-				aria-label={countdown.shareToken ? "Shared — manage link" : "Share"}
-				onclick={() => onShare(countdown.id)}
-			>
-				<Share2 size={15} aria-hidden="true" />
-			</button>
+			{#if canShare}
+				<button
+					type="button"
+					class={cn(actionBtn, countdown.shareToken && "text-signal pointer-fine:hover:text-signal")}
+					aria-label={countdown.shareToken ? "Shared — manage link" : "Share"}
+					onclick={() => onShare(countdown.id)}
+				>
+					<Share2 size={15} aria-hidden="true" />
+				</button>
+			{/if}
 			<button
 				type="button"
 				class={actionBtn}
