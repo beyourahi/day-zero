@@ -7,6 +7,7 @@
 	import { authClient } from "$lib/auth-client";
 	import { goto } from "$app/navigation";
 	import { cn } from "$lib/utils";
+	import { ai } from "$lib/stores/ai.svelte";
 	import * as Dialog from "$lib/components/ui/dialog";
 	import * as Tooltip from "$lib/components/ui/tooltip";
 	import { Eyebrow } from "$lib/ds";
@@ -27,6 +28,10 @@
 	let isLoggingOut = $state(false);
 	let expanded = $state(false);
 	let mobileOpen = $state(false);
+
+	// Closed: profile sits flush with the content's right edge (--content-x). Open:
+	// shifts left to clear the copilot rail. Only the desktop rail reserves space.
+	const copilotOpen = $derived(ai.desktopOpen);
 
 	const handleLogout = async () => {
 		isLoggingOut = true;
@@ -70,7 +75,12 @@
 {/snippet}
 
 <div
-	class="fixed top-4 right-4 z-50 sm:top-6 sm:right-6 lg:right-[calc(var(--copilot-rail-width)+1.5rem)] xl:right-[calc(var(--copilot-rail-width-xl)+1.5rem)]"
+	class={cn(
+		"fixed top-4 right-4 z-50 transition-[right] duration-300 ease-[var(--ease)] motion-reduce:transition-none sm:top-6 sm:right-6",
+		copilotOpen
+			? "lg:right-[calc(var(--copilot-rail-width)+1.5rem)] xl:right-[calc(var(--copilot-rail-width-xl)+1.5rem)]"
+			: "lg:right-[var(--content-x)]"
+	)}
 >
 	<div class="sm:hidden">
 		<Dialog.Root bind:open={mobileOpen}>

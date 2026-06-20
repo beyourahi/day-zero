@@ -91,6 +91,13 @@
 	/* Copilot right-rail sizing (CLAUDE.md #21 — change tokens, never the calc()s) */
 	--copilot-rail-width: 26rem;
 	--copilot-rail-width-xl: 28rem;
+
+	/* Content shell — caps the main column on large screens and centers it with
+	   growing gutters. Reused as px-[var(--content-x)] on content wrappers AND as
+	   the closed-state right offset of the fixed user profile, so they stay aligned. */
+	--content-max: 1152px;
+	--content-pad: clamp(1rem, 4vw, 2rem);
+	--content-x: max(var(--content-pad), calc((100% - var(--content-max)) / 2));
 }
 
 @theme inline {
