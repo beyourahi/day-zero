@@ -7,7 +7,7 @@ import type { AppConfig } from "$lib/types";
 export const APP_CONFIG: AppConfig = {
 	name: "Day Zero",
 	description: "Track every goal as a live countdown — many milestones, one clean board, no ads.",
-	url: "https://day-zero.beyourahi.workers.dev",
+	url: "https://day-zero.dropoutstudio.co",
 	author: {
 		name: "Dropout Studio",
 		url: "https://dropoutstudio.co"
@@ -15,11 +15,11 @@ export const APP_CONFIG: AppConfig = {
 	siblings: [
 		{
 			name: "Order Processor",
-			url: "https://order-processor.beyourahi.workers.dev"
+			url: "https://order-processor.dropoutstudio.co"
 		},
 		{
 			name: "Invoice Generator",
-			url: "https://invoice-generator.beyourahi.workers.dev"
+			url: "https://invoice-generator.dropoutstudio.co"
 		}
 	]
 };

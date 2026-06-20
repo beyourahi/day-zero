@@ -7,7 +7,7 @@
  * and AI tables cascade-delete from users.id, so removing a user purges their data.
  */
 import { relations } from "drizzle-orm";
-import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, blob, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
 	id: text("id").primaryKey(),
@@ -17,6 +17,18 @@ export const users = sqliteTable("users", {
 	image: text("image"),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull()
+});
+
+// Per-user BYO-Cloudflare settings for the Copilot. The user's account-scoped API
+// token is stored AES-GCM encrypted (see $lib/server/crypto.ts); account id + chosen
+// model are plain. Cascade-deletes with the user. One row per user (userId PK).
+export const userSettings = sqliteTable("user_settings", {
+	userId: text("user_id")
+		.primaryKey()
+		.references(() => users.id, { onDelete: "cascade" }),
+	cloudflareTokenEncrypted: blob("cloudflare_token_encrypted"),
+	cloudflareAccountId: text("cloudflare_account_id"),
+	cloudflareModel: text("cloudflare_model")
 });
 
 export const sessions = sqliteTable(
@@ -198,10 +210,15 @@ export const aiActions = sqliteTable(
 	]
 );
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
 	countdowns: many(countdowns),
 	aiConversations: many(aiConversations),
-	aiActions: many(aiActions)
+	aiActions: many(aiActions),
+	settings: one(userSettings, { fields: [users.id], references: [userSettings.userId] })
+}));
+
+export const userSettingsRelations = relations(userSettings, ({ one }) => ({
+	user: one(users, { fields: [userSettings.userId], references: [users.id] })
 }));
 
 export const countdownsRelations = relations(countdowns, ({ one }) => ({

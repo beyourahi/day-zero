@@ -29,13 +29,17 @@ declare global {
 				BETTER_AUTH_URL: string;
 				GOOGLE_CLIENT_ID: string;
 				GOOGLE_CLIENT_SECRET: string;
-				// AI Copilot bindings. AI is the Workers AI binding (called directly — no
-				// AI Gateway, no RAG/VECTORIZE). AI_QUOTA_KV is optional (quota/spend cap
-				// degrade gracefully when absent). AI_COPILOT_ENABLED="false" disables the feature.
+				// AI Copilot — BYO Cloudflare. Inference runs on the USER's own account over
+				// the Workers AI REST API (billed to them), NOT this bound AI binding; AI is
+				// retained for typing/compat only. AI_QUOTA_KV is optional (quota/spend cap +
+				// cf-models cache) and degrades gracefully. AI_COPILOT_ENABLED="false" disables
+				// the feature. TOKEN_ENCRYPTION_KEY (base64 32 bytes) encrypts the user's stored
+				// Cloudflare API token at rest (see $lib/server/crypto.ts).
 				AI?: Ai;
 				AI_QUOTA_KV?: KVNamespace;
 				AI_COPILOT_ENABLED?: string;
 				AI_MONTHLY_CAP_USD?: string;
+				TOKEN_ENCRYPTION_KEY?: string;
 				E2E_BYPASS_AUTH?: string;
 			};
 			cf: CfProperties;

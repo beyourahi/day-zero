@@ -6,6 +6,11 @@
 	// nodejs_compat is required: better-auth and parts of the AI layer rely on Node built-ins.
 	"compatibility_flags": ["nodejs_compat"],
 	"compatibility_date": "2025-05-29",
+	// Served ONLY on the branded custom domain — disable the *.workers.dev URL and per-PR
+	// preview URLs so the app has exactly one canonical origin (matters for OAuth/CSRF).
+	"workers_dev": false,
+	"preview_urls": false,
+	"routes": [{ "pattern": "day-zero.dropoutstudio.co", "custom_domain": true }],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
@@ -39,7 +44,7 @@
 	// are set via `wrangler secret put`. AI_COPILOT_ENABLED="false" disables the Copilot.
 	// The Copilot calls the Workers AI binding (AI) directly — no AI Gateway slug needed.
 	"vars": {
-		"BETTER_AUTH_URL": "https://day-zero.beyourahi.workers.dev",
+		"BETTER_AUTH_URL": "https://day-zero.dropoutstudio.co",
 		"AI_COPILOT_ENABLED": "true",
 		"AI_MONTHLY_CAP_USD": "1.00"
 	},

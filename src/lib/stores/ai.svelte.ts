@@ -86,6 +86,9 @@ const createAiStore = () => {
 	let streaming = $state(false);
 	let inputBusy = $state(false);
 	let error = $state<string | null>(null);
+	// Set when the chat endpoint returns 412 (no Cloudflare account connected). The UI
+	// shows a "Connect your Cloudflare account in Settings →" CTA instead of an error.
+	let connectRequired = $state(false);
 	let mobileOpen = $state(false);
 	let desktopOpen = $state(false);
 	let inputFocusNonce = $state(0);
@@ -144,6 +147,10 @@ const createAiStore = () => {
 
 	const setError = (msg: string | null) => {
 		error = msg;
+	};
+
+	const setConnectRequired = (v: boolean) => {
+		connectRequired = v;
 	};
 
 	// Streaming and input-busy are tied together: an in-flight turn locks the composer.
@@ -256,6 +263,10 @@ const createAiStore = () => {
 		messages = list;
 	};
 
+	const dropMessage = (id: string) => {
+		messages = messages.filter((m) => m.id !== id);
+	};
+
 	const clearMessages = () => {
 		messages = [];
 	};
@@ -342,6 +353,9 @@ const createAiStore = () => {
 		get error() {
 			return error;
 		},
+		get connectRequired() {
+			return connectRequired;
+		},
 		get mobileOpen() {
 			return mobileOpen;
 		},
@@ -362,6 +376,7 @@ const createAiStore = () => {
 		closeRail,
 		setShowUndone,
 		setError,
+		setConnectRequired,
 		setStreaming,
 		appendUserMessage,
 		startAssistantMessage,
@@ -376,6 +391,7 @@ const createAiStore = () => {
 		replaceConversations,
 		removeConversation,
 		replaceMessages,
+		dropMessage,
 		clearMessages,
 		pushHistoryAction,
 		replaceHistoryActions,

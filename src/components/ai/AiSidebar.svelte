@@ -11,6 +11,7 @@
 	import AiMessageList from "./AiMessageList.svelte";
 	import AiComposer from "./AiComposer.svelte";
 	import AiConversationsPanel from "./AiConversationsPanel.svelte";
+	import { ArrowRight } from "@lucide/svelte";
 	import { cn } from "$lib/utils";
 
 	let {
@@ -81,7 +82,24 @@
 		<AiMessageList messages={ai.messages} isStreaming={ai.inputBusy} />
 	{/if}
 
-	{#if ai.error}
+	{#if ai.connectRequired}
+		<div
+			role="alert"
+			class="border-chat-border-subtle mx-3 mb-1 flex flex-col gap-2 rounded-xl border border-solid px-3.5 py-3 md:mx-4"
+		>
+			<p class="text-chat-text-primary text-xs leading-relaxed text-pretty">
+				Connect your Cloudflare account to use the copilot — inference runs on (and is billed to) your own
+				account.
+			</p>
+			<a
+				href="/settings"
+				class="text-signal focus-visible:outline-signal inline-flex w-fit items-center gap-1 font-mono text-[11px] tracking-[0.08em] uppercase transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2"
+			>
+				Connect in Settings
+				<ArrowRight size={12} aria-hidden="true" />
+			</a>
+		</div>
+	{:else if ai.error}
 		<div role="alert" class="text-destructive px-4 py-2 text-center text-xs text-pretty">
 			{ai.error}
 		</div>

@@ -26,6 +26,8 @@ import {
 	FEW_SHOTS
 } from "$lib/ai/prompts";
 import { runChatFrames, type RawChatResult } from "$lib/ai/client";
+import { loadCloudflareConfig, resolveCloudflareCreds } from "$lib/server/ai/cloudflare-config";
+import type { CloudflareCreds } from "$lib/server/ai/run-rest";
 import { salvageTextToolCalls } from "$lib/ai/salvage";
 import { sseStream } from "$lib/ai/streaming";
 import { windowHistory } from "$lib/ai/window";
@@ -132,11 +134,9 @@ export const POST: RequestHandler = async (event) => {
 	const start = Date.now();
 	const { db, userId } = requireApiContext(event);
 	const env = event.platform?.env;
-	if (!env?.AI) {
-		throw error(503, "AI binding not available");
+	if (!env) {
+		throw error(503, "Platform unavailable");
 	}
-	// Capture the (now non-undefined) binding so it stays narrowed inside the SSE closure.
-	const aiBinding = env.AI;
 
 	let parsed: z.infer<typeof bodySchema>;
 	try {
@@ -144,6 +144,28 @@ export const POST: RequestHandler = async (event) => {
 	} catch (err) {
 		throw error(400, err instanceof Error ? err.message : "Invalid request body");
 	}
+
+	// BYO gate: inference runs on the USER's own Cloudflare account (REST), billed to
+	// them — NOT the owner's bound env.AI. Resolve their stored creds + model; if not
+	// connected, 412 with a pointer to Settings so the UI shows the connect CTA.
+	const encryptionKey = env.TOKEN_ENCRYPTION_KEY;
+	const resolved = encryptionKey
+		? await resolveCloudflareCreds(encryptionKey, await loadCloudflareConfig(db, userId)).catch(
+				() => null
+			)
+		: null;
+	if (!resolved) {
+		return json(
+			{
+				code: "cloudflare_not_connected",
+				error: "Connect your Cloudflare account in Settings to use the copilot.",
+				connect: "/settings"
+			},
+			{ status: 412 }
+		);
+	}
+	const creds: CloudflareCreds = resolved.creds;
+	const model = resolved.model;
 
 	const quota = await checkAndIncrementQuota(env.AI_QUOTA_KV, userId);
 	if (!quota.allowed) {
@@ -225,16 +247,15 @@ export const POST: RequestHandler = async (event) => {
 			// Buffer the first turn (no live text stream) so we can inspect it for a
 			// false action narration before anything reaches the user.
 			const first = await consume(
-				runChatFrames(
-					{ AI: aiBinding },
-					{
-						systemContext,
-						history: withFewShots,
-						userMessage: userTurn,
-						conversationId: activeConversationId,
-						tools: TOOLS_CATALOG
-					}
-				),
+				runChatFrames({
+					creds,
+					model,
+					systemContext,
+					history: withFewShots,
+					userMessage: userTurn,
+					conversationId: activeConversationId,
+					tools: TOOLS_CATALOG
+				}),
 				false
 			);
 			inputTokens += first.inputTokens;
@@ -281,16 +302,15 @@ export const POST: RequestHandler = async (event) => {
 					}
 				];
 				const retry = await consume(
-					runChatFrames(
-						{ AI: aiBinding },
-						{
-							systemContext,
-							history: retryHistory,
-							userMessage: invalid.length > 0 ? correctiveMessage(invalid) : ACTION_RETRY_MESSAGE,
-							conversationId: activeConversationId,
-							tools: TOOLS_CATALOG
-						}
-					),
+					runChatFrames({
+						creds,
+						model,
+						systemContext,
+						history: retryHistory,
+						userMessage: invalid.length > 0 ? correctiveMessage(invalid) : ACTION_RETRY_MESSAGE,
+						conversationId: activeConversationId,
+						tools: TOOLS_CATALOG
+					}),
 					false
 				);
 				inputTokens += retry.inputTokens;

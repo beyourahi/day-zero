@@ -13,6 +13,16 @@ const config = {
 			// ($lib → src/lib/ is SvelteKit's default and intentionally not redeclared here.)
 			$src: "src"
 		},
+		// CSRF: allow cross-origin form POSTs from the dev/preview ports and the branded
+		// production origin. The same-origin request always passes; these cover Vite dev
+		// (5173), Wrangler preview (8787), and the custom domain.
+		csrf: {
+			trustedOrigins: [
+				"http://localhost:5173",
+				"http://localhost:8787",
+				"https://day-zero.dropoutstudio.co"
+			]
+		},
 		adapter: adapter({
 			platformProxy: {
 				configPath: "wrangler.jsonc"

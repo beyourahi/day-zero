@@ -70,6 +70,7 @@ export const sendMessage = async (message: string, options: SendOptions = {}): P
 	const assistantId = crypto.randomUUID();
 	ai.startAssistantMessage(assistantId);
 	ai.setError(null);
+	ai.setConnectRequired(false);
 	ai.setStreaming(true);
 
 	const collectedToolCalls: ParsedToolCall[] = [];
@@ -89,6 +90,14 @@ export const sendMessage = async (message: string, options: SendOptions = {}): P
 				payload = await response.json();
 			} catch {
 				// Non-JSON error body (e.g. plain text or empty); fall back to status message below.
+			}
+			// 412 = no Cloudflare account connected. Surface a connect-CTA banner instead of
+			// a generic error, and drop the empty assistant placeholder we optimistically added.
+			if (response.status === 412) {
+				ai.dropMessage(assistantId);
+				ai.setConnectRequired(true);
+				ai.setStreaming(false);
+				return;
 			}
 			const raw =
 				(payload as { message?: string } | null)?.message ?? `Request failed (${response.status})`;

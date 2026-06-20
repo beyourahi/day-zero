@@ -1,24 +1,24 @@
 /**
- * Server-side driver for one chat turn against the Workers AI binding DIRECTLY
- * (no AI Gateway dynamic route). It builds an OpenAI-style request (system +
- * windowed history + user turn + tool definitions), calls `env.AI.run(MODEL, …)`
- * once (non-streaming), and yields the buffered result as `Frame`s so the SSE
- * UI upstream is unchanged. Runs on the Worker, not the browser.
+ * Server-side driver for one chat turn against the user's OWN Cloudflare account
+ * over the Workers AI REST API (BYO — billed to them, NOT the owner's bound
+ * `env.AI`). It builds an OpenAI-style request (system + windowed history + user
+ * turn + tool definitions), calls `runChatViaRest(creds, model, …)` once
+ * (non-streaming), and yields the buffered result as `Frame`s so the SSE UI
+ * upstream is unchanged. Runs on the Worker, not the browser.
  *
- * MODEL: a function-calling-capable Llama. The response is read as
+ * The model is the user's selected one (or DEFAULT_MODEL). The response is read as
  * `{ response: string, tool_calls?: [{ name, arguments }], usage?: {...} }`.
  */
 
 import type { Frame, ParsedToolCall, ToolCatalogEntry } from "./types";
+import { runChatViaRest, type ChatRestInput, type CloudflareCreds } from "$lib/server/ai/run-rest";
 
-/** Function-calling capable Workers AI model. */
-export const MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast" as const;
-
-export interface RunChatEnv {
-	AI: Ai;
-}
+/** Re-export the default model id so callers fall back to it consistently. */
+export { DEFAULT_MODEL as MODEL } from "$lib/server/ai/run-rest";
 
 export interface RunChatParams {
+	creds: CloudflareCreds;
+	model: string;
 	systemContext: string;
 	history: Array<{ role: "user" | "assistant" | "system"; content: string }>;
 	userMessage: string;
@@ -89,7 +89,6 @@ const normalizeToolCall = (raw: AiToolCallRaw): ParsedToolCall | null => {
  * frame, then the partial result is returned.
  */
 export const runChatFrames = async function* (
-	env: RunChatEnv,
 	params: RunChatParams
 ): AsyncGenerator<Frame, RawChatResult> {
 	const messages = [
@@ -98,7 +97,7 @@ export const runChatFrames = async function* (
 		{ role: "user", content: params.userMessage }
 	];
 
-	const input: Record<string, unknown> = {
+	const input: ChatRestInput = {
 		messages,
 		max_tokens: params.maxTokens ?? 1536,
 		temperature: 0.2
@@ -111,7 +110,8 @@ export const runChatFrames = async function* (
 
 	let raw: AiRunResult;
 	try {
-		raw = (await env.AI.run(MODEL, input as never)) as AiRunResult;
+		// Inference on the USER's account (REST), not the bound env.AI.
+		raw = (await runChatViaRest(params.creds, params.model, input)) as AiRunResult;
 	} catch (err) {
 		yield { t: "error", message: err instanceof Error ? err.message : "Model invocation failed" };
 		return result;

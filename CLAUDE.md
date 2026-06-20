@@ -14,9 +14,9 @@ Guidance for Claude Code working in this repository.
 
 **Day Zero** — a goal/milestone **countdown tracker** (a Dropout Studio free/public tool, sibling to `order-processor` and `invoice-generator`). A user creates countdowns toward a target date for a goal, makes many, and sees them all at once on one board: the soonest upcoming goal is promoted to an oversized **hero**, the rest fill a responsive grid, and reached goals collapse into a quieter section. Any countdown can be shared via a read-only public link (`/s/[token]`). An AI copilot manages countdowns in natural language. **No ads.**
 
-**Stack**: SvelteKit 2 + Svelte 5 runes · TypeScript strict · Tailwind v4 (CSS-first; tokens from `@dropout/ds`, vendored) + shadcn-svelte · Better Auth (Google OAuth only) · Cloudflare D1 + Drizzle · Cloudflare Workers AI (copilot, direct binding) · GSAP · Bun. Dark-only (`app.html` hardcodes `<html class="dark">`).
+**Stack**: SvelteKit 2 + Svelte 5 runes · TypeScript strict · Tailwind v4 (CSS-first; tokens from `@dropout/ds`, vendored) + shadcn-svelte · Better Auth (Google OAuth only) · Cloudflare D1 + Drizzle · Cloudflare Workers AI (copilot, **BYO** per-user via REST) · GSAP · Bun. Dark-only (`app.html` hardcodes `<html class="dark">`).
 
-**Auth-gated**: the board (`/`) is the only authenticated route — its `+page.server.ts` redirects to `/login` when there's no session. There's no global guard (none in `hooks.server.ts`/`+layout.server.ts`), so every other route (`/login`, `/changelog`, the public `/s/[token]` share page) is unguarded by design — new routes are public by default. Any Google-authenticated user gets full access; all data is scoped to `userId` in D1.
+**Auth is optional, not a wall**: logged-out visitors get the **full board**, persisted to `localStorage` (`day-zero:guest:v1`); signing in unlocks server storage, cross-device sync, shareable links, and the AI Copilot. The board (`/`) no longer redirects — only `/settings` redirects to `/login` when signed out. No global guard (none in `hooks.server.ts`/`+layout.server.ts`); routes are public by default, but `/api/*` mutations and `/api/ai/*` stay 401-gated. Authed data is scoped to `userId` in D1; guest data lives only in the browser and is migrated into the account on first sign-in (`countdowns.migrateGuestToServer`).
 
 ---
 
@@ -50,39 +50,39 @@ The frontend runs on the **Dropout Design System**, **vendored** at `src/lib/ds/
 
 ### Domain
 
-- `src/lib/types.ts` — `Countdown` ({ id, title, `targetAt` (ISO UTC string), hasTime, note, archived, shareToken, position, createdAt }), `CountdownInput`, `CountdownPatch`, `PublicCountdown`. **No per-countdown color** (DS allows one accent) — differentiation is typographic.
-- `src/lib/server/schema.ts` — Drizzle: Better Auth tables + `countdowns` + AI tables (`ai_conversations`, `ai_messages`, `ai_actions`). Snake_case columns (Better Auth adapter invariant). `share_token` is unique & nullable.
-- `src/lib/server/repositories/countdowns.ts` — `listByUser`, `create`, `update`, `remove`, `reorder`, `setShare`, and the one cross-user read `getByShareToken` (returns only the safe public projection — never owner/ids).
-- `src/lib/server/{api,db,auth,dto,validation}.ts` — `requireApiContext`/`parseJson`/`ok`, Drizzle factory, Better Auth factory, row→domain mappers, Zod request schemas.
+- `src/lib/types.ts` — `Countdown` ({ id, title, `targetAt` (ISO UTC string), hasTime, archived, shareToken, position, createdAt }), `CountdownInput`, `CountdownPatch`, `PublicCountdown`, `AppConfig`. **No per-countdown color** and **no `note`** (both dropped) — differentiation is typographic.
+- `src/lib/server/schema.ts` — Drizzle: Better Auth tables + `countdowns` + `user_settings` (per-user BYO-Cloudflare creds; AES-GCM-encrypted token blob) + AI tables (`ai_conversations`, `ai_messages`, `ai_actions`). Snake_case columns (Better Auth adapter invariant). `share_token` is unique & nullable.
+- `src/lib/server/repositories/countdowns.ts` — `listByUser`, `create`, `update`, `remove`, `reorder`, `setShare`, and the one cross-user read `getByShareToken` (returns only the safe public projection — never owner/ids). `repositories/state.ts` exposes `loadAppState` (the `+page.server.ts`/chat board projection).
+- `src/lib/server/{api,db,auth,dto,validation}.ts` — `requireApiContext`/`parseJson`/`ok`, Drizzle factory, Better Auth factory, row→domain mappers, Zod request schemas. `server/crypto.ts` (WebCrypto AES-GCM for the token at rest) + `server/ai/{cloudflare-config,run-rest,errors}.ts` back the BYO Copilot.
 - REST: `src/routes/api/countdowns/{+server (GET/POST/PUT-reorder), [id]/+server (PATCH/DELETE), [id]/share/+server (POST/DELETE)}`.
 
 ### Stores (factory-closure runes singletons)
 
 - `src/lib/stores/clock.svelte.ts` — **single shared 1Hz ticker** (`clock.now`). Every card derives remaining time from it; never one interval per card.
-- `src/lib/stores/countdowns.svelte.ts` — board state synced to D1. Text edits (title/note) debounced; structural changes immediate. Derived partitions `upcoming`/`past`/`hero` read `clock.now` so the board re-partitions the instant a countdown crosses zero. `aiInject`/`aiRemove` are local-only mutators the copilot uses to reflect its API writes.
+- `src/lib/stores/countdowns.svelte.ts` — board state. An `authed` flag (set at hydrate) routes writes: authed → D1 (title edits debounced, structural changes immediate); guest → `localStorage` synchronously (creates mint their own id/position client-side). `loadGuest`/`migrateGuestToServer` bridge the two. Derived partitions `upcoming`/`past`/`hero` read `clock.now` so the board re-partitions the instant a countdown crosses zero. `aiInject`/`aiRemove` are local-only mutators the copilot uses to reflect its API writes.
 - `src/lib/stores/ai.svelte.ts` — copilot state (conversations, messages, confirm queue, undo).
 
 ### UI
 
-- `src/routes/+page.svelte` — the board. Single `untrack()` hydration site (`countdowns.hydrate` + `ai.hydrate`). Hero + grid + past sections; `use:reveal` entrance motion.
-- `src/components/` (app components, imported via `$src/components/*`) — `CountdownDisplay` (the shared digits unit; hero/card/share sizes; reads the clock), `CountdownHero`, `CountdownCard`, `CountdownComposerDialog` (create/edit; native date/time → absolute UTC ISO), `ShareDialog`, `SectionEyebrow`, `EmptyState`, `User`, `ai/*` (copilot UI). shadcn-svelte primitives live separately in `$lib/components/ui/*` (auto-generated — don't hand-edit).
-- `src/routes/changelog/+page.svelte` — public, static changelog page; entries sourced from `src/lib/data/changelog.ts`.
-- `src/lib/countdown/format.ts` — pure, SSR-safe time math (`remaining`, `humanize`, `formatTargetDate`). Granularity rule: ≥1 day → D/H/M (+ seconds only for timed goals within 30 days); <1 day → H/M/S. `now` is passed in (never read inside) so server/first-client renders match.
+- `src/routes/+page.svelte` — the board. Server data is seeded ONCE inside `untrack()` (`countdowns.hydrate` + `ai.hydrate`); a separate `onMount` bridge then runs the browser-only guest path (authed → `migrateGuestToServer`, guest → `loadGuest`). Hero + grid + past sections; `use:reveal` entrance motion. Guests see `SignInButton`; the share control is hidden when logged out (`canShare`).
+- `src/components/` (app components, imported via `$src/components/*`) — `CountdownDisplay` (the shared boxed-tile digits unit with tick animation; hero/card/share sizes; reads the clock), `CountdownHero`, `CountdownCard`, `CountdownComposerDialog` (create/edit; **DS `CountdownCalendar` picker** + Switch-gated 12h AM/PM time → absolute UTC ISO), `ShareDialog`, `SectionEyebrow`, `EmptyState`, `SignInButton`, `User`, `ai/*` (copilot UI — overlay drawer: `AiDesktopLauncher`/`AiSidebar` on lg+, `AiMobileFab`/`AiMobileSheet` on mobile). shadcn-svelte primitives live separately in `$lib/components/ui/*` (auto-generated — don't hand-edit).
+- `src/routes/changelog/+page.svelte` — public, static changelog page; entries sourced from `src/lib/data/changelog.ts`. `src/routes/settings/+page.svelte` — BYO-Cloudflare connect form (account id + API token + model picker).
+- `src/lib/countdown/format.ts` — pure, SSR-safe time math (`remaining`, `humanize`, `formatTargetDate`). Granularity rule: **live seconds ALWAYS tick** (hero, cards, share, zen alike); the Days segment leads only once ≥1 full day remains, else H/M/S. `hasTime` no longer affects segments. `now` is passed in (never read inside) so server/first-client renders match.
 
 ### Share (public)
 
-`src/routes/s/[token]/` — unauthenticated. No auth guard lives here (the wall is only `/`'s `/login` redirect). Loads via `getByShareToken`; 404 if the token isn't shared. Reuses `CountdownDisplay`. Dynamic OG/Twitter meta.
+`src/routes/s/[token]/` — public/unauthenticated (no guard; the board no longer walls anything). Loads via `getByShareToken`; 404 if the token isn't shared. Reuses `CountdownDisplay`; supports full-screen zen mode. Dynamic OG/Twitter meta.
 
-### AI Copilot
+### AI Copilot (BYO Cloudflare)
 
-Gated by `AI_COPILOT_ENABLED` (set `"false"` to disable). Calls the **Workers AI binding directly** (`platform.env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", { messages, tools })`) in `src/lib/ai/client.ts` — **no AI Gateway dynamic route, no RAG/Vectorize**. Five tools (`createCountdown`/`updateCountdown`/`reorderCountdowns` = Tier A auto-apply; `deleteCountdown`/`setShareCountdown` = Tier B, require confirmation), each with a Zod schema (`schemas.ts`), a client executor wired to the countdowns store (`tools.ts`), and an inverse for undo (`inverse.ts` / server `ai-undo.ts`). The model receives the user's current countdowns + today's date each turn (`context.ts`, `prompts.ts`). Chat route (`api/ai/chat`) keeps the load-bearing imperative-retry + false-claim suppression + text-JSON tool-call salvage. Conversations/messages/actions persist in D1; quota/spend caps degrade gracefully when `AI_QUOTA_KV` is absent. **Workers AI can't be exercised in local dev** (no remote AI) — verify after deploy.
+Gated by `AI_COPILOT_ENABLED` (set `"false"` to disable) **and signed-in only**. Inference runs on the **end user's OWN Cloudflare account over the Workers AI REST API** (`POST /accounts/{id}/ai/run/{model}`, billed to them) — **NOT** the bound `env.AI` (retained for typing/compat only); **no AI Gateway, no RAG/Vectorize**. The user connects their account at `/settings` (account id + account-scoped API token + model from `/api/cf/models`); the token is AES-GCM-encrypted at rest in `user_settings` (`crypto.ts`, key from `TOKEN_ENCRYPTION_KEY`). `src/lib/server/ai/run-rest.ts` does the REST call + model catalog; `src/lib/ai/client.ts` buffers one turn into frames. The chat route resolves creds via `server/ai/cloudflare-config.ts` and returns **412 `cloudflare_not_connected`** (pointing to `/settings`) when unconnected. Five tools (`createCountdown`/`updateCountdown`/`reorderCountdowns` = Tier A auto-apply; `deleteCountdown`/`setShareCountdown` = Tier B, require confirmation), each with a Zod schema (`schemas.ts`), a client executor wired to the countdowns store (`tools.ts`), and an inverse for undo (`inverse.ts` / server `ai-undo.ts`). The model receives the user's current countdowns + today's date each turn (`context.ts`, `prompts.ts`). Chat route (`api/ai/chat`) keeps the load-bearing imperative-retry + false-claim suppression + text-JSON tool-call salvage. Conversations/messages/actions persist in D1; quota/spend caps degrade gracefully when `AI_QUOTA_KV` is absent. **The Copilot can't be exercised in local dev** (needs a real connected account + remote Workers AI) — verify after deploy.
 
 ---
 
 ## Conventions & Warnings
 
 - **Svelte 5 runes only** — `$state`/`$derived`/`$props`/`$effect`; never `export let` or `$:`. Arrow functions, double quotes, tabs, no trailing commas (Prettier).
-- **`untrack()` hydration** — `+page.svelte` seeds stores once inside `untrack()`. Do not add a second hydrate path.
+- **`untrack()` hydration** — `+page.svelte` seeds SERVER data once inside `untrack()`. Do not add a second server-hydrate path; the guest `localStorage` re-seed is the separate `onMount` bridge (browser-only, additive).
 - **Snake_case D1 columns** — required by the Better Auth Drizzle adapter; renaming breaks auth.
 - **Two `cn()`** — use `$lib/ds` `cn()` inside DS-token markup (handles custom `text-*` sizes); `$lib/utils` `cn()` everywhere else. Countdown digits use plain Tailwind `text-*` sizes + `tabular-nums`.
 - **GSAP only via `$lib/motion`** — never a top-level `import ... from "gsap"` (SSR-unsafe on Workers). All motion respects `prefers-reduced-motion`.
@@ -94,17 +94,17 @@ Gated by `AI_COPILOT_ENABLED` (set `"false"` to disable). Calls the **Workers AI
 
 ## Cloudflare bindings & deploy
 
-`wrangler.jsonc`: `DB` (D1 `day_zero`, required), `AI` (Workers AI, `remote: true`, copilot), `AI_QUOTA_KV` (optional quota/spend). `account_id` = Personal. Vars: `BETTER_AUTH_URL`, `AI_COPILOT_ENABLED`, `AI_MONTHLY_CAP_USD`.
+`wrangler.jsonc`: `DB` (D1 `day_zero`, required), `AI` (Workers AI, `remote: true` — typing/compat only; inference is BYO REST), `AI_QUOTA_KV` (optional quota/spend + `cf-models` cache). `account_id` = Personal. Served ONLY on the custom domain `day-zero.dropoutstudio.co` (`workers_dev: false`, `preview_urls: false` — one canonical origin for OAuth/CSRF). Vars: `BETTER_AUTH_URL`, `AI_COPILOT_ENABLED`, `AI_MONTHLY_CAP_USD`.
 
-**Secrets** (`wrangler secret put`): `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+**Secrets** (`wrangler secret put`): `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `TOKEN_ENCRYPTION_KEY` (base64 32 bytes — encrypts each user's BYO Cloudflare token; copilot is disabled without it).
 
 **To deploy (production):**
 
-1. Create/choose a Google OAuth client; add redirect URI `https://day-zero.beyourahi.workers.dev/api/auth/callback/google`.
-2. `wrangler secret put BETTER_AUTH_SECRET` (e.g. `openssl rand -base64 32`), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+1. Create/choose a Google OAuth client; add redirect URI `https://day-zero.dropoutstudio.co/api/auth/callback/google`.
+2. `wrangler secret put BETTER_AUTH_SECRET` (e.g. `openssl rand -base64 32`), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `TOKEN_ENCRYPTION_KEY` (`openssl rand -base64 32`).
 3. `bun run db:migrate` (remote D1).
 4. `wrangler deploy` (or git-push auto-deploy).
-5. Confirm the `AI` binding is provisioned in prod; then flip the Day Zero showcase cards on dropoutstudio.co / beyourahi.com from `coming-soon` to `active`.
+5. Each user connects their own Cloudflare account at `/settings` to use the Copilot. Flip the Day Zero showcase cards on dropoutstudio.co / beyourahi.com from `coming-soon` to `active`.
 
 ---
 
