@@ -64,7 +64,7 @@
 		{historyOpen}
 		historyCount={ai.conversations.length}
 		{status}
-		showCloseButton={bare && !!onClose}
+		showCloseButton={!!onClose}
 	/>
 
 	{#if historyOpen}
