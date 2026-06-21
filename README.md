@@ -1,5 +1,7 @@
 # Day Zero
 
+> Counts down every goal on one shareable, ordered board.
+
 A goal/milestone **countdown tracker**. Sign in with Google, create a countdown toward a target date for something you want to achieve, make as many as you like, and see them all at once on one clean board — the soonest goal promoted to a hero, the rest in a responsive grid, reached goals in a quieter section below. Share any countdown with a read-only public link. An AI copilot manages countdowns through natural-language commands. **No ads.**
 
 **Live**: https://day-zero.beyourahi.workers.dev
