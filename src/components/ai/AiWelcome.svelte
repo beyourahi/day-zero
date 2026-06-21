@@ -66,7 +66,7 @@
 			<button
 				type="button"
 				onclick={() => onSuggestionClick(suggestion.query)}
-				class="border-chat-border-subtle bg-chat-surface hover:border-chat-border hover:bg-chat-surface-hover flex items-center gap-3 rounded-xl border border-solid px-3.5 py-2.5 text-left transition-all duration-200 md:gap-3.5 md:px-4 md:py-3"
+				class="border-chat-border-subtle bg-chat-surface hover:border-chat-border hover:bg-chat-surface-hover flex touch-manipulation items-center gap-3 rounded-xl border border-solid px-3.5 py-2.5 text-left transition-all duration-200 md:gap-3.5 md:px-4 md:py-3"
 				style="animation: chat-greeting-stagger 0.4s ease-out both; animation-delay: {300 + i * 80}ms;"
 			>
 				<div

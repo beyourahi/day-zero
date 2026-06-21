@@ -47,7 +47,7 @@
 	/>
 </svelte:head>
 
-<main class="mx-auto w-full max-w-2xl px-4 py-14 sm:px-6 sm:py-20">
+<main id="main" tabindex="-1" class="mx-auto w-full max-w-2xl px-4 py-14 outline-none sm:px-6 sm:py-20">
 	<header class="flex flex-col gap-4 sm:gap-5" use:reveal={{ distance: "sm" }}>
 		<Eyebrow>What's new</Eyebrow>
 		<Heading as="h1" size="title" weight={600} class="lowercase">changelog</Heading>

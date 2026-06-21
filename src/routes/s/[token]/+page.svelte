@@ -80,7 +80,7 @@
 	// One editorial pill for both the enter and exit affordances: hairline at rest,
 	// signal border + foreground ink on hover.
 	const controlClass =
-		"group ease-[var(--ease)] text-ink-muted fixed top-4 right-4 z-10 inline-flex items-center gap-2 rounded-full border border-hair px-3.5 py-2 font-mono text-micro tracking-[0.2em] uppercase transition-colors duration-300 hover:border-signal hover:text-foreground sm:top-6 sm:right-6";
+		"group ease-[var(--ease)] text-ink-muted fixed top-4 right-4 z-10 inline-flex items-center gap-2 rounded-full border border-hair px-3.5 py-2 font-mono text-micro tracking-[0.2em] whitespace-nowrap uppercase transition-colors duration-300 hover:border-signal hover:text-foreground touch-manipulation sm:top-6 sm:right-6";
 </script>
 
 <svelte:head>
@@ -112,7 +112,7 @@
 			</p>
 		</div>
 
-		<Heading as="h1" size="title-lg" weight={600} class="max-w-2xl text-balance lowercase">
+		<Heading as="h1" size="title-lg" weight={600} class="max-w-2xl text-balance wrap-break-word lowercase">
 			{cd.title}
 		</Heading>
 
@@ -120,14 +120,18 @@
 	</div>
 {/snippet}
 
-<main class="flex grow flex-col items-center justify-center gap-12 px-4 py-20 text-center sm:gap-16">
+<main
+	id="main"
+	tabindex="-1"
+	class="flex grow flex-col items-center justify-center gap-12 px-4 py-20 text-center outline-none sm:gap-16"
+>
 	{@render stack()}
 
 	<div class="flex flex-col items-center gap-5">
 		<Cta
 			variant="secondary"
 			href="/"
-			class="border-signal bg-ink-2 hover:border-signal hover:bg-signal hover:text-background hover:shadow-lg"
+			class="border-signal bg-ink-2 hover:border-signal hover:bg-signal hover:text-background hover:shadow-lg touch-manipulation"
 		>
 			make your own
 		</Cta>

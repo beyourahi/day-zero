@@ -46,7 +46,7 @@
 			type="button"
 			onclick={onToggleHistory}
 			aria-expanded={historyOpen}
-			class="hover:bg-chat-surface-hover relative rounded-xl p-2.5 transition-colors md:p-2"
+			class="hover:bg-chat-surface-hover relative touch-manipulation rounded-xl p-2.5 transition-colors md:p-2"
 			aria-label="Chat history"
 		>
 			<Clock class="text-chat-icon-muted h-5 w-5 md:h-4 md:w-4" />
@@ -62,7 +62,7 @@
 			<button
 				type="button"
 				onclick={onNewConversation}
-				class="hover:bg-chat-surface-hover rounded-xl p-2.5 transition-colors md:p-2"
+				class="hover:bg-chat-surface-hover touch-manipulation rounded-xl p-2.5 transition-colors md:p-2"
 				aria-label="New conversation"
 			>
 				<Plus class="text-chat-icon-muted h-5 w-5 md:h-4 md:w-4" />
@@ -72,7 +72,7 @@
 			<button
 				type="button"
 				onclick={onClose}
-				class="hover:bg-chat-surface-hover rounded-xl p-2.5 transition-colors md:p-2"
+				class="hover:bg-chat-surface-hover touch-manipulation rounded-xl p-2.5 transition-colors md:p-2"
 				aria-label="Close chat"
 			>
 				<X class="text-chat-icon-muted h-5 w-5 md:h-4 md:w-4" />

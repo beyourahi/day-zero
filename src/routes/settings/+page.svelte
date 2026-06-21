@@ -148,11 +148,15 @@
 	<title>Settings · Day Zero</title>
 </svelte:head>
 
-<main class="mx-auto flex w-full max-w-2xl flex-col gap-10 px-5 pt-10 pb-20 sm:px-6 sm:pt-14">
+<main
+	id="main"
+	tabindex="-1"
+	class="mx-auto flex w-full max-w-2xl flex-col gap-10 px-5 pt-10 pb-20 outline-none sm:px-6 sm:pt-14"
+>
 	<header class="flex flex-col gap-4">
 		<a
 			href="/"
-			class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex w-fit items-center gap-2 font-mono text-caption tracking-[0.18em] uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+			class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex w-fit items-center gap-2 font-mono text-caption tracking-[0.18em] whitespace-nowrap uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 touch-manipulation"
 		>
 			<ArrowLeft size={13} aria-hidden="true" />
 			Back to board
@@ -217,7 +221,8 @@
 				/>
 				<p class="text-ink-muted mt-2 text-xs leading-relaxed text-pretty">
 					{#if connected}
-						Stored: <span class="text-foreground font-mono">{maskedToken}</span> — leave blank to keep it.
+						Stored: <span class="text-foreground font-mono wrap-break-word">{maskedToken}</span> — leave blank
+						to keep it.
 					{:else}
 						An API token with the <span class="text-foreground">Account · Workers AI · Read</span>
 						permission. Stored securely. You won't see it again after saving.
@@ -250,7 +255,7 @@
 						onclick={refreshModels}
 						disabled={refreshing || !connected}
 						title="Refresh model list"
-						class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex items-center gap-1.5 font-mono text-micro tracking-[0.14em] uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40"
+						class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex items-center gap-1.5 font-mono text-micro tracking-[0.14em] whitespace-nowrap uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40 touch-manipulation"
 					>
 						<RefreshCw size={11} class={refreshing ? "animate-spin" : ""} aria-hidden="true" />
 						Refresh
@@ -285,7 +290,13 @@
 					→ Create Custom Token → permission
 					<span class="text-foreground font-mono">Account · Workers AI · Read</span>.
 				</p>
-				<Cta type="submit" variant="primary" arrow={false} disabled={saving} class="justify-center">
+				<Cta
+					type="submit"
+					variant="primary"
+					arrow={false}
+					disabled={saving}
+					class="justify-center touch-manipulation"
+				>
 					{saving ? "Saving…" : "Save"}
 				</Cta>
 			</div>
@@ -334,7 +345,9 @@
 											{pk.name || "Face ID / Touch ID"}
 										</p>
 										{#if pk.createdAt && formatDate(pk.createdAt)}
-											<p class="text-ink-muted text-caption">Added {formatDate(pk.createdAt)}</p>
+											<p class="text-ink-muted text-caption tabular-nums">
+												Added {formatDate(pk.createdAt)}
+											</p>
 										{/if}
 									</div>
 								</div>
@@ -343,7 +356,7 @@
 									onclick={() => removePasskey(pk.id)}
 									disabled={passkeyBusy}
 									aria-label="Remove Face ID / Touch ID"
-									class="text-ink-muted hover:text-destructive focus-visible:outline-signal shrink-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40"
+									class="text-ink-muted hover:text-destructive focus-visible:outline-signal shrink-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40 touch-manipulation"
 								>
 									<Trash2 size={14} aria-hidden="true" />
 								</button>
@@ -358,7 +371,7 @@
 						arrow={false}
 						disabled={passkeyBusy}
 						onclick={() => addPasskey()}
-						class="justify-center"
+						class="justify-center touch-manipulation"
 					>
 						<span class="inline-flex items-center gap-2">
 							<Fingerprint size={14} aria-hidden="true" />

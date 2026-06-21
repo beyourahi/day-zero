@@ -63,7 +63,7 @@
 	<div class="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="AI chat">
 		<button
 			type="button"
-			class="absolute inset-0 cursor-default bg-black/60 backdrop-blur-sm"
+			class="absolute inset-0 touch-manipulation cursor-default bg-black/60 backdrop-blur-sm"
 			aria-label="Close chat"
 			onclick={close}
 			transition:fade={{ duration: 200 }}
@@ -76,7 +76,7 @@
 			<button
 				type="button"
 				onclick={close}
-				class="text-chat-icon-muted hover:text-chat-text-primary hover:bg-chat-surface-hover absolute top-3 right-3 z-10 inline-flex size-9 items-center justify-center rounded-lg transition-colors"
+				class="text-chat-icon-muted hover:text-chat-text-primary hover:bg-chat-surface-hover absolute top-3 right-3 z-10 inline-flex size-9 touch-manipulation items-center justify-center rounded-lg transition-colors"
 				aria-label="Close chat"
 			>
 				<X class="size-5" aria-hidden="true" />

@@ -79,12 +79,13 @@
 	<SignInButton />
 {/if}
 
-<main class="flex w-full grow flex-col px-[var(--content-x)] py-16 sm:py-20">
+<main id="main" tabindex="-1" class="flex w-full grow flex-col px-[var(--content-x)] py-16 sm:py-20 outline-none">
 	<div class="m-auto flex w-full flex-col gap-12 sm:gap-20">
 		<div class="flex flex-col items-center gap-8" use:reveal>
 			<Heading />
 			{#if !isEmpty}
-				<Cta variant="primary" arrow={false} dot onclick={openNew}>new countdown</Cta>
+				<Cta variant="primary" arrow={false} dot onclick={openNew} class="touch-manipulation">new countdown</Cta
+				>
 			{/if}
 		</div>
 

@@ -86,7 +86,7 @@
 		<Dialog.Root bind:open={mobileOpen}>
 			<Dialog.Trigger
 				aria-label="User menu"
-				class="focus-visible:outline-signal rounded-full focus-visible:outline-2 focus-visible:outline-offset-2"
+				class="focus-visible:outline-signal rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 touch-manipulation"
 			>
 				{@render avatarVisual("h-9 w-9", "h-4 w-4")}
 			</Dialog.Trigger>
@@ -110,7 +110,7 @@
 					<a
 						href="/settings"
 						onclick={() => (mobileOpen = false)}
-						class="text-foreground hover:bg-white/[0.04] focus:bg-white/[0.04] flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none"
+						class="text-foreground hover:bg-white/[0.04] focus:bg-white/[0.04] flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none touch-manipulation"
 					>
 						<Settings size={16} aria-hidden="true" />
 						<span class="text-sm font-medium whitespace-nowrap">Settings</span>
@@ -120,7 +120,7 @@
 						onclick={handleLogout}
 						disabled={isLoggingOut}
 						class={cn(
-							"text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-60",
+							"text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 touch-manipulation",
 							isLoggingOut && "cursor-wait"
 						)}
 					>
@@ -172,7 +172,7 @@
 					onclick={() => goto("/settings")}
 					aria-label="Settings"
 					class={cn(
-						"sleek group border-hair bg-card hover:border-white/30 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border backdrop-blur-sm active:scale-95",
+						"sleek group border-hair bg-card hover:border-white/30 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border backdrop-blur-sm active:scale-95 touch-manipulation",
 						"focus-visible:outline-signal focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
 					)}
 				>
@@ -192,7 +192,7 @@
 					disabled={isLoggingOut}
 					aria-label="Sign out"
 					class={cn(
-						"sleek group flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border backdrop-blur-sm",
+						"sleek group flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border backdrop-blur-sm touch-manipulation",
 						"focus-visible:outline-signal focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2",
 						isLoggingOut
 							? "border-hair bg-card cursor-wait"

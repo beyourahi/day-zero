@@ -32,13 +32,13 @@
 
 	// Ghost icon button shared by the prev/next month controls.
 	const navBtn =
-		"inline-flex size-8 items-center justify-center rounded-sm text-ink-muted transition-colors duration-200 ease-[var(--ease)] hover:bg-white/[0.06] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal disabled:pointer-events-none disabled:opacity-30";
+		"inline-flex size-8 items-center justify-center rounded-sm text-ink-muted transition-colors duration-200 ease-[var(--ease)] hover:bg-white/[0.06] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal disabled:pointer-events-none disabled:opacity-30 touch-manipulation";
 
 	// One day cell. Hierarchy lives entirely in the ink ramp + the lone signal
 	// accent: selected = filled signal pill; today = hairline ring; the rest is
 	// quiet until hovered. Selectors read off bits-ui's data-* day attributes.
 	const dayCell = cn(
-		"relative flex size-(--cell) items-center justify-center rounded-sm font-mono text-label text-foreground tabular-nums leading-none transition-colors duration-200 ease-[var(--ease)] select-none",
+		"relative flex size-(--cell) items-center justify-center rounded-sm font-mono text-label text-foreground tabular-nums leading-none transition-colors duration-200 ease-[var(--ease)] select-none touch-manipulation",
 		"not-data-selected:hover:bg-white/[0.06]",
 		"[&[data-today]:not([data-selected])]:border [&[data-today]:not([data-selected])]:border-hair",
 		"data-selected:bg-signal data-selected:font-semibold data-selected:text-background",
@@ -63,11 +63,11 @@
 		{#each months as month (month.value)}
 			<!-- Month chrome: prev · "Month Year" · next -->
 			<div class="mb-1 flex items-center justify-between gap-2">
-				<CalendarPrimitive.PrevButton class={navBtn}>
+				<CalendarPrimitive.PrevButton class={navBtn} aria-label="Previous month">
 					<ChevronLeftIcon class="size-4" />
 				</CalendarPrimitive.PrevButton>
 				<CalendarPrimitive.Heading class="font-mono text-caption tracking-[0.16em] text-foreground uppercase" />
-				<CalendarPrimitive.NextButton class={navBtn}>
+				<CalendarPrimitive.NextButton class={navBtn} aria-label="Next month">
 					<ChevronRightIcon class="size-4" />
 				</CalendarPrimitive.NextButton>
 			</div>

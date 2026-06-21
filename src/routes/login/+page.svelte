@@ -78,7 +78,11 @@
 	<title>Sign In · Day Zero</title>
 </svelte:head>
 
-<div class="flex grow flex-col items-center justify-center gap-8 overflow-hidden px-4 sm:gap-10 sm:px-6 lg:gap-12">
+<main
+	id="main"
+	tabindex="-1"
+	class="flex grow flex-col items-center justify-center gap-8 overflow-hidden px-4 outline-none sm:gap-10 sm:px-6 lg:gap-12"
+>
 	<Heading />
 
 	{#if error}
@@ -96,7 +100,7 @@
 			arrow={false}
 			onclick={handleGoogleLogin}
 			disabled={isLoading}
-			class={cn("min-w-[260px] justify-center py-4", isLoading && "cursor-wait")}
+			class={cn("min-w-[260px] justify-center py-4 touch-manipulation", isLoading && "cursor-wait")}
 		>
 			<span class="inline-flex items-center gap-2.5">
 				{#if isLoading}
@@ -134,7 +138,7 @@
 				arrow={false}
 				onclick={handlePasskeyLogin}
 				disabled={isLoading}
-				class={cn("min-w-[260px] justify-center py-4", isLoading && "cursor-wait")}
+				class={cn("min-w-[260px] justify-center py-4 touch-manipulation", isLoading && "cursor-wait")}
 			>
 				<span class="inline-flex items-center gap-2.5">
 					<Fingerprint class="size-4" aria-hidden="true" />
@@ -143,7 +147,7 @@
 			</Cta>
 		{/if}
 
-		<Cta variant="secondary" href="/" arrow={false} class="min-w-[260px] justify-center py-4">
+		<Cta variant="secondary" href="/" arrow={false} class="min-w-[260px] justify-center py-4 touch-manipulation">
 			<span class="inline-flex items-center gap-2.5">
 				<svg
 					class="size-4 transition-transform duration-300 ease-[var(--ease)] group-hover:-translate-x-0.5"
@@ -167,4 +171,4 @@
 			? "Sign in with Google — or use Face ID / Touch ID once you've set it up in Settings."
 			: "Sign in with your Google account to get started."}
 	</p>
-</div>
+</main>

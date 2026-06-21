@@ -31,12 +31,12 @@
 			class="bg-signal size-[7px] shrink-0 rounded-full motion-safe:animate-[ctaPulse_2.8s_var(--ease)_infinite]"
 			aria-hidden="true"
 		></span>
-		<p class="text-ink-muted font-mono text-micro tracking-[0.26em] uppercase">
+		<p class="text-ink-muted font-mono text-micro tracking-[0.26em] uppercase whitespace-nowrap">
 			Next up · {formatTargetDate(countdown.targetAt, countdown.hasTime)}
 		</p>
 	</div>
 
-	<Heading as="h2" size="title-lg" weight={600} class="max-w-2xl text-balance lowercase">
+	<Heading as="h2" size="title-lg" weight={600} class="max-w-2xl text-balance wrap-break-word lowercase">
 		{countdown.title}
 	</Heading>
 
@@ -45,7 +45,7 @@
 	<div class="flex items-center gap-1.5">
 		<button
 			type="button"
-			class="text-ink-muted hover:text-foreground inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-micro tracking-[0.16em] uppercase transition-colors"
+			class="text-ink-muted hover:text-foreground inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-micro tracking-[0.16em] uppercase transition-colors touch-manipulation whitespace-nowrap"
 			onclick={() => onEdit(countdown)}
 		>
 			<Pencil size={13} aria-hidden="true" /> Edit
@@ -53,7 +53,7 @@
 		{#if canShare}
 			<button
 				type="button"
-				class="text-ink-muted hover:text-foreground inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-micro tracking-[0.16em] uppercase transition-colors"
+				class="text-ink-muted hover:text-foreground inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-micro tracking-[0.16em] uppercase transition-colors touch-manipulation whitespace-nowrap"
 				onclick={() => onShare(countdown.id)}
 			>
 				<Share2 size={13} aria-hidden="true" /> Share

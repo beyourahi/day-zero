@@ -43,7 +43,7 @@
 	};
 
 	const actionBtn =
-		"text-ink-muted hover:text-foreground rounded-md p-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal";
+		"text-ink-muted hover:text-foreground rounded-md p-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal touch-manipulation";
 </script>
 
 <div
@@ -57,7 +57,7 @@
 			<h3 class="text-foreground truncate font-sans text-lead font-semibold lowercase" title={countdown.title}>
 				{countdown.title}
 			</h3>
-			<p class="text-ink-muted mt-1 font-mono text-micro tracking-[0.18em] uppercase">
+			<p class="text-ink-muted mt-1 font-mono text-micro tracking-[0.18em] uppercase whitespace-nowrap">
 				{formatTargetDate(countdown.targetAt, countdown.hasTime)}
 			</p>
 		</div>

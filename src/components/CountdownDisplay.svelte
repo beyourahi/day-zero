@@ -49,9 +49,9 @@
 	const surfaceBase =
 		"relative border border-hair bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.015))] shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_2px_6px_-2px_rgba(0,0,0,0.5)]";
 	const boxBase = surfaceBase + " overflow-hidden";
-	const digitBase = "block font-mono leading-none font-bold text-foreground tabular-nums";
-	const labelBase = "font-mono text-ink-muted uppercase";
-	const colonBase = "font-mono leading-none font-bold text-ink-muted";
+	const digitBase = "block font-mono leading-none font-bold text-foreground tabular-nums select-none";
+	const labelBase = "font-mono text-ink-muted uppercase select-none whitespace-nowrap";
+	const colonBase = "font-mono leading-none font-bold text-ink-muted select-none";
 
 	// Per-size scale. `hero` is anchored to the reference's exact clamps; `card`
 	// scales down (fixed px for the small 3-up grid cards); `share` scales up for
@@ -100,7 +100,12 @@
 {#if r.isPast}
 	<div class={cn("relative flex", justify)}>
 		<div class={cn(surfaceBase, c.box, "flex flex-col items-center gap-1.5 text-center")}>
-			<span class={cn("block font-mono leading-none font-bold text-foreground lowercase", c.digit)}>
+			<span
+				class={cn(
+					"block font-mono leading-none font-bold text-foreground lowercase select-none whitespace-nowrap",
+					c.digit
+				)}
+			>
 				reached
 			</span>
 			<span class={cn(labelBase, c.label, "tabular-nums")}>

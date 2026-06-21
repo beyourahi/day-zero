@@ -78,7 +78,7 @@
 			rows={2}
 			{disabled}
 			class={cn(
-				"text-chat-text-primary chat-scrollbar min-h-[3.25rem] w-full resize-none bg-transparent text-base leading-relaxed transition-[height] duration-100 ease-out outline-none md:text-sm",
+				"text-chat-text-primary chat-scrollbar wrap-break-word min-h-[3.25rem] w-full resize-none bg-transparent text-base leading-relaxed transition-[height] duration-100 ease-out outline-none md:text-sm",
 				disabled ? "placeholder:text-chat-text-secondary" : "placeholder:text-chat-text-muted"
 			)}
 			style="max-height: {MAX_HEIGHT}px;"></textarea>
@@ -90,7 +90,7 @@
 				disabled={!canSubmit}
 				aria-label={disabled ? "Generating response" : "Send message"}
 				class={cn(
-					"ease-[var(--ease)] rounded-full p-2 transition-all duration-200",
+					"ease-[var(--ease)] touch-manipulation rounded-full p-2 transition-all duration-200",
 					disabled
 						? "bg-chat-accent-muted/40 text-chat-text-muted cursor-not-allowed"
 						: canSubmit

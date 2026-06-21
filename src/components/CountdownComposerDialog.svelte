@@ -133,7 +133,7 @@
 	// (signal fill for the active half, quiet ink for the other), sized to sit flush
 	// with the hour/minute select triggers.
 	const meridiemBtn =
-		"flex items-center px-3.5 font-mono text-caption tracking-[0.12em] uppercase transition-colors duration-200 ease-[var(--ease)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-signal";
+		"flex items-center px-3.5 font-mono text-caption tracking-[0.12em] uppercase transition-colors duration-200 ease-[var(--ease)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-signal touch-manipulation whitespace-nowrap";
 	const meridiemOn = "bg-signal font-semibold text-background";
 	const meridiemOff = "text-ink-muted hover:bg-white/[0.04] hover:text-foreground";
 </script>
@@ -235,7 +235,7 @@
 
 			{#if summary}
 				<p
-					class="border-hair text-ink-muted rounded-sm border border-dashed px-4 py-3 text-center font-mono text-caption tracking-[0.04em]"
+					class="border-hair text-ink-muted rounded-sm border border-dashed px-4 py-3 text-center font-mono text-caption tracking-[0.04em] text-pretty"
 				>
 					counting down to <span class="text-foreground">{summary}</span>
 				</p>
@@ -246,7 +246,7 @@
 			class="border-hair mx-0 mb-0 shrink-0 flex-row items-center justify-end gap-2 border-t px-5 py-4"
 		>
 			<Dialog.Close
-				class="text-ink-muted hover:text-foreground rounded-full px-4 py-2 font-mono text-micro tracking-[0.14em] uppercase transition-colors"
+				class="text-ink-muted hover:text-foreground rounded-full px-4 py-2 font-mono text-micro tracking-[0.14em] uppercase transition-colors touch-manipulation whitespace-nowrap"
 			>
 				Cancel
 			</Dialog.Close>

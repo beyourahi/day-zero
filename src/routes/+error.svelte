@@ -10,7 +10,11 @@
 	import { ArrowLeft, TriangleAlert } from "@lucide/svelte";
 </script>
 
-<div class="bg-background text-foreground flex min-h-dvh items-center justify-center px-4">
+<main
+	id="main"
+	tabindex="-1"
+	class="bg-background text-foreground flex min-h-dvh items-center justify-center px-4 outline-none"
+>
 	<Card class="w-full max-w-md">
 		<CardHeader class="items-center text-center">
 			<div class="bg-destructive/10 text-destructive flex size-10 items-center justify-center rounded-lg">
@@ -24,11 +28,11 @@
 			</p>
 			<a
 				href={resolve("/")}
-				class="border-border hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-9 items-center justify-center gap-2 rounded-xl border bg-transparent px-4 text-sm font-medium whitespace-nowrap transition-all duration-150 outline-none focus-visible:ring-3 active:translate-y-px active:scale-[0.97]"
+				class="border-border hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-9 items-center justify-center gap-2 rounded-xl border bg-transparent px-4 text-sm font-medium whitespace-nowrap transition-all duration-150 outline-none focus-visible:ring-3 active:translate-y-px active:scale-[0.97] touch-manipulation"
 			>
 				<ArrowLeft size={14} aria-hidden="true" />
 				Back to the board
 			</a>
 		</CardContent>
 	</Card>
-</div>
+</main>

@@ -51,7 +51,7 @@
 			<Dialog.Title>
 				<span class="font-sans text-lead lowercase">share countdown</span>
 			</Dialog.Title>
-			<Dialog.Description class="text-ink-muted text-caption">
+			<Dialog.Description class="text-ink-muted text-caption text-pretty">
 				Anyone with the link sees a read-only view — no sign-in, nothing else of yours.
 			</Dialog.Description>
 		</Dialog.Header>
@@ -72,7 +72,7 @@
 						type="button"
 						onclick={copy}
 						aria-label="Copy link"
-						class="border-hair text-ink-muted hover:text-foreground hover:border-white/30 flex size-[46px] shrink-0 items-center justify-center rounded-[11px] border transition-colors"
+						class="border-hair text-ink-muted hover:text-foreground hover:border-white/30 flex size-[46px] shrink-0 items-center justify-center rounded-[11px] border transition-colors touch-manipulation"
 					>
 						{#if copied}
 							<Check size={16} class="text-signal" />

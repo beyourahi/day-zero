@@ -66,7 +66,7 @@
 			<div
 				class="border-chat-border-subtle bg-chat-bot-bubble text-chat-text-secondary rounded-2xl rounded-bl-md border border-solid px-4 py-2.5 text-sm"
 			>
-				<div class="space-y-2.5 leading-relaxed">
+				<div class="space-y-2.5 leading-relaxed wrap-break-word">
 					{#each blocks as block, bi (bi)}
 						{#if block.type === "paragraph"}
 							<p class="text-pretty">
@@ -90,7 +90,7 @@
 								{/each}
 							</ul>
 						{:else if block.type === "codeblock"}
-							<p class="text-pretty whitespace-pre-wrap">{block.value}</p>
+							<p class="text-pretty whitespace-pre-wrap wrap-break-word">{block.value}</p>
 						{/if}
 					{/each}
 				</div>
