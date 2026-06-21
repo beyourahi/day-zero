@@ -15,6 +15,7 @@
 	import { ArrowLeft, RefreshCw, Fingerprint, Trash2 } from "@lucide/svelte";
 	import { authClient } from "$lib/auth-client";
 	import { Eyebrow, Heading, Cta, cn, inputBase, labelBase } from "$lib/ds";
+	import * as Select from "$lib/components/ui/select";
 
 	let { data } = $props();
 
@@ -51,6 +52,9 @@
 		}
 		return opts;
 	});
+
+	// Label shown in the closed trigger for the currently-bound model.
+	const selectedModelLabel = $derived(modelOptions.find(opt => opt.id === model)?.label ?? "Select a model");
 
 	let refreshing = $state(false);
 	const refreshModels = async () => {
@@ -261,16 +265,23 @@
 						Refresh
 					</button>
 				</div>
-				<select
-					id="cf-model"
-					name="cloudflareModel"
-					bind:value={model}
-					class={cn(inputBase, "appearance-none")}
-				>
-					{#each modelOptions as opt (opt.id)}
-						<option value={opt.id}>{opt.label}</option>
-					{/each}
-				</select>
+				<Select.Root type="single" name="cloudflareModel" bind:value={model}>
+					<Select.Trigger id="cf-model" class={cn(inputBase, "h-auto justify-between text-left font-mono")}>
+						<span data-slot="select-value" class="truncate">{selectedModelLabel}</span>
+					</Select.Trigger>
+					<Select.Content
+						class="border-hair bg-card max-h-72 rounded-[11px] font-mono shadow-lg ring-0"
+						sideOffset={6}
+					>
+						{#each modelOptions as opt (opt.id)}
+							<Select.Item
+								value={opt.id}
+								label={opt.label}
+								class="hover:bg-ink-2 data-highlighted:bg-ink-2 rounded-md text-xs"
+							/>
+						{/each}
+					</Select.Content>
+				</Select.Root>
 				<p class="text-ink-muted mt-2 text-xs leading-relaxed text-pretty">
 					Llama 3.3 70B is recommended. Others are experimental and may be less reliable.
 				</p>

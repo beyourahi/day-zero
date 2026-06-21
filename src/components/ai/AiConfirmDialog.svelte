@@ -12,6 +12,7 @@
 	import { motionDuration } from "$lib/motion";
 	import { ShieldCheck, Undo2 } from "@lucide/svelte";
 	import { toolLabel } from "$lib/ai/tool-labels";
+	import { Switch } from "$lib/components/ui/switch";
 
 	const first = $derived(ai.pendingConfirmations[0] ?? null);
 	const isBatch = $derived(ai.pendingConfirmations.length > 1);
@@ -89,14 +90,7 @@
 							<li
 								class="border-chat-border-subtle bg-chat-surface rounded-md border border-solid p-2 text-xs"
 							>
-								<div class="flex items-start gap-2">
-									<input
-										type="checkbox"
-										class="mt-0.5 touch-manipulation"
-										checked={rejected.has(req.toolCallId)}
-										onchange={() => onToggleReject(req.toolCallId)}
-										aria-label="Reject {req.humanLabel}"
-									/>
+								<div class="flex items-start gap-3">
 									<div class="flex flex-1 flex-col gap-1">
 										<span
 											class={rejected.has(req.toolCallId)
@@ -112,6 +106,21 @@
 										</span>
 										<span class="text-chat-text-muted text-micro text-pretty">
 											{req.inverseSummary}
+										</span>
+									</div>
+									<div class="flex shrink-0 flex-col items-center gap-1.5 pt-0.5">
+										<Switch
+											size="sm"
+											checked={rejected.has(req.toolCallId)}
+											onCheckedChange={() => onToggleReject(req.toolCallId)}
+											aria-label="Reject {req.humanLabel}"
+											class="touch-manipulation"
+										/>
+										<span
+											class="text-chat-text-muted font-mono text-micro tracking-[0.12em] uppercase select-none"
+											aria-hidden="true"
+										>
+											Reject
 										</span>
 									</div>
 								</div>

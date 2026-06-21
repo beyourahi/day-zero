@@ -671,6 +671,14 @@ textarea,
 	}
 }
 
+/* Select panel open/close — honor reduced motion (mirrors the dialog handling). */
+@media (prefers-reduced-motion: reduce) {
+	[data-slot="select-content"] {
+		--tw-duration: 0ms;
+		animation: none;
+	}
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
 	animation-duration: var(--motion-base);
