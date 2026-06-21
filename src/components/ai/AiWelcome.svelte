@@ -52,7 +52,7 @@
 		<div></div>
 	</div>
 	<div class="text-center" style="animation: chat-greeting-stagger 0.4s ease-out both; animation-delay: 100ms;">
-		<Heading as="h2" size="subtitle" weight={560} class="text-balance">{headline}</Heading>
+		<Heading as="h2" size="subtitle" weight={600} class="text-balance">{headline}</Heading>
 	</div>
 	<p
 		class="text-chat-text-secondary mt-2.5 max-w-md text-center text-xs text-pretty md:mt-3 md:text-sm"

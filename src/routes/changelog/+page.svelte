@@ -50,7 +50,7 @@
 <main class="mx-auto w-full max-w-2xl px-4 py-14 sm:px-6 sm:py-20">
 	<header class="flex flex-col gap-4 sm:gap-5" use:reveal={{ distance: "sm" }}>
 		<Eyebrow>What's new</Eyebrow>
-		<Heading as="h1" size="title" weight={560} class="lowercase">changelog</Heading>
+		<Heading as="h1" size="title" weight={600} class="lowercase">changelog</Heading>
 		<p class="text-ink-muted max-w-md text-label text-pretty sm:text-body">
 			Every meaningful update to Day Zero, written in plain language.
 		</p>
@@ -83,7 +83,7 @@
 							<span class="text-ink-muted block font-mono text-micro tracking-[0.22em] uppercase">
 								{entry.category}
 							</span>
-							<Heading as="h2" size="lead" weight={560} class="text-balance">
+							<Heading as="h2" size="lead" weight={600} class="text-balance">
 								{entry.title}
 							</Heading>
 							<p class="text-ink-muted text-label leading-relaxed text-pretty">

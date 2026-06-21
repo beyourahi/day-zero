@@ -110,7 +110,7 @@
 					<a
 						href="/settings"
 						onclick={() => (mobileOpen = false)}
-						class="text-foreground pointer-fine:hover:bg-white/[0.04] focus:bg-white/[0.04] flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none"
+						class="text-foreground hover:bg-white/[0.04] focus:bg-white/[0.04] flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none"
 					>
 						<Settings size={16} aria-hidden="true" />
 						<span class="text-sm font-medium whitespace-nowrap">Settings</span>
@@ -120,7 +120,7 @@
 						onclick={handleLogout}
 						disabled={isLoggingOut}
 						class={cn(
-							"text-destructive pointer-fine:hover:bg-destructive/10 pointer-fine:hover:text-destructive focus:bg-destructive/10 focus:text-destructive flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-60",
+							"text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-60",
 							isLoggingOut && "cursor-wait"
 						)}
 					>
@@ -172,12 +172,12 @@
 					onclick={() => goto("/settings")}
 					aria-label="Settings"
 					class={cn(
-						"sleek group border-hair bg-card pointer-fine:hover:border-white/30 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border backdrop-blur-sm active:scale-95",
+						"sleek group border-hair bg-card hover:border-white/30 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border backdrop-blur-sm active:scale-95",
 						"focus-visible:outline-signal focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
 					)}
 				>
 					<Settings
-						class="text-ink-muted pointer-fine:group-hover:text-foreground h-[1.125rem] w-[1.125rem] transition-colors"
+						class="text-ink-muted group-hover:text-foreground h-[1.125rem] w-[1.125rem] transition-colors"
 						aria-hidden="true"
 					/>
 				</Tooltip.Trigger>
@@ -196,7 +196,7 @@
 						"focus-visible:outline-signal focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2",
 						isLoggingOut
 							? "border-hair bg-card cursor-wait"
-							: "border-hair bg-card pointer-fine:hover:border-destructive/50 pointer-fine:hover:bg-destructive/10 active:scale-95"
+							: "border-hair bg-card hover:border-destructive/50 hover:bg-destructive/10 active:scale-95"
 					)}
 				>
 					{#if isLoggingOut}
@@ -206,7 +206,7 @@
 						></div>
 					{:else}
 						<svg
-							class="text-ink-muted pointer-fine:group-hover:text-destructive h-[1.125rem] w-[1.125rem] transition-colors"
+							class="text-ink-muted group-hover:text-destructive h-[1.125rem] w-[1.125rem] transition-colors"
 							viewBox="0 0 24 24"
 							fill="none"
 							stroke="currentColor"

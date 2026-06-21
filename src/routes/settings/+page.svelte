@@ -152,7 +152,7 @@
 	<header class="flex flex-col gap-4">
 		<a
 			href="/"
-			class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex w-fit items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+			class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex w-fit items-center gap-2 font-mono text-caption tracking-[0.18em] uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
 		>
 			<ArrowLeft size={13} aria-hidden="true" />
 			Back to board
@@ -173,7 +173,7 @@
 			<Eyebrow as="h2">Connection</Eyebrow>
 			<span
 				class={cn(
-					"inline-flex items-center gap-2 font-mono text-[10.5px] tracking-[0.14em] uppercase",
+					"inline-flex items-center gap-2 font-mono text-caption tracking-[0.14em] uppercase",
 					connected ? "text-foreground" : "text-ink-muted"
 				)}
 			>
@@ -250,7 +250,7 @@
 						onclick={refreshModels}
 						disabled={refreshing || !connected}
 						title="Refresh model list"
-						class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[0.14em] uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40"
+						class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex items-center gap-1.5 font-mono text-micro tracking-[0.14em] uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40"
 					>
 						<RefreshCw size={11} class={refreshing ? "animate-spin" : ""} aria-hidden="true" />
 						Refresh
@@ -297,7 +297,7 @@
 		<div class="border-hair flex items-center justify-between gap-3 border-b px-5 py-3.5 sm:px-6">
 			<Eyebrow as="h2">Passkeys</Eyebrow>
 			<span
-				class="text-ink-muted inline-flex items-center gap-2 font-mono text-[10.5px] tracking-[0.14em] uppercase"
+				class="text-ink-muted inline-flex items-center gap-2 font-mono text-caption tracking-[0.14em] uppercase"
 			>
 				<Fingerprint size={12} aria-hidden="true" />
 				Face ID · Touch ID · Fingerprint
@@ -342,7 +342,7 @@
 											{pk.name || "Passkey"}
 										</p>
 										{#if pk.createdAt && formatDate(pk.createdAt)}
-											<p class="text-ink-muted text-[11px]">Added {formatDate(pk.createdAt)}</p>
+											<p class="text-ink-muted text-caption">Added {formatDate(pk.createdAt)}</p>
 										{/if}
 									</div>
 								</div>

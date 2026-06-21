@@ -62,28 +62,28 @@
 		{ container: string; group: string; box: string; digit: string; label: string; colon: string }
 	> = {
 		hero: {
-			container: "gap-[clamp(6px,1.4vw,16px)] max-[480px]:gap-[7px]",
-			group: "flex min-w-0 flex-col items-center gap-2.5 max-[480px]:flex-1",
-			box: "min-w-[clamp(58px,9vw,96px)] rounded-[14px] px-[clamp(12px,2vw,22px)] py-[clamp(10px,1.6vw,18px)] max-[480px]:w-full max-[480px]:min-w-0 max-[480px]:px-1 max-[480px]:py-[11px]",
+			container: "gap-[7px] sm:gap-[clamp(6px,1.4vw,16px)]",
+			group: "flex min-w-0 flex-1 flex-col items-center gap-2.5 sm:flex-none",
+			box: "w-full min-w-0 rounded-md px-1 py-3 sm:w-auto sm:min-w-[clamp(58px,9vw,96px)] sm:px-[clamp(12px,2vw,22px)] sm:py-[clamp(10px,1.6vw,18px)]",
 			digit: "text-[clamp(26px,5vw,48px)]",
-			label: "text-[10px]",
-			colon: "self-start pt-[clamp(18px,3vw,34px)] text-[clamp(20px,3.6vw,36px)] max-[480px]:hidden"
+			label: "text-micro",
+			colon: "hidden self-start pt-[clamp(18px,3vw,34px)] text-[clamp(20px,3.6vw,36px)] sm:block"
 		},
 		card: {
 			container: "gap-2 sm:gap-2.5",
 			group: "flex min-w-0 flex-col items-center gap-1.5",
-			box: "min-w-[44px] rounded-[10px] px-2 py-2 sm:min-w-[52px] sm:px-2.5 sm:py-2.5",
+			box: "min-w-[44px] rounded-sm px-2 py-2 sm:min-w-[52px] sm:px-2.5 sm:py-2.5",
 			digit: "text-[1.5rem] sm:text-[1.75rem]",
-			label: "text-[9px]",
-			colon: "self-start pt-[9px] text-[1.1rem] sm:pt-[11px] sm:text-[1.3rem] max-[420px]:hidden"
+			label: "text-micro",
+			colon: "hidden self-start pt-[9px] text-[1.1rem] sm:block sm:pt-[11px] sm:text-[1.3rem]"
 		},
 		share: {
-			container: "gap-[clamp(8px,1.8vw,22px)] max-[480px]:gap-2",
-			group: "flex min-w-0 flex-col items-center gap-3 max-[480px]:flex-1",
-			box: "min-w-[clamp(72px,12vw,140px)] rounded-[18px] px-[clamp(16px,2.6vw,32px)] py-[clamp(14px,2.2vw,28px)] max-[480px]:w-full max-[480px]:min-w-0 max-[480px]:px-2 max-[480px]:py-[13px]",
+			container: "gap-2 sm:gap-[clamp(8px,1.8vw,22px)]",
+			group: "flex min-w-0 flex-1 flex-col items-center gap-3 sm:flex-none",
+			box: "w-full min-w-0 rounded-xl px-2 py-[13px] sm:w-auto sm:min-w-[clamp(72px,12vw,140px)] sm:px-[clamp(16px,2.6vw,32px)] sm:py-[clamp(14px,2.2vw,28px)]",
 			digit: "text-[clamp(34px,7vw,72px)]",
-			label: "text-[11px] sm:text-xs",
-			colon: "self-start pt-[clamp(24px,4vw,52px)] text-[clamp(26px,5vw,52px)] max-[480px]:hidden"
+			label: "text-caption",
+			colon: "hidden self-start pt-[clamp(24px,4vw,52px)] text-[clamp(26px,5vw,52px)] sm:block"
 		}
 	};
 	const c = $derived(cfg[size]);

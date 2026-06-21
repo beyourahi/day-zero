@@ -67,6 +67,7 @@
 			{#if shared && url}
 				<div class="flex items-center gap-2">
 					<input readonly value={url} class={cn(inputBase, "flex-1 text-xs")} />
+					<!-- size-[46px] + rounded-[11px] deliberately match the adjacent DS input surface (inputBase) -->
 					<button
 						type="button"
 						onclick={copy}

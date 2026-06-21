@@ -43,22 +43,18 @@
 	};
 
 	const actionBtn =
-		"text-ink-muted pointer-fine:hover:text-foreground rounded-md p-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal";
+		"text-ink-muted hover:text-foreground rounded-md p-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal";
 </script>
 
 <div
 	class={cn(
-		"group border-hair relative flex flex-col gap-4 rounded-2xl border bg-white/[0.02] p-5 transition-[border-color,opacity] duration-[250ms] ease-[var(--ease)] pointer-fine:hover:border-white/15",
+		"group border-hair relative flex flex-col gap-4 rounded-2xl border bg-white/[0.02] p-5 transition-[border-color,opacity] duration-[250ms] ease-[var(--ease)] hover:border-white/15",
 		isPast && "opacity-65"
 	)}
 >
 	<div class="flex items-start justify-between gap-3">
 		<div class="min-w-0">
-			<h3
-				class="text-foreground truncate font-sans text-lead lowercase"
-				style="font-variation-settings: 'wght' 560"
-				title={countdown.title}
-			>
+			<h3 class="text-foreground truncate font-sans text-lead font-semibold lowercase" title={countdown.title}>
 				{countdown.title}
 			</h3>
 			<p class="text-ink-muted mt-1 font-mono text-micro tracking-[0.18em] uppercase">
@@ -73,7 +69,7 @@
 			{#if canShare}
 				<button
 					type="button"
-					class={cn(actionBtn, countdown.shareToken && "text-signal pointer-fine:hover:text-signal")}
+					class={cn(actionBtn, countdown.shareToken && "text-signal hover:text-signal")}
 					aria-label={countdown.shareToken ? "Shared — manage link" : "Share"}
 					onclick={() => onShare(countdown.id)}
 				>
@@ -90,7 +86,7 @@
 			</button>
 			<button
 				type="button"
-				class={cn(actionBtn, confirmingDelete && "text-destructive pointer-fine:hover:text-destructive")}
+				class={cn(actionBtn, confirmingDelete && "text-destructive hover:text-destructive")}
 				aria-label={confirmingDelete ? "Confirm delete" : "Delete"}
 				onclick={requestDelete}
 			>

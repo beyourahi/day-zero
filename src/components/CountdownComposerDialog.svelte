@@ -133,7 +133,7 @@
 	// (signal fill for the active half, quiet ink for the other), sized to sit flush
 	// with the hour/minute select triggers.
 	const meridiemBtn =
-		"flex items-center px-3.5 font-mono text-[11px] tracking-[0.12em] uppercase transition-colors duration-200 ease-[var(--ease)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-signal";
+		"flex items-center px-3.5 font-mono text-caption tracking-[0.12em] uppercase transition-colors duration-200 ease-[var(--ease)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-signal";
 	const meridiemOn = "bg-signal font-semibold text-background";
 	const meridiemOff = "text-ink-muted hover:bg-white/[0.04] hover:text-foreground";
 </script>
@@ -235,7 +235,7 @@
 
 			{#if summary}
 				<p
-					class="border-hair text-ink-muted rounded-[11px] border border-dashed px-4 py-3 text-center font-mono text-[11px] tracking-[0.04em]"
+					class="border-hair text-ink-muted rounded-sm border border-dashed px-4 py-3 text-center font-mono text-caption tracking-[0.04em]"
 				>
 					counting down to <span class="text-foreground">{summary}</span>
 				</p>

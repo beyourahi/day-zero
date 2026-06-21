@@ -24,7 +24,7 @@
 			</p>
 			<a
 				href={resolve("/")}
-				class="border-border pointer-fine:hover:bg-accent pointer-fine:hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-9 items-center justify-center gap-2 rounded-xl border bg-transparent px-4 text-sm font-medium whitespace-nowrap transition-all duration-150 outline-none focus-visible:ring-3 active:translate-y-px active:scale-[0.97]"
+				class="border-border hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-9 items-center justify-center gap-2 rounded-xl border bg-transparent px-4 text-sm font-medium whitespace-nowrap transition-all duration-150 outline-none focus-visible:ring-3 active:translate-y-px active:scale-[0.97]"
 			>
 				<ArrowLeft size={14} aria-hidden="true" />
 				Back to the board

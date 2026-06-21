@@ -93,7 +93,7 @@
 			</p>
 			<a
 				href="/settings"
-				class="text-signal focus-visible:outline-signal inline-flex w-fit items-center gap-1 font-mono text-[11px] tracking-[0.08em] uppercase transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2"
+				class="text-signal focus-visible:outline-signal inline-flex w-fit items-center gap-1 font-mono text-caption tracking-[0.08em] uppercase transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2"
 			>
 				Connect in Settings
 				<ArrowRight size={12} aria-hidden="true" />

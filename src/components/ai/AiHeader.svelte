@@ -52,7 +52,7 @@
 			<Clock class="text-chat-icon-muted h-5 w-5 md:h-4 md:w-4" />
 			{#if historyCount > 0}
 				<span
-					class="bg-chat-accent text-chat-bg absolute -top-0.5 -right-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-1 font-mono text-[9px] font-semibold tabular-nums"
+					class="bg-chat-accent text-chat-bg absolute -top-0.5 -right-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-1 font-mono text-micro font-semibold tabular-nums"
 				>
 					{historyCount}
 				</span>

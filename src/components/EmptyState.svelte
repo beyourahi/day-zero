@@ -9,7 +9,7 @@
 </script>
 
 <div class="flex flex-col items-center gap-6 text-center sm:gap-7">
-	<Heading as="h2" size="title" weight={580} class="max-w-md text-balance lowercase">
+	<Heading as="h2" size="title" weight={600} class="max-w-md text-balance lowercase">
 		nothing on the clock yet
 	</Heading>
 	<Cta variant="primary" arrow={false} dot onclick={onNew}>new countdown</Cta>

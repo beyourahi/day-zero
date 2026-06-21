@@ -15,13 +15,10 @@
 		class={cn(
 			"sleek border-hair bg-card text-foreground group flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium backdrop-blur-sm",
 			"ease-[var(--ease)] transition-colors active:scale-95 motion-reduce:transition-none",
-			"pointer-fine:hover:border-signal/50 focus-visible:outline-signal focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+			"hover:border-signal/50 focus-visible:outline-signal focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
 		)}
 	>
-		<CloudUpload
-			class="text-ink-muted pointer-fine:group-hover:text-signal h-4 w-4 transition-colors"
-			aria-hidden="true"
-		/>
+		<CloudUpload class="text-ink-muted group-hover:text-signal h-4 w-4 transition-colors" aria-hidden="true" />
 		<span class="hidden sm:inline">Sign in to sync</span>
 		<span class="sm:hidden">Sign in</span>
 	</a>

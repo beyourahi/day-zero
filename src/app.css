@@ -45,7 +45,6 @@
 	/* a touch stronger than the DS hairline; legacy accent → signal (monochrome) */
 	--border-strong: var(--color-ink-600);
 	--courier-accent: var(--signal);
-	--scrollbar: var(--background);
 
 	/* success / brand — original real colors (the payment chips + completeness
 	   badge read green from these; primary action buttons are decoupled to signal). */
@@ -68,8 +67,6 @@
 	--status-inactive-bg: hsl(8 44% 60% / 0.09);
 	--status-inactive-border: hsl(8 44% 60% / 0.8);
 	--status-inactive-track: hsl(8 34% 52%);
-	--status-transition:
-		color 200ms ease, background-color 200ms ease, border-color 200ms ease, opacity 200ms ease;
 
 	/* AI Copilot surfaces → DS semantic tokens (already monochrome; signal is the accent) */
 	--chat-bg: var(--background);
@@ -92,12 +89,24 @@
 	--copilot-rail-width: 26rem;
 	--copilot-rail-width-xl: 28rem;
 
-	/* Content shell — caps the main column on large screens and centers it with
-	   growing gutters. Reused as px-[var(--content-x)] on content wrappers AND as
-	   the closed-state right offset of the fixed user profile, so they stay aligned. */
+	/* Content shell — only --content-max is app-owned (board density). The DS supplies
+	   --content-pad and --content-x (the centering formula with growing gutters), reused
+	   as px-[var(--content-x)] on wrappers AND the closed-state right offset of the fixed
+	   user profile, so they stay aligned. */
 	--content-max: 1152px;
-	--content-pad: clamp(1rem, 4vw, 2rem);
-	--content-x: max(var(--content-pad), calc((100% - var(--content-max)) / 2));
+}
+
+/* Ultra-wide bumps so a board of cards uses 4K better without sprawling. */
+@media (min-width: 2560px) {
+	:root {
+		--content-max: 1320px;
+	}
+}
+
+@media (min-width: 3840px) {
+	:root {
+		--content-max: 1600px;
+	}
 }
 
 @theme inline {
@@ -218,21 +227,6 @@ body {
 	max-width: 100%;
 }
 
-*::-webkit-scrollbar {
-	width: 0.5rem;
-	background-color: var(--scrollbar);
-}
-
-*::-webkit-scrollbar-thumb {
-	border-radius: 10px;
-	background-color: var(--scrollbar);
-}
-
-*::-webkit-scrollbar-track {
-	border-radius: 10px;
-	background-color: var(--scrollbar);
-}
-
 .scrollbar-hide,
 .no-scrollbar,
 .hide-scrollbar {
@@ -272,34 +266,6 @@ textarea,
 		select {
 			font-size: 1rem;
 		}
-	}
-}
-
-.sleek {
-	@apply transform-gpu transition-all duration-200 ease-in-out;
-}
-
-.status-transition {
-	transition: var(--status-transition);
-}
-
-@keyframes status-pulse {
-	0%,
-	100% {
-		opacity: 1;
-	}
-	50% {
-		opacity: 0.5;
-	}
-}
-
-.status-dot-pulse {
-	animation: status-pulse 2.5s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.status-dot-pulse {
-		animation: none;
 	}
 }
 
@@ -703,15 +669,6 @@ textarea,
 		--tw-duration: 0ms;
 		animation: none;
 	}
-}
-
-:root {
-	--motion-fast: 150ms;
-	--motion-base: 250ms;
-	--motion-slow: 350ms;
-	--motion-ease-standard: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-	--motion-ease-emphasized: cubic-bezier(0.65, 0, 0.35, 1);
-	--motion-ease-decelerate: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 ::view-transition-old(root),
