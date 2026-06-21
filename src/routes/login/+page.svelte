@@ -1,7 +1,7 @@
 <!--
 	Login page. "Continue with Google" drives Better Auth's social OAuth, plus Google One Tap
-	(auto-prompted when configured) and "Sign in with a passkey" (WebAuthn — Face ID / Touch
-	ID / fingerprint). On success the client redirects to the `?redirect=` target (default /);
+	(auto-prompted when configured) and "Sign in with Face ID / Touch ID" (WebAuthn platform
+	biometrics). On success the client redirects to the `?redirect=` target (default /);
 	the $effect also force-redirects if an authenticated session is detected on mount.
 -->
 <script lang="ts">
@@ -61,12 +61,12 @@
 		try {
 			const res = await authClient.signIn.passkey();
 			if (res?.error) {
-				error = "Passkey sign-in failed or was cancelled.";
+				error = "Face ID / Touch ID sign-in failed or was cancelled.";
 			} else {
 				goto(redirectUrl);
 			}
 		} catch (e) {
-			error = "Passkey sign-in failed. Please try again.";
+			error = "Face ID / Touch ID sign-in failed. Please try again.";
 			console.error(e);
 		} finally {
 			isLoading = false;
@@ -138,7 +138,7 @@
 			>
 				<span class="inline-flex items-center gap-2.5">
 					<Fingerprint class="size-4" aria-hidden="true" />
-					<span>Sign in with a passkey</span>
+					<span>Sign in with Face ID / Touch ID</span>
 				</span>
 			</Cta>
 		{/if}
@@ -164,7 +164,7 @@
 
 	<p class="text-ink-muted max-w-sm text-center text-sm text-pretty">
 		{webauthnAvailable
-			? "Sign in with Google — or use a passkey (Face ID, Touch ID, fingerprint) once you've added one in Settings."
-			: "Sign in with your Google account to get started"}
+			? "Sign in with Google — or use Face ID / Touch ID once you've set it up in Settings."
+			: "Sign in with your Google account to get started."}
 	</p>
 </div>

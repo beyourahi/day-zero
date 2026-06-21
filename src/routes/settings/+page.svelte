@@ -12,7 +12,7 @@
 	import { invalidateAll } from "$app/navigation";
 	import { browser } from "$app/environment";
 	import { toast } from "svelte-sonner";
-	import { ArrowLeft, RefreshCw, Fingerprint, KeyRound, Trash2 } from "@lucide/svelte";
+	import { ArrowLeft, RefreshCw, Fingerprint, Trash2 } from "@lucide/svelte";
 	import { authClient } from "$lib/auth-client";
 	import { Eyebrow, Heading, Cta, cn, inputBase, labelBase } from "$lib/ds";
 
@@ -105,39 +105,39 @@
 		else passkeysLoading = false;
 	});
 
-	// attachment "platform" → device biometric (Face ID / Touch ID / fingerprint);
-	// omitted → browser default (allows roaming security keys too).
-	const addPasskey = async (attachment?: "platform") => {
+	// Always registers a platform biometric (Face ID / Touch ID / fingerprint);
+	// roaming security keys are not offered.
+	const addPasskey = async () => {
 		passkeyBusy = true;
 		try {
 			const res = await authClient.passkey.addPasskey({
 				name: deviceLabel(),
-				...(attachment ? { authenticatorAttachment: attachment } : {})
+				authenticatorAttachment: "platform"
 			});
-			if (res?.error) toast.error(res.error.message || "Couldn't add passkey.");
+			if (res?.error) toast.error(res.error.message || "Couldn't set up Face ID / Touch ID.");
 			else {
-				toast.success("Passkey added.");
+				toast.success("Face ID / Touch ID is ready.");
 				await loadPasskeys();
 			}
 		} catch {
-			toast.error("Passkey registration was cancelled.");
+			toast.error("Setup was cancelled.");
 		} finally {
 			passkeyBusy = false;
 		}
 	};
 
 	const removePasskey = async (id: string) => {
-		if (!confirm("Remove this passkey? You won't be able to sign in with it anymore.")) return;
+		if (!confirm("Remove Face ID / Touch ID? You won't be able to sign in with it on this device anymore.")) return;
 		passkeyBusy = true;
 		try {
 			const res = await authClient.passkey.deletePasskey({ id });
-			if (res?.error) toast.error(res.error.message || "Couldn't remove passkey.");
+			if (res?.error) toast.error(res.error.message || "Couldn't remove Face ID / Touch ID.");
 			else {
-				toast.success("Passkey removed.");
+				toast.success("Face ID / Touch ID removed.");
 				await loadPasskeys();
 			}
 		} catch {
-			toast.error("Couldn't remove passkey.");
+			toast.error("Couldn't remove Face ID / Touch ID.");
 		} finally {
 			passkeyBusy = false;
 		}
@@ -161,8 +161,8 @@
 			<Eyebrow>Settings</Eyebrow>
 			<Heading as="h1" size="title-lg">Cloudflare account</Heading>
 			<p class="text-ink-muted max-w-xl text-sm leading-relaxed text-pretty">
-				The copilot runs on Cloudflare Workers AI. Connect <span class="text-foreground">your own</span>
-				Cloudflare account so inference is billed to you — this is
+				The copilot runs on <span class="text-foreground">your own</span>
+				Cloudflare account, so any usage is billed to you, not us. Connecting your account is
 				<span class="text-foreground">required</span> to use the copilot.
 			</p>
 		</div>
@@ -219,8 +219,8 @@
 					{#if connected}
 						Stored: <span class="text-foreground font-mono">{maskedToken}</span> — leave blank to keep it.
 					{:else}
-						A scoped token with the <span class="text-foreground">Account · Workers AI · Read</span>
-						permission. Encrypted at rest; never shown again after saving.
+						An API token with the <span class="text-foreground">Account · Workers AI · Read</span>
+						permission. Stored securely. You won't see it again after saving.
 					{/if}
 				</p>
 			</div>
@@ -267,8 +267,7 @@
 					{/each}
 				</select>
 				<p class="text-ink-muted mt-2 text-xs leading-relaxed text-pretty">
-					Llama 3.3 70B is the recommended function-calling model. Others are experimental — tool-calling
-					quality varies.
+					Llama 3.3 70B is recommended. Others are experimental and may be less reliable.
 				</p>
 			</div>
 
@@ -295,26 +294,19 @@
 
 	<section class="border-hair bg-card flex flex-col overflow-hidden rounded-2xl border">
 		<div class="border-hair flex items-center justify-between gap-3 border-b px-5 py-3.5 sm:px-6">
-			<Eyebrow as="h2">Passkeys</Eyebrow>
-			<span
-				class="text-ink-muted inline-flex items-center gap-2 font-mono text-caption tracking-[0.14em] uppercase"
-			>
-				<Fingerprint size={12} aria-hidden="true" />
-				Face ID · Touch ID · Fingerprint
-			</span>
+			<Eyebrow as="h2">Face ID / Touch ID</Eyebrow>
 		</div>
 
 		<div class="flex flex-col gap-5 px-5 py-6 sm:px-6">
 			<p class="text-ink-muted max-w-xl text-sm leading-relaxed text-pretty">
-				Add a passkey to sign in with <span class="text-foreground">Face ID, Touch ID, or your fingerprint</span
-				>
-				instead of Google. Passkeys are stored on your device and synced by your OS keychain.
+				Set up <span class="text-foreground">Face ID or Touch ID</span> to sign in without Google. It's stored on
+				this device.
 			</p>
 
 			{#if !webauthnAvailable}
 				<p class="text-ink-muted text-xs leading-relaxed text-pretty">
-					This browser can't use passkeys. Open the app in Safari, Chrome, or Edge on a device with Face ID,
-					Touch ID, or a fingerprint sensor.
+					This browser can't use Face ID / Touch ID. Open the app in Safari, Chrome, or Edge on a device with
+					Face ID, Touch ID, or a fingerprint sensor.
 				</p>
 			{:else}
 				{#if passkeysLoading}
@@ -323,11 +315,11 @@
 							class="border-ink-muted/40 size-3.5 animate-spin rounded-full border-2 border-t-transparent"
 							aria-hidden="true"
 						></span>
-						Loading passkeys…
+						Loading…
 					</div>
 				{:else if passkeys.length === 0}
 					<p class="text-ink-muted text-xs leading-relaxed text-pretty">
-						No passkeys yet. Add one below to sign in without Google.
+						Not set up yet. Add Face ID / Touch ID below to sign in without Google.
 					</p>
 				{:else}
 					<ul class="flex flex-col gap-2">
@@ -339,7 +331,7 @@
 									<Fingerprint size={15} class="text-signal shrink-0" aria-hidden="true" />
 									<div class="min-w-0">
 										<p class="text-foreground truncate text-sm font-medium">
-											{pk.name || "Passkey"}
+											{pk.name || "Face ID / Touch ID"}
 										</p>
 										{#if pk.createdAt && formatDate(pk.createdAt)}
 											<p class="text-ink-muted text-caption">Added {formatDate(pk.createdAt)}</p>
@@ -350,7 +342,7 @@
 									type="button"
 									onclick={() => removePasskey(pk.id)}
 									disabled={passkeyBusy}
-									aria-label="Remove passkey"
+									aria-label="Remove Face ID / Touch ID"
 									class="text-ink-muted hover:text-destructive focus-visible:outline-signal shrink-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40"
 								>
 									<Trash2 size={14} aria-hidden="true" />
@@ -365,24 +357,12 @@
 						variant="primary"
 						arrow={false}
 						disabled={passkeyBusy}
-						onclick={() => addPasskey("platform")}
+						onclick={() => addPasskey()}
 						class="justify-center"
 					>
 						<span class="inline-flex items-center gap-2">
 							<Fingerprint size={14} aria-hidden="true" />
 							Set up Face ID / Touch ID
-						</span>
-					</Cta>
-					<Cta
-						variant="secondary"
-						arrow={false}
-						disabled={passkeyBusy}
-						onclick={() => addPasskey()}
-						class="justify-center"
-					>
-						<span class="inline-flex items-center gap-2">
-							<KeyRound size={14} aria-hidden="true" />
-							Use a security key
 						</span>
 					</Cta>
 				</div>

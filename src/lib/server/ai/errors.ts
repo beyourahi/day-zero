@@ -17,16 +17,18 @@ export function describeCloudflareError(err: unknown): string {
 	if (err instanceof CfInferenceError) {
 		switch (err.kind) {
 			case "auth":
-				return `Token rejected (HTTP ${err.status}). ${CF_TOKEN_HELP}`;
+				return `Your token was rejected. ${CF_TOKEN_HELP}`;
 			case "rate_limit":
-				return "Cloudflare rate-limited the request (HTTP 429). Try again in a moment.";
+				return "Cloudflare is busy right now. Try again in a moment.";
 			case "model_unavailable":
 				return "That model isn't available on your account. Pick another from the list.";
 			default:
-				return `Couldn't reach Cloudflare (HTTP ${err.status || "network"}). Check your Account ID and try again.`;
+				return "Couldn't reach Cloudflare. Check your Account ID and try again.";
 		}
 	}
-	return err instanceof Error ? err.message : "Unknown error validating the Cloudflare connection.";
+	return err instanceof Error
+		? err.message
+		: "Couldn't check your Cloudflare connection. Try again.";
 }
 
 /** Per-turn failure message surfaced in the Copilot when inference fails for CF reasons. */
@@ -37,8 +39,8 @@ export function turnErrorForCfError(err: CfInferenceError, model: string): strin
 		case "model_unavailable":
 			return `Model ${model} unavailable on your account — pick another in Settings.`;
 		case "rate_limit":
-			return "Cloudflare rate-limited / out of Workers AI quota.";
+			return "Cloudflare is busy or your AI quota is used up. Try again in a moment.";
 		default:
-			return `Workers AI error (${err.status || "network"}).`;
+			return `The AI couldn't be reached (${err.status || "network"}). Try again.`;
 	}
 }

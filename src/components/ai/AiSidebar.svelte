@@ -88,8 +88,8 @@
 			class="border-chat-border-subtle mx-3 mb-1 flex flex-col gap-2 rounded-xl border border-solid px-3.5 py-3 md:mx-4"
 		>
 			<p class="text-chat-text-primary text-xs leading-relaxed text-pretty">
-				Connect your Cloudflare account to use the copilot — inference runs on (and is billed to) your own
-				account.
+				Connect your Cloudflare account to use the copilot. It runs on your own Cloudflare account, so any usage
+				is billed to you.
 			</p>
 			<a
 				href="/settings"
