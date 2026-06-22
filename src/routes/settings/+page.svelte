@@ -24,7 +24,8 @@
 		helperBase,
 		metaBase,
 		SettingsSection,
-		SettingsRow
+		SettingsRow,
+		SettingsActions
 	} from "$lib/ds";
 	import * as Select from "$lib/components/ui/select";
 
@@ -304,30 +305,26 @@
 				</p>
 			</SettingsRow>
 
-			<div class="border-hair flex flex-col gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-				<p class={cn(helperBase, "max-w-prose")}>
-					Create a token at
-					<a
-						href="https://dash.cloudflare.com/profile/api-tokens"
-						target="_blank"
-						rel="noreferrer"
-						class="text-foreground decoration-hair underline underline-offset-2 hover:decoration-current"
-					>
-						dash.cloudflare.com/profile/api-tokens
-					</a>
-					→ Create Custom Token → permission
-					<span class="text-foreground font-mono">Account · Workers AI · Read</span>.
-				</p>
-				<Cta
-					type="submit"
-					variant="primary"
-					arrow={false}
-					disabled={saving}
-					class="justify-center touch-manipulation"
-				>
+			<SettingsActions>
+				{#snippet status()}
+					<p class={cn(helperBase, "max-w-prose")}>
+						Create a token at
+						<a
+							href="https://dash.cloudflare.com/profile/api-tokens"
+							target="_blank"
+							rel="noreferrer"
+							class="text-foreground decoration-hair underline underline-offset-2 hover:decoration-current"
+						>
+							dash.cloudflare.com/profile/api-tokens
+						</a>
+						→ Create Custom Token → permission
+						<span class="text-foreground font-mono">Account · Workers AI · Read</span>.
+					</p>
+				{/snippet}
+				<Cta type="submit" variant="primary" arrow={false} disabled={saving}>
 					{saving ? "Saving…" : "Save"}
 				</Cta>
-			</div>
+			</SettingsActions>
 		</form>
 	</SettingsSection>
 
@@ -392,20 +389,14 @@
 				</ul>
 			{/if}
 
-			<div class="border-hair flex items-center justify-end gap-3 border-t pt-5">
-				<Cta
-					variant="primary"
-					arrow={false}
-					disabled={passkeyBusy}
-					onclick={() => addPasskey()}
-					class="justify-center touch-manipulation"
-				>
+			<SettingsActions>
+				<Cta variant="primary" arrow={false} disabled={passkeyBusy} onclick={() => addPasskey()}>
 					<span class="inline-flex items-center gap-2">
 						<Fingerprint size={14} aria-hidden="true" />
 						Set up Face ID / Touch ID
 					</span>
 				</Cta>
-			</div>
+			</SettingsActions>
 		{/if}
 	</SettingsSection>
 </main>
