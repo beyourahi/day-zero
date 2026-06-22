@@ -10,9 +10,8 @@
 	import { untrack, onMount } from "svelte";
 	import { enhance } from "$app/forms";
 	import { invalidateAll } from "$app/navigation";
-	import { browser } from "$app/environment";
 	import { toast } from "svelte-sonner";
-	import { ArrowLeft, RefreshCw, Fingerprint, Trash2, Plug, ScanFace } from "@lucide/svelte";
+	import { ArrowLeft, RefreshCw, Fingerprint, Trash2, Cloud } from "@lucide/svelte";
 	import { authClient } from "$lib/auth-client";
 	import {
 		Eyebrow,
@@ -25,7 +24,10 @@
 		metaBase,
 		SettingsSection,
 		SettingsRow,
-		SettingsActions
+		SettingsActions,
+		isPlatformAuthenticatorAvailable,
+		detectPlatform,
+		biometricLabel
 	} from "$lib/ds";
 	import * as Select from "$lib/components/ui/select";
 
@@ -35,6 +37,9 @@
 
 	const connected = $derived(data.connected);
 	const maskedToken = $derived(data.maskedToken ?? "");
+
+	// Device-accurate biometric name from the server OS hint (Face ID / Touch ID / …).
+	const biometricName = $derived(biometricLabel(detectPlatform(data.platformHint)));
 
 	// Controlled fields, seeded ONCE from the server load (untrack so the seed read
 	// isn't treated as reactive). Token starts empty (write-only); leaving it blank on
@@ -84,17 +89,7 @@
 	let passkeys = $state<PasskeyRow[]>([]);
 	let passkeysLoading = $state(true);
 	let passkeyBusy = $state(false);
-	let webauthnAvailable = $state(false);
-
-	// Friendly default name from the UA — stored as the passkey label.
-	const deviceLabel = () => {
-		const ua = browser ? navigator.userAgent : "";
-		if (/iPhone|iPad|iPod/.test(ua)) return "iPhone (Face ID / Touch ID)";
-		if (/Macintosh/.test(ua)) return "Mac (Touch ID)";
-		if (/Android/.test(ua)) return "Android (fingerprint / face)";
-		if (/Windows/.test(ua)) return "Windows Hello";
-		return "This device";
-	};
+	let bioSupported = $state(false);
 
 	const formatDate = (d: string | Date) => {
 		const date = typeof d === "string" ? new Date(d) : d;
@@ -115,9 +110,9 @@
 		}
 	};
 
-	onMount(() => {
-		webauthnAvailable = typeof window !== "undefined" && !!window.PublicKeyCredential;
-		if (webauthnAvailable) loadPasskeys();
+	onMount(async () => {
+		bioSupported = await isPlatformAuthenticatorAvailable();
+		if (bioSupported) loadPasskeys();
 		else passkeysLoading = false;
 	});
 
@@ -127,12 +122,12 @@
 		passkeyBusy = true;
 		try {
 			const res = await authClient.passkey.addPasskey({
-				name: deviceLabel(),
+				name: biometricName,
 				authenticatorAttachment: "platform"
 			});
-			if (res?.error) toast.error(res.error.message || "Couldn't set up Face ID / Touch ID.");
+			if (res?.error) toast.error(res.error.message || `Couldn't set up ${biometricName}.`);
 			else {
-				toast.success("Face ID / Touch ID is ready.");
+				toast.success(`${biometricName} is ready.`);
 				await loadPasskeys();
 			}
 		} catch {
@@ -143,17 +138,17 @@
 	};
 
 	const removePasskey = async (id: string) => {
-		if (!confirm("Remove Face ID / Touch ID? You won't be able to sign in with it on this device anymore.")) return;
+		if (!confirm(`Remove ${biometricName}? You won't be able to sign in with it on this device anymore.`)) return;
 		passkeyBusy = true;
 		try {
 			const res = await authClient.passkey.deletePasskey({ id });
-			if (res?.error) toast.error(res.error.message || "Couldn't remove Face ID / Touch ID.");
+			if (res?.error) toast.error(res.error.message || `Couldn't remove ${biometricName}.`);
 			else {
-				toast.success("Face ID / Touch ID removed.");
+				toast.success(`${biometricName} removed.`);
 				await loadPasskeys();
 			}
 		} catch {
-			toast.error("Couldn't remove Face ID / Touch ID.");
+			toast.error(`Couldn't remove ${biometricName}.`);
 		} finally {
 			passkeyBusy = false;
 		}
@@ -169,16 +164,20 @@
 	tabindex="-1"
 	class="mx-auto flex w-full max-w-[var(--settings-max)] grow flex-col gap-10 px-[var(--content-x)] py-10 outline-none sm:py-14"
 >
-	<Cta href="/" variant="secondary" arrow={false} class="bg-card w-fit px-5 py-2.5 text-caption">
-		<span class="inline-flex items-center gap-2">
-			<ArrowLeft class="size-4" aria-hidden="true" />
-			Back to board
-		</span>
-	</Cta>
+	<div class="flex justify-end">
+		<Cta href="/" variant="secondary" size="sm" arrow={false} class="bg-card">
+			<span class="inline-flex items-center gap-2">
+				<ArrowLeft class="size-4" aria-hidden="true" />
+				Back to app
+			</span>
+		</Cta>
+	</div>
 
 	<header class="flex flex-col gap-2.5">
 		<Eyebrow>Settings</Eyebrow>
-		<Heading as="h1" size="title-lg" weight={600}>Cloudflare account</Heading>
+		<Heading as="h1" size="title-lg" weight={600} class="whitespace-nowrap lg:text-title">
+			Settings
+		</Heading>
 		<p class={cn(bodyBase, "max-w-prose")}>
 			The copilot runs on <span class="text-foreground">your own</span>
 			Cloudflare account, so any usage is billed to you, not us. Connecting your account is
@@ -186,18 +185,19 @@
 		</p>
 	</header>
 
-	<SettingsSection title="Connection" subtitle="Your Cloudflare credentials power the copilot." icon={Plug}>
+	<SettingsSection
+		title="Cloudflare account"
+		subtitle="Bring your own Cloudflare account to power the AI features."
+		icon={Cloud}
+	>
 		{#snippet header()}
 			<span
 				class={cn(
-					"inline-flex items-center gap-2 font-mono text-caption tracking-[0.14em] uppercase",
-					connected ? "text-foreground" : "text-ink-muted"
+					"inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-micro tracking-[0.14em] whitespace-nowrap uppercase",
+					connected ? "border-signal/40 text-foreground" : "border-hair text-ink-muted"
 				)}
 			>
-				<span
-					class={cn("size-1.5 rounded-full", connected ? "bg-signal" : "bg-ink-muted/50")}
-					aria-hidden="true"
-				></span>
+				<span class={cn("size-1.5 rounded-full", connected ? "bg-signal" : "bg-ink-muted")}></span>
 				{connected ? "Connected" : "Not connected"}
 			</span>
 		{/snippet}
@@ -259,38 +259,38 @@
 			</SettingsRow>
 
 			<SettingsRow label="Model" htmlFor="cf-model" stacked>
-				<div class="mb-2.5 flex items-center justify-end">
+				<div class="flex items-center gap-2.5">
 					<button
 						type="button"
 						onclick={refreshModels}
 						disabled={refreshing || !connected}
 						title="Refresh model list"
-						class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex items-center gap-1.5 font-mono text-micro tracking-[0.14em] whitespace-nowrap uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40 touch-manipulation"
+						class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex shrink-0 items-center gap-1.5 font-mono text-micro tracking-[0.14em] whitespace-nowrap uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40 touch-manipulation"
 					>
 						<RefreshCw size={11} class={refreshing ? "animate-spin" : ""} aria-hidden="true" />
 						Refresh
 					</button>
+					<Select.Root type="single" name="cloudflareModel" bind:value={model}>
+						<Select.Trigger
+							id="cf-model"
+							class={cn(inputBase, "h-auto w-full justify-between text-left font-mono")}
+						>
+							<span data-slot="select-value" class="truncate">{selectedModelLabel}</span>
+						</Select.Trigger>
+						<Select.Content
+							class="border-hair bg-card max-h-72 rounded-[11px] font-mono shadow-lg ring-0"
+							sideOffset={6}
+						>
+							{#each modelOptions as opt (opt.id)}
+								<Select.Item
+									value={opt.id}
+									label={opt.label}
+									class="hover:bg-ink-2 data-highlighted:bg-ink-2 rounded-md text-xs"
+								/>
+							{/each}
+						</Select.Content>
+					</Select.Root>
 				</div>
-				<Select.Root type="single" name="cloudflareModel" bind:value={model}>
-					<Select.Trigger
-						id="cf-model"
-						class={cn(inputBase, "h-auto w-full justify-between text-left font-mono")}
-					>
-						<span data-slot="select-value" class="truncate">{selectedModelLabel}</span>
-					</Select.Trigger>
-					<Select.Content
-						class="border-hair bg-card max-h-72 rounded-[11px] font-mono shadow-lg ring-0"
-						sideOffset={6}
-					>
-						{#each modelOptions as opt (opt.id)}
-							<Select.Item
-								value={opt.id}
-								label={opt.label}
-								class="hover:bg-ink-2 data-highlighted:bg-ink-2 rounded-md text-xs"
-							/>
-						{/each}
-					</Select.Content>
-				</Select.Root>
 				<p class={cn(helperBase, "mt-2")}>
 					Llama 3.3 70B is recommended. Others are experimental and may be less reliable.
 				</p>
@@ -312,29 +312,72 @@
 						<span class="text-foreground font-mono">Account · Workers AI · Read</span>.
 					</p>
 				{/snippet}
-				<Cta type="submit" variant="primary" arrow={false} disabled={saving}>
+				<Cta type="submit" size="sm" variant="primary" arrow={false} disabled={saving}>
 					{saving ? "Saving…" : "Save"}
 				</Cta>
 			</SettingsActions>
 		</form>
+
+		{#if connected}
+			<div class="border-hair flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
+				<div class="min-w-0">
+					<p class={cn(bodyBase, "font-medium")}>Disconnect</p>
+					<p class={cn(helperBase, "mt-1 max-w-prose")}>
+						Removes your saved token and account ID. The AI features stay off until you reconnect.
+					</p>
+				</div>
+				<form
+					method="POST"
+					action="?/reset"
+					class="shrink-0"
+					use:enhance={({ cancel }) => {
+						if (
+							!confirm(
+								"Disconnect your Cloudflare account? The AI features will stop working until you reconnect."
+							)
+						) {
+							cancel();
+							return;
+						}
+						return async ({ result, update }) => {
+							if (result.type === "success") {
+								token = "";
+								toast.success("Cloudflare account disconnected");
+							} else if (result.type === "failure") {
+								toast.error((result.data?.error as string | undefined) ?? "Couldn't disconnect");
+							}
+							await update({ reset: false });
+						};
+					}}
+				>
+					<Cta
+						type="submit"
+						size="sm"
+						variant="secondary"
+						arrow={false}
+						class="text-destructive hover:border-destructive"
+					>
+						<span class="inline-flex items-center gap-2">
+							<Trash2 class="size-3.5" aria-hidden="true" />
+							Disconnect
+						</span>
+					</Cta>
+				</form>
+			</div>
+		{/if}
 	</SettingsSection>
 
-	<SettingsSection
-		title="Face ID / Touch ID"
-		subtitle="Sign in with device biometrics instead of Google."
-		icon={ScanFace}
-	>
-		<p class={cn(bodyBase, "max-w-prose")}>
-			Set up <span class="text-foreground">Face ID or Touch ID</span> to sign in without Google. It's stored on this
-			device.
-		</p>
-
-		{#if !webauthnAvailable}
-			<p class={cn(helperBase, "max-w-prose")}>
-				This browser can't use Face ID / Touch ID. Open the app in Safari, Chrome, or Edge on a device with Face
-				ID, Touch ID, or a fingerprint sensor.
+	{#if bioSupported}
+		<SettingsSection
+			title={biometricName}
+			subtitle={"Sign in with " + biometricName + " instead of Google."}
+			icon={Fingerprint}
+		>
+			<p class={cn(bodyBase, "max-w-prose")}>
+				Set up <span class="text-foreground">{biometricName}</span> to sign in without Google. It's stored on this
+				device.
 			</p>
-		{:else}
+
 			{#if passkeysLoading}
 				<div class={cn(helperBase, "flex items-center gap-2")}>
 					<span
@@ -345,19 +388,19 @@
 				</div>
 			{:else if passkeys.length === 0}
 				<p class={cn(helperBase, "max-w-prose")}>
-					Not set up yet. Add Face ID / Touch ID below to sign in without Google.
+					Not set up yet. Add {biometricName} below to sign in without Google.
 				</p>
 			{:else}
 				<ul class="flex flex-col gap-2">
 					{#each passkeys as pk (pk.id)}
 						<li
-							class="border-hair bg-background/40 flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3"
+							class="border-hair bg-background/40 flex items-center justify-between gap-3 rounded-lg border px-3.5 py-3"
 						>
 							<div class="flex min-w-0 items-center gap-2.5">
 								<Fingerprint size={15} class="text-signal shrink-0" aria-hidden="true" />
 								<div class="min-w-0">
 									<p class="text-foreground truncate text-label font-medium">
-										{pk.name || "Face ID / Touch ID"}
+										{pk.name || biometricName}
 									</p>
 									{#if pk.createdAt && formatDate(pk.createdAt)}
 										<p class={metaBase}>
@@ -370,7 +413,7 @@
 								type="button"
 								onclick={() => removePasskey(pk.id)}
 								disabled={passkeyBusy}
-								aria-label="Remove Face ID / Touch ID"
+								aria-label={"Remove " + biometricName}
 								class="text-ink-muted hover:text-destructive focus-visible:outline-signal shrink-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40 touch-manipulation"
 							>
 								<Trash2 size={14} aria-hidden="true" />
@@ -381,13 +424,13 @@
 			{/if}
 
 			<SettingsActions>
-				<Cta variant="primary" arrow={false} disabled={passkeyBusy} onclick={() => addPasskey()}>
+				<Cta size="sm" variant="primary" arrow={false} disabled={passkeyBusy} onclick={() => addPasskey()}>
 					<span class="inline-flex items-center gap-2">
 						<Fingerprint size={14} aria-hidden="true" />
-						Set up Face ID / Touch ID
+						Set up {biometricName}
 					</span>
 				</Cta>
 			</SettingsActions>
-		{/if}
-	</SettingsSection>
+		</SettingsSection>
+	{/if}
 </main>

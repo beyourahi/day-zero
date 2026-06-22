@@ -18,17 +18,25 @@ import { describeCloudflareError } from "$lib/server/ai/errors";
  *          models (proves token + account + Workers AI permission), caches that
  *          list, then encrypts + upserts. Empty token preserves the existing blob.
  */
-export const load: PageServerLoad = async ({ locals, platform }) => {
+export const load: PageServerLoad = async ({ locals, platform, request }) => {
 	if (!locals.user) {
 		redirect(303, "/login");
 	}
+
+	// OS hint for the biometric label — SSR picks the right name (Face ID / Touch ID / …)
+	// before the client confirms real availability via UVPAA, avoiding a wrong-name flash.
+	const platformHint =
+		request.headers.get("sec-ch-ua-platform")?.replace(/^"|"$/g, "") ||
+		request.headers.get("user-agent") ||
+		"";
 
 	const empty = {
 		connected: false,
 		accountId: "",
 		maskedToken: "",
 		model: DEFAULT_MODEL,
-		models: [] as CfModel[]
+		models: [] as CfModel[],
+		platformHint
 	};
 
 	if (!platform?.env?.DB) {
@@ -78,7 +86,7 @@ export const load: PageServerLoad = async ({ locals, platform }) => {
 		}
 	}
 
-	return { connected, accountId, maskedToken, model, models };
+	return { connected, accountId, maskedToken, model, models, platformHint };
 };
 
 export const actions: Actions = {
@@ -145,5 +153,14 @@ export const actions: Actions = {
 		}
 
 		return { success: true };
+	},
+
+	reset: async ({ locals, platform }) => {
+		if (!locals.user || !platform?.env?.DB) {
+			return fail(503, { error: "Service unavailable." });
+		}
+		const db = getDatabase(platform.env.DB);
+		await db.delete(userSettings).where(eq(userSettings.userId, locals.user.id));
+		return { success: true, reset: true };
 	}
 };
