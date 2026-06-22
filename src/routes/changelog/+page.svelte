@@ -58,9 +58,9 @@
 
 	<div class="border-hair my-12 border-t sm:my-16"></div>
 
-	<div class="space-y-14 sm:space-y-20">
+	<div class="flex flex-col gap-14 sm:gap-20">
 		{#each groups as group, groupIndex (group.date)}
-			<section class="space-y-6">
+			<section class="flex flex-col gap-6">
 				<div
 					class="flex flex-wrap items-baseline gap-x-3 gap-y-1.5"
 					use:reveal={{ distance: "sm", delay: groupIndex === 0 ? 0.05 : 0 }}
@@ -77,13 +77,13 @@
 					{/if}
 				</div>
 
-				<div class="border-hair space-y-8 border-l pl-5 sm:pl-6">
+				<div class="border-hair flex flex-col gap-8 border-l pl-5 sm:pl-6">
 					{#each group.entries as entry, entryIndex (entry.title)}
-						<article class="space-y-2.5" use:reveal={{ distance: "sm", delay: 0.06 * entryIndex }}>
+						<article class="flex flex-col gap-2.5" use:reveal={{ distance: "sm", delay: 0.06 * entryIndex }}>
 							<span class="text-ink-muted block font-mono text-micro tracking-[0.22em] uppercase">
 								{entry.category}
 							</span>
-							<Heading as="h2" size="lead" weight={600} class="text-balance">
+							<Heading as="h2" size="lead" class="text-balance">
 								{entry.title}
 							</Heading>
 							<p class="text-ink-muted text-label leading-relaxed text-pretty">

@@ -3,11 +3,15 @@
 	sibling tools (order-processor, invoice-generator): a domain emoji over a
 	semibold wordmark and a short tagline, centered. Dark-only, monochrome.
 -->
-<div class="space-y-4 text-center sm:space-y-6">
+<script lang="ts">
+	import { Heading, cn, helperBase } from "$lib/ds";
+</script>
+
+<div class="flex flex-col items-center gap-4 text-center sm:gap-6">
 	<p class="text-4xl sm:text-5xl">⏳</p>
 
-	<div class="space-y-1.5 sm:space-y-2">
-		<h1 class="text-2xl font-semibold tracking-tight text-balance sm:text-3xl lg:text-4xl">Day Zero</h1>
-		<p class="text-muted-foreground text-xs text-pretty sm:text-sm">Count down to what actually matters.</p>
+	<div class="flex flex-col items-center gap-1.5 sm:gap-2">
+		<Heading as="h1" size="title-lg" weight={600} class="text-center text-balance">Day Zero</Heading>
+		<p class={cn(helperBase, "text-center")}>Count down to what actually matters.</p>
 	</div>
 </div>

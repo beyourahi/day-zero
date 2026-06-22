@@ -12,9 +12,20 @@
 	import { invalidateAll } from "$app/navigation";
 	import { browser } from "$app/environment";
 	import { toast } from "svelte-sonner";
-	import { ArrowLeft, RefreshCw, Fingerprint, Trash2 } from "@lucide/svelte";
+	import { ArrowLeft, RefreshCw, Fingerprint, Trash2, Plug, ScanFace } from "@lucide/svelte";
 	import { authClient } from "$lib/auth-client";
-	import { Eyebrow, Heading, Cta, cn, inputBase, labelBase } from "$lib/ds";
+	import {
+		Eyebrow,
+		Heading,
+		Cta,
+		cn,
+		inputBase,
+		bodyBase,
+		helperBase,
+		metaBase,
+		SettingsSection,
+		SettingsRow
+	} from "$lib/ds";
 	import * as Select from "$lib/components/ui/select";
 
 	let { data } = $props();
@@ -155,20 +166,23 @@
 <main
 	id="main"
 	tabindex="-1"
-	class="mx-auto flex w-full max-w-2xl flex-col gap-10 px-5 pt-10 pb-20 outline-none sm:px-6 sm:pt-14"
+	class="mx-auto flex w-full max-w-[var(--settings-max)] grow flex-col gap-10 px-[var(--content-x)] py-10 outline-none sm:py-14"
 >
 	<header class="flex flex-col gap-4">
 		<a
 			href="/"
-			class="text-ink-muted hover:text-foreground focus-visible:outline-signal inline-flex w-fit items-center gap-2 font-mono text-caption tracking-[0.18em] whitespace-nowrap uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 touch-manipulation"
+			class={cn(
+				helperBase,
+				"hover:text-foreground focus-visible:outline-signal inline-flex w-fit items-center gap-2 font-mono tracking-[0.18em] whitespace-nowrap uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 touch-manipulation"
+			)}
 		>
 			<ArrowLeft size={13} aria-hidden="true" />
 			Back to board
 		</a>
 		<div class="flex flex-col gap-2.5">
 			<Eyebrow>Settings</Eyebrow>
-			<Heading as="h1" size="title-lg">Cloudflare account</Heading>
-			<p class="text-ink-muted max-w-xl text-sm leading-relaxed text-pretty">
+			<Heading as="h1" size="title-lg" weight={600}>Cloudflare account</Heading>
+			<p class={cn(bodyBase, "max-w-prose")}>
 				The copilot runs on <span class="text-foreground">your own</span>
 				Cloudflare account, so any usage is billed to you, not us. Connecting your account is
 				<span class="text-foreground">required</span> to use the copilot.
@@ -176,9 +190,12 @@
 		</div>
 	</header>
 
-	<section class="border-hair bg-card flex flex-col overflow-hidden rounded-2xl border">
-		<div class="border-hair flex items-center justify-between gap-3 border-b px-5 py-3.5 sm:px-6">
-			<Eyebrow as="h2">Connection</Eyebrow>
+	<SettingsSection
+		title="Connection"
+		subtitle="Your Cloudflare credentials power the copilot."
+		icon={Plug}
+	>
+		{#snippet header()}
 			<span
 				class={cn(
 					"inline-flex items-center gap-2 font-mono text-caption tracking-[0.14em] uppercase",
@@ -191,12 +208,12 @@
 				></span>
 				{connected ? "Connected" : "Not connected"}
 			</span>
-		</div>
+		{/snippet}
 
 		<form
 			method="POST"
 			action="?/save"
-			class="flex flex-col gap-6 px-5 py-6 sm:px-6"
+			class="flex flex-col gap-6"
 			use:enhance={() => {
 				saving = true;
 				return async ({ result, update }) => {
@@ -211,8 +228,7 @@
 				};
 			}}
 		>
-			<div class="flex flex-col">
-				<label class={labelBase} for="cf-token">API token</label>
+			<SettingsRow label="API token" htmlFor="cf-token" stacked>
 				<input
 					id="cf-token"
 					name="cloudflareToken"
@@ -223,7 +239,7 @@
 					spellcheck="false"
 					class={inputBase}
 				/>
-				<p class="text-ink-muted mt-2 text-xs leading-relaxed text-pretty">
+				<p class={cn(helperBase, "mt-2")}>
 					{#if connected}
 						Stored: <span class="text-foreground font-mono wrap-break-word">{maskedToken}</span> — leave blank
 						to keep it.
@@ -232,10 +248,9 @@
 						permission. Stored securely. You won't see it again after saving.
 					{/if}
 				</p>
-			</div>
+			</SettingsRow>
 
-			<div class="flex flex-col">
-				<label class={labelBase} for="cf-account">Account ID</label>
+			<SettingsRow label="Account ID" htmlFor="cf-account" stacked>
 				<input
 					id="cf-account"
 					name="cloudflareAccountId"
@@ -246,14 +261,13 @@
 					spellcheck="false"
 					class={inputBase}
 				/>
-				<p class="text-ink-muted mt-2 text-xs leading-relaxed text-pretty">
+				<p class={cn(helperBase, "mt-2")}>
 					Found in the right sidebar of any account page in the Cloudflare dashboard.
 				</p>
-			</div>
+			</SettingsRow>
 
-			<div class="flex flex-col">
-				<div class="mb-2.5 flex items-center justify-between gap-3">
-					<label class={cn(labelBase, "mb-0")} for="cf-model">Model</label>
+			<SettingsRow label="Model" htmlFor="cf-model" stacked>
+				<div class="mb-2.5 flex items-center justify-end">
 					<button
 						type="button"
 						onclick={refreshModels}
@@ -266,7 +280,10 @@
 					</button>
 				</div>
 				<Select.Root type="single" name="cloudflareModel" bind:value={model}>
-					<Select.Trigger id="cf-model" class={cn(inputBase, "h-auto justify-between text-left font-mono")}>
+					<Select.Trigger
+						id="cf-model"
+						class={cn(inputBase, "h-auto w-full justify-between text-left font-mono")}
+					>
 						<span data-slot="select-value" class="truncate">{selectedModelLabel}</span>
 					</Select.Trigger>
 					<Select.Content
@@ -282,13 +299,13 @@
 						{/each}
 					</Select.Content>
 				</Select.Root>
-				<p class="text-ink-muted mt-2 text-xs leading-relaxed text-pretty">
+				<p class={cn(helperBase, "mt-2")}>
 					Llama 3.3 70B is recommended. Others are experimental and may be less reliable.
 				</p>
-			</div>
+			</SettingsRow>
 
 			<div class="border-hair flex flex-col gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-				<p class="text-ink-muted max-w-sm text-xs leading-relaxed text-pretty">
+				<p class={cn(helperBase, "max-w-prose")}>
 					Create a token at
 					<a
 						href="https://dash.cloudflare.com/profile/api-tokens"
@@ -312,85 +329,83 @@
 				</Cta>
 			</div>
 		</form>
-	</section>
+	</SettingsSection>
 
-	<section class="border-hair bg-card flex flex-col overflow-hidden rounded-2xl border">
-		<div class="border-hair flex items-center justify-between gap-3 border-b px-5 py-3.5 sm:px-6">
-			<Eyebrow as="h2">Face ID / Touch ID</Eyebrow>
-		</div>
+	<SettingsSection
+		title="Face ID / Touch ID"
+		subtitle="Sign in with device biometrics instead of Google."
+		icon={ScanFace}
+	>
+		<p class={cn(bodyBase, "max-w-prose")}>
+			Set up <span class="text-foreground">Face ID or Touch ID</span> to sign in without Google. It's stored on
+			this device.
+		</p>
 
-		<div class="flex flex-col gap-5 px-5 py-6 sm:px-6">
-			<p class="text-ink-muted max-w-xl text-sm leading-relaxed text-pretty">
-				Set up <span class="text-foreground">Face ID or Touch ID</span> to sign in without Google. It's stored on
-				this device.
+		{#if !webauthnAvailable}
+			<p class={cn(helperBase, "max-w-prose")}>
+				This browser can't use Face ID / Touch ID. Open the app in Safari, Chrome, or Edge on a device with
+				Face ID, Touch ID, or a fingerprint sensor.
 			</p>
-
-			{#if !webauthnAvailable}
-				<p class="text-ink-muted text-xs leading-relaxed text-pretty">
-					This browser can't use Face ID / Touch ID. Open the app in Safari, Chrome, or Edge on a device with
-					Face ID, Touch ID, or a fingerprint sensor.
+		{:else}
+			{#if passkeysLoading}
+				<div class={cn(helperBase, "flex items-center gap-2")}>
+					<span
+						class="border-ink-muted/40 size-3.5 animate-spin rounded-full border-2 border-t-transparent"
+						aria-hidden="true"
+					></span>
+					Loading…
+				</div>
+			{:else if passkeys.length === 0}
+				<p class={cn(helperBase, "max-w-prose")}>
+					Not set up yet. Add Face ID / Touch ID below to sign in without Google.
 				</p>
 			{:else}
-				{#if passkeysLoading}
-					<div class="text-ink-muted flex items-center gap-2 text-xs">
-						<span
-							class="border-ink-muted/40 size-3.5 animate-spin rounded-full border-2 border-t-transparent"
-							aria-hidden="true"
-						></span>
-						Loading…
-					</div>
-				{:else if passkeys.length === 0}
-					<p class="text-ink-muted text-xs leading-relaxed text-pretty">
-						Not set up yet. Add Face ID / Touch ID below to sign in without Google.
-					</p>
-				{:else}
-					<ul class="flex flex-col gap-2">
-						{#each passkeys as pk (pk.id)}
-							<li
-								class="border-hair bg-background/40 flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3"
-							>
-								<div class="flex min-w-0 items-center gap-2.5">
-									<Fingerprint size={15} class="text-signal shrink-0" aria-hidden="true" />
-									<div class="min-w-0">
-										<p class="text-foreground truncate text-sm font-medium">
-											{pk.name || "Face ID / Touch ID"}
+				<ul class="flex flex-col gap-2">
+					{#each passkeys as pk (pk.id)}
+						<li
+							class="border-hair bg-background/40 flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3"
+						>
+							<div class="flex min-w-0 items-center gap-2.5">
+								<Fingerprint size={15} class="text-signal shrink-0" aria-hidden="true" />
+								<div class="min-w-0">
+									<p class="text-foreground truncate text-label font-medium">
+										{pk.name || "Face ID / Touch ID"}
+									</p>
+									{#if pk.createdAt && formatDate(pk.createdAt)}
+										<p class={metaBase}>
+											Added {formatDate(pk.createdAt)}
 										</p>
-										{#if pk.createdAt && formatDate(pk.createdAt)}
-											<p class="text-ink-muted text-caption tabular-nums">
-												Added {formatDate(pk.createdAt)}
-											</p>
-										{/if}
-									</div>
+									{/if}
 								</div>
-								<button
-									type="button"
-									onclick={() => removePasskey(pk.id)}
-									disabled={passkeyBusy}
-									aria-label="Remove Face ID / Touch ID"
-									class="text-ink-muted hover:text-destructive focus-visible:outline-signal shrink-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40 touch-manipulation"
-								>
-									<Trash2 size={14} aria-hidden="true" />
-								</button>
-							</li>
-						{/each}
-					</ul>
-				{/if}
-
-				<div class="flex flex-wrap items-center gap-2.5">
-					<Cta
-						variant="primary"
-						arrow={false}
-						disabled={passkeyBusy}
-						onclick={() => addPasskey()}
-						class="justify-center touch-manipulation"
-					>
-						<span class="inline-flex items-center gap-2">
-							<Fingerprint size={14} aria-hidden="true" />
-							Set up Face ID / Touch ID
-						</span>
-					</Cta>
-				</div>
+							</div>
+							<button
+								type="button"
+								onclick={() => removePasskey(pk.id)}
+								disabled={passkeyBusy}
+								aria-label="Remove Face ID / Touch ID"
+								class="text-ink-muted hover:text-destructive focus-visible:outline-signal shrink-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40 touch-manipulation"
+							>
+								<Trash2 size={14} aria-hidden="true" />
+							</button>
+						</li>
+					{/each}
+				</ul>
 			{/if}
-		</div>
-	</section>
+
+			<div class="border-hair flex items-center justify-end gap-3 border-t pt-5">
+				<Cta
+					variant="primary"
+					arrow={false}
+					disabled={passkeyBusy}
+					onclick={() => addPasskey()}
+					class="justify-center touch-manipulation"
+				>
+					<span class="inline-flex items-center gap-2">
+						<Fingerprint size={14} aria-hidden="true" />
+						Set up Face ID / Touch ID
+					</span>
+				</Cta>
+			</div>
+		{/if}
+	</SettingsSection>
 </main>
