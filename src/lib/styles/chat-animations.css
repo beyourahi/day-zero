@@ -126,6 +126,7 @@
 	}
 }
 
+/* Deliberate, bespoke thin chat-pane scrollbar — not the DS base scrollbar. */
 .chat-scrollbar::-webkit-scrollbar {
 	width: 4px;
 	background: transparent;

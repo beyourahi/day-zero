@@ -27,9 +27,9 @@
 
 	const statusConfig = $derived(
 		{
-			online: { dot: "bg-emerald-400", label: "online" },
-			connecting: { dot: "bg-amber-400 animate-pulse", label: "connecting" },
-			error: { dot: "bg-red-400", label: "offline" }
+			online: { dot: "bg-status-ok", label: "online" },
+			connecting: { dot: "bg-status-warn animate-pulse", label: "connecting" },
+			error: { dot: "bg-status-error", label: "offline" }
 		}[status]
 	);
 </script>

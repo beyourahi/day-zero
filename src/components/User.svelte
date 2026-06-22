@@ -110,7 +110,7 @@
 					<a
 						href="/settings"
 						onclick={() => (mobileOpen = false)}
-						class="text-foreground hover:bg-white/[0.04] focus:bg-white/[0.04] flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none touch-manipulation"
+						class="text-foreground hover:bg-white/[0.04] focus:bg-white/[0.04] flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors touch-manipulation"
 					>
 						<Settings size={16} aria-hidden="true" />
 						<span class="text-sm font-medium whitespace-nowrap">Settings</span>
@@ -120,7 +120,7 @@
 						onclick={handleLogout}
 						disabled={isLoggingOut}
 						class={cn(
-							"text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 touch-manipulation",
+							"text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60 touch-manipulation",
 							isLoggingOut && "cursor-wait"
 						)}
 					>
