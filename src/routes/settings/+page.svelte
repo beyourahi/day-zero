@@ -169,33 +169,24 @@
 	tabindex="-1"
 	class="mx-auto flex w-full max-w-[var(--settings-max)] grow flex-col gap-10 px-[var(--content-x)] py-10 outline-none sm:py-14"
 >
-	<header class="flex flex-col gap-4">
-		<a
-			href="/"
-			class={cn(
-				helperBase,
-				"hover:text-foreground focus-visible:outline-signal inline-flex w-fit items-center gap-2 font-mono tracking-[0.18em] whitespace-nowrap uppercase transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 touch-manipulation"
-			)}
-		>
-			<ArrowLeft size={13} aria-hidden="true" />
+	<Cta href="/" variant="secondary" arrow={false} class="bg-card w-fit px-5 py-2.5 text-caption">
+		<span class="inline-flex items-center gap-2">
+			<ArrowLeft class="size-4" aria-hidden="true" />
 			Back to board
-		</a>
-		<div class="flex flex-col gap-2.5">
-			<Eyebrow>Settings</Eyebrow>
-			<Heading as="h1" size="title-lg" weight={600}>Cloudflare account</Heading>
-			<p class={cn(bodyBase, "max-w-prose")}>
-				The copilot runs on <span class="text-foreground">your own</span>
-				Cloudflare account, so any usage is billed to you, not us. Connecting your account is
-				<span class="text-foreground">required</span> to use the copilot.
-			</p>
-		</div>
+		</span>
+	</Cta>
+
+	<header class="flex flex-col gap-2.5">
+		<Eyebrow>Settings</Eyebrow>
+		<Heading as="h1" size="title-lg" weight={600}>Cloudflare account</Heading>
+		<p class={cn(bodyBase, "max-w-prose")}>
+			The copilot runs on <span class="text-foreground">your own</span>
+			Cloudflare account, so any usage is billed to you, not us. Connecting your account is
+			<span class="text-foreground">required</span> to use the copilot.
+		</p>
 	</header>
 
-	<SettingsSection
-		title="Connection"
-		subtitle="Your Cloudflare credentials power the copilot."
-		icon={Plug}
-	>
+	<SettingsSection title="Connection" subtitle="Your Cloudflare credentials power the copilot." icon={Plug}>
 		{#snippet header()}
 			<span
 				class={cn(
@@ -334,14 +325,14 @@
 		icon={ScanFace}
 	>
 		<p class={cn(bodyBase, "max-w-prose")}>
-			Set up <span class="text-foreground">Face ID or Touch ID</span> to sign in without Google. It's stored on
-			this device.
+			Set up <span class="text-foreground">Face ID or Touch ID</span> to sign in without Google. It's stored on this
+			device.
 		</p>
 
 		{#if !webauthnAvailable}
 			<p class={cn(helperBase, "max-w-prose")}>
-				This browser can't use Face ID / Touch ID. Open the app in Safari, Chrome, or Edge on a device with
-				Face ID, Touch ID, or a fingerprint sensor.
+				This browser can't use Face ID / Touch ID. Open the app in Safari, Chrome, or Edge on a device with Face
+				ID, Touch ID, or a fingerprint sensor.
 			</p>
 		{:else}
 			{#if passkeysLoading}

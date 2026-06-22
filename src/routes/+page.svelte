@@ -15,6 +15,7 @@
 	import { reveal } from "$lib/motion";
 	import { Cta } from "$lib/ds";
 	import Heading from "$lib/components/ui/heading/heading.svelte";
+	import Navbar from "$src/components/Navbar.svelte";
 	import User from "$src/components/User.svelte";
 	import SignInButton from "$src/components/SignInButton.svelte";
 	import CountdownHero from "$src/components/CountdownHero.svelte";
@@ -73,13 +74,19 @@
 	const gridItems = $derived(countdowns.upcoming.slice(1)); // hero is upcoming[0]
 </script>
 
-{#if page.data.user && page.data.currentUser}
-	<User user={page.data.user} currentUser={page.data.currentUser} />
-{:else}
-	<SignInButton />
-{/if}
+<Navbar>
+	{#if page.data.user && page.data.currentUser}
+		<User user={page.data.user} currentUser={page.data.currentUser} />
+	{:else}
+		<SignInButton />
+	{/if}
+</Navbar>
 
-<main id="main" tabindex="-1" class="flex w-full grow flex-col px-[var(--content-x)] py-16 sm:py-20 outline-none">
+<main
+	id="main"
+	tabindex="-1"
+	class="flex w-full grow flex-col px-[var(--content-x)] pt-10 pb-16 sm:pt-12 sm:pb-20 outline-none"
+>
 	<div class="m-auto flex w-full flex-col gap-12 sm:gap-20">
 		<div class="flex flex-col items-center gap-8" use:reveal>
 			<Heading />

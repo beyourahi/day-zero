@@ -1,13 +1,11 @@
 <!--
-	Top-right signed-in avatar with sign-out. Mobile (<sm): tap opens a Dialog. Desktop (sm+):
-	hover expands a name/email pill beside a dedicated sign-out button. The fixed offset shifts
-	left at lg+ to clear the AI Copilot rail.
+	Signed-in avatar with sign-out, rendered inline inside the invisible <Navbar>. Mobile (<sm):
+	tap opens a Dialog. Desktop (sm+): hover expands a name/email pill beside a dedicated sign-out
+	button. Positioning + the copilot-rail offset are owned by the navbar, not here.
 -->
 <script lang="ts">
 	import { authClient } from "$lib/auth-client";
-	import { goto } from "$app/navigation";
 	import { cn } from "$lib/utils";
-	import { ai } from "$lib/stores/ai.svelte";
 	import * as Dialog from "$lib/components/ui/dialog";
 	import * as Tooltip from "$lib/components/ui/tooltip";
 	import { Eyebrow, IconButton } from "$lib/ds";
@@ -29,19 +27,17 @@
 	let expanded = $state(false);
 	let mobileOpen = $state(false);
 
-	// Closed: profile sits flush with the content's right edge (--content-x). Open:
-	// shifts left to clear the copilot rail. Only the desktop rail reserves space.
-	const copilotOpen = $derived(ai.desktopOpen);
-
 	const handleLogout = async () => {
 		isLoggingOut = true;
 		try {
 			await authClient.signOut();
-			mobileOpen = false;
-			goto("/login");
-		} finally {
-			isLoggingOut = false;
+		} catch {
+			// ignore — the /api/logout navigation below clears every cookie variant regardless
 		}
+		mobileOpen = false;
+		// Full navigation (not goto): re-fetches a clean logged-out state AND lets the server expire
+		// the cookieCache `session_data` cookie that signOut alone can leave behind.
+		window.location.href = "/api/logout";
 	};
 </script>
 
@@ -62,14 +58,7 @@
 	</div>
 {/snippet}
 
-<div
-	class={cn(
-		"fixed top-4 right-4 z-50 transition-[right] duration-300 ease-[var(--ease)] motion-reduce:transition-none sm:top-6 sm:right-6",
-		copilotOpen
-			? "lg:right-[calc(var(--copilot-rail-width)+1.5rem)] xl:right-[calc(var(--copilot-rail-width-xl)+1.5rem)]"
-			: "lg:right-[var(--content-x)]"
-	)}
->
+<div class="relative">
 	<div class="sm:hidden">
 		<Dialog.Root bind:open={mobileOpen}>
 			<Dialog.Trigger
@@ -187,7 +176,10 @@
 									aria-hidden="true"
 								></div>
 							{:else}
-								<Power class="text-ink-muted pointer-fine:group-hover:text-destructive size-[1.125rem] transition-colors" aria-hidden="true" />
+								<Power
+									class="text-ink-muted pointer-fine:group-hover:text-destructive size-[1.125rem] transition-colors"
+									aria-hidden="true"
+								/>
 							{/if}
 						</IconButton>
 					{/snippet}
