@@ -1,8 +1,37 @@
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
 
 // Conditional class merge: clsx resolves truthiness, twMerge dedupes conflicting
-// Tailwind utilities (last wins). Standard shadcn-svelte helper.
+// Tailwind utilities (last wins). twMerge is taught the Dropout custom type scale
+// so a class list mixing a custom text-* SIZE with a text-* COLOR keeps both —
+// otherwise they collapse into one text-* group and the loser is dropped (the
+// white-on-white button bug). Mirrors src/lib/ds/utils.ts; keep the list in sync
+// with the --text-* tokens in ds/styles/tokens.css.
+const twMerge = extendTailwindMerge({
+	extend: {
+		classGroups: {
+			"font-size": [
+				{
+					text: [
+						"micro",
+						"caption",
+						"label",
+						"body",
+						"body-lg",
+						"button",
+						"lead",
+						"subtitle",
+						"title-sm",
+						"title",
+						"title-lg",
+						"display"
+					]
+				}
+			]
+		}
+	}
+});
+
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
 export type WithElementRef<T, E extends HTMLElement = HTMLElement> = T & {
