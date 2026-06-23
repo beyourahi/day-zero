@@ -79,7 +79,10 @@
 
 				<div class="border-hair flex flex-col gap-8 border-l pl-5 sm:pl-6">
 					{#each group.entries as entry, entryIndex (entry.title)}
-						<article class="flex flex-col gap-2.5" use:reveal={{ distance: "sm", delay: 0.06 * entryIndex }}>
+						<article
+							class="flex flex-col gap-2.5"
+							use:reveal={{ distance: "sm", delay: 0.06 * entryIndex }}
+						>
 							<span class="text-ink-muted block font-mono text-micro tracking-[0.22em] uppercase">
 								{entry.category}
 							</span>
