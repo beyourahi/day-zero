@@ -165,7 +165,13 @@
 	class="mx-auto flex w-full max-w-[var(--settings-max)] grow flex-col gap-10 px-[var(--content-pad)] py-10 outline-none sm:py-14"
 >
 	<div class="flex justify-end">
-		<Cta href="/" variant="secondary" size="sm" arrow={false} class="bg-card">
+		<Cta
+			href="/"
+			variant="secondary"
+			size="sm"
+			arrow={false}
+			class="bg-card w-full justify-center whitespace-nowrap sm:w-auto"
+		>
 			<span class="inline-flex items-center gap-2">
 				<ArrowLeft class="size-4" aria-hidden="true" />
 				Back to app
@@ -175,9 +181,7 @@
 
 	<header class="flex flex-col gap-2.5">
 		<Eyebrow>Settings</Eyebrow>
-		<Heading as="h1" size="title-lg" weight={600} class="whitespace-nowrap lg:text-title">
-			Settings
-		</Heading>
+		<Heading as="h1" size="title-lg" weight={600} class="whitespace-nowrap lg:text-title">Settings</Heading>
 		<p class={cn(bodyBase, "max-w-prose")}>
 			The copilot runs on <span class="text-foreground">your own</span>
 			Cloudflare account, so any usage is billed to you, not us. Connecting your account is
@@ -312,7 +316,14 @@
 						<span class="text-foreground font-mono">Account · Workers AI · Read</span>.
 					</p>
 				{/snippet}
-				<Cta type="submit" size="sm" variant="primary" arrow={false} disabled={saving}>
+				<Cta
+					type="submit"
+					size="sm"
+					variant="primary"
+					arrow={false}
+					disabled={saving}
+					class="w-full justify-center whitespace-nowrap sm:w-auto"
+				>
 					{saving ? "Saving…" : "Save"}
 				</Cta>
 			</SettingsActions>
@@ -355,7 +366,7 @@
 						size="sm"
 						variant="secondary"
 						arrow={false}
-						class="text-destructive hover:border-destructive"
+						class="text-destructive hover:border-destructive w-full justify-center whitespace-nowrap sm:w-auto"
 					>
 						<span class="inline-flex items-center gap-2">
 							<Trash2 class="size-3.5" aria-hidden="true" />
@@ -424,7 +435,14 @@
 			{/if}
 
 			<SettingsActions>
-				<Cta size="sm" variant="primary" arrow={false} disabled={passkeyBusy} onclick={() => addPasskey()}>
+				<Cta
+					size="sm"
+					variant="primary"
+					arrow={false}
+					disabled={passkeyBusy}
+					onclick={() => addPasskey()}
+					class="w-full justify-center whitespace-nowrap sm:w-auto"
+				>
 					<span class="inline-flex items-center gap-2">
 						<Fingerprint size={14} aria-hidden="true" />
 						Set up {biometricName}
