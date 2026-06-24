@@ -1,14 +1,14 @@
 <!--
-	Signed-in avatar with sign-out, rendered inline inside the invisible <Navbar>. Mobile (<sm):
-	tap opens a Dialog. Desktop (sm+): hover expands a name/email pill beside a dedicated sign-out
-	button. Positioning + the copilot-rail offset are owned by the navbar, not here.
+	Signed-in account cluster, rendered inline inside the invisible <Navbar>. The avatar (a hover-
+	expand name/email pill on fine pointers) sits beside dedicated Settings + Sign out icon buttons,
+	shown identically at every width — no mobile dialog. Positioning + the copilot-rail offset are
+	owned by the navbar, not here.
 -->
 <script lang="ts">
 	import { authClient } from "$lib/auth-client";
 	import { cn } from "$lib/utils";
-	import * as Dialog from "$lib/components/ui/dialog";
 	import * as Tooltip from "$lib/components/ui/tooltip";
-	import { Eyebrow, IconButton } from "$lib/ds";
+	import { IconButton } from "$lib/ds";
 	import { Power, Settings, User } from "@lucide/svelte";
 	import type { CurrentUser } from "$lib/types";
 
@@ -25,7 +25,6 @@
 
 	let isLoggingOut = $state(false);
 	let expanded = $state(false);
-	let mobileOpen = $state(false);
 
 	const handleLogout = async () => {
 		isLoggingOut = true;
@@ -34,7 +33,6 @@
 		} catch {
 			// ignore — the /api/logout navigation below clears every cookie variant regardless
 		}
-		mobileOpen = false;
 		// Full navigation (not goto): re-fetches a clean logged-out state AND lets the server expire
 		// the cookieCache `session_data` cookie that signOut alone can leave behind.
 		window.location.href = "/api/logout";
@@ -59,64 +57,7 @@
 {/snippet}
 
 <div class="relative">
-	<div class="sm:hidden">
-		<Dialog.Root bind:open={mobileOpen}>
-			<Dialog.Trigger
-				aria-label="User menu"
-				class="focus-visible:outline-signal rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 touch-manipulation"
-			>
-				{@render avatarVisual("h-9 w-9", "h-4 w-4")}
-			</Dialog.Trigger>
-			<Dialog.Content
-				class="data-open:slide-in-from-bottom-2 data-closed:slide-out-to-bottom-1 gap-0 p-0 sm:max-w-sm"
-				showCloseButton={false}
-			>
-				<Dialog.Header class="border-hair border-b px-4 py-3.5">
-					<Dialog.Title>
-						<Eyebrow as="span">Signed in</Eyebrow>
-					</Dialog.Title>
-				</Dialog.Header>
-				<div class="flex items-center gap-3 px-4 py-4">
-					{@render avatarVisual("h-12 w-12", "h-6 w-6")}
-					<div class="min-w-0 flex-1">
-						<p class="truncate text-sm font-medium">{currentUser.name}</p>
-						<p class="text-ink-muted truncate text-xs">{user.email}</p>
-					</div>
-				</div>
-				<div class="border-hair border-t p-1.5">
-					<a
-						href="/settings"
-						onclick={() => (mobileOpen = false)}
-						class="text-foreground hover:bg-white/[0.04] focus:bg-white/[0.04] flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors touch-manipulation"
-					>
-						<Settings size={16} aria-hidden="true" />
-						<span class="text-sm font-medium whitespace-nowrap">Settings</span>
-					</a>
-					<button
-						type="button"
-						onclick={handleLogout}
-						disabled={isLoggingOut}
-						class={cn(
-							"text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60 touch-manipulation",
-							isLoggingOut && "cursor-wait"
-						)}
-					>
-						{#if isLoggingOut}
-							<div
-								class="border-ink-muted h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
-								aria-hidden="true"
-							></div>
-						{:else}
-							<Power size={16} aria-hidden="true" />
-						{/if}
-						<span class="text-sm font-medium whitespace-nowrap">Sign out</span>
-					</button>
-				</div>
-			</Dialog.Content>
-		</Dialog.Root>
-	</div>
-
-	<div class="hidden items-center gap-2 sm:flex">
+	<div class="flex items-center gap-2">
 		<div
 			class="group relative flex items-center"
 			role="group"
