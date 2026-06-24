@@ -263,7 +263,7 @@
 			</SettingsRow>
 
 			<SettingsRow label="Model" htmlFor="cf-model" stacked>
-				<div class="flex items-center gap-2.5">
+				<div class="flex min-w-0 items-center gap-2.5">
 					<button
 						type="button"
 						onclick={refreshModels}
@@ -277,9 +277,9 @@
 					<Select.Root type="single" name="cloudflareModel" bind:value={model}>
 						<Select.Trigger
 							id="cf-model"
-							class={cn(inputBase, "h-auto w-full justify-between text-left font-mono")}
+							class={cn(inputBase, "h-auto w-full min-w-0 justify-between text-left font-mono")}
 						>
-							<span data-slot="select-value" class="truncate">{selectedModelLabel}</span>
+							<span data-slot="select-value" class="min-w-0 truncate">{selectedModelLabel}</span>
 						</Select.Trigger>
 						<Select.Content
 							class="border-hair bg-card max-h-72 rounded-[11px] font-mono shadow-lg ring-0"
@@ -289,7 +289,7 @@
 								<Select.Item
 									value={opt.id}
 									label={opt.label}
-									class="hover:bg-ink-2 data-highlighted:bg-ink-2 rounded-md text-xs"
+									class="hover:bg-ink-2 data-highlighted:bg-ink-2 rounded-md text-xs break-all sm:break-normal"
 								/>
 							{/each}
 						</Select.Content>
