@@ -24,7 +24,6 @@ const insertSchema = z.object({
 	}),
 	safetyTier: z.enum(["A", "B"]),
 	requiredConfirmation: z.boolean(),
-	anomalyTriggered: z.string().nullable().optional(),
 	applied: z.boolean(),
 	status: z.enum(["applied", "rejected", "failed"]),
 	error: z.string().nullable().optional()
@@ -44,7 +43,6 @@ export const GET: RequestHandler = async (event) => {
 			inverse: r.inverse,
 			safetyTier: r.safetyTier,
 			requiredConfirmation: r.requiredConfirmation,
-			anomalyTriggered: r.anomalyTriggered,
 			applied: r.applied,
 			status: r.status,
 			error: r.error,
@@ -66,7 +64,6 @@ export const POST: RequestHandler = async (event) => {
 		inverse: body.inverse,
 		safetyTier: body.safetyTier,
 		requiredConfirmation: body.requiredConfirmation,
-		anomalyTriggered: body.anomalyTriggered ?? null,
 		applied: body.applied,
 		status: body.status,
 		error: body.error ?? null
@@ -78,7 +75,6 @@ export const POST: RequestHandler = async (event) => {
 		safetyTier: body.safetyTier,
 		requiredConfirmation: body.requiredConfirmation,
 		applied: body.applied,
-		anomalyTriggered: body.anomalyTriggered ?? null,
 		inverseValidated: validateInverse(body.inverse),
 		error: body.error ?? undefined
 	});

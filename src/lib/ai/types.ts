@@ -5,8 +5,6 @@
  * from both Worker and browser.
  */
 
-import type { z } from "zod";
-
 /** A = auto-apply; B = requires user confirmation (destructive / share-mutating). */
 export type SafetyTier = "A" | "B";
 
@@ -39,17 +37,6 @@ export interface ToolCatalogEntry {
 	};
 }
 
-export interface ToolDef<Args = unknown, Result = unknown> {
-	name: string;
-	description: string;
-	argSchema: z.ZodType<Args>;
-	safetyTier: SafetyTier;
-	parameters: ToolCatalogEntry["parameters"];
-	humanLabel: (args: Args) => string;
-	execute: (args: Args) => Promise<Result>;
-	captureInverse: (args: Args, result: Result) => InverseRecord;
-}
-
 /** SSE wire protocol, discriminated on `t`. `end` carries usage + the (possibly newly created) conversationId. */
 export type Frame =
 	| { t: "text"; delta: string }
@@ -80,15 +67,4 @@ export interface ParsedToolCall {
 	id: string;
 	name: string;
 	args: unknown;
-}
-
-export interface ExecutionRecord {
-	toolName: string;
-	inputs: unknown;
-	inverse: InverseRecord;
-	safetyTier: SafetyTier;
-	requiredConfirmation: boolean;
-	applied: boolean;
-	status: "applied" | "rejected" | "failed";
-	error: string | null;
 }

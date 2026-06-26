@@ -89,7 +89,6 @@ export const load: PageServerLoad = async ({ locals, platform }) => {
 					inverse: a.inverse,
 					safetyTier: a.safetyTier,
 					requiredConfirmation: a.requiredConfirmation,
-					anomalyTriggered: a.anomalyTriggered,
 					applied: a.applied,
 					status: a.status,
 					error: a.error,

@@ -38,7 +38,6 @@ export interface ToolExecutionLog {
 	safetyTier: "A" | "B";
 	requiredConfirmation: boolean;
 	applied: boolean;
-	anomalyTriggered: string | null;
 	inverseValidated: boolean;
 	error?: string;
 }
@@ -74,7 +73,6 @@ export const logToolExecution = async (entry: ToolExecutionLog) => {
 			safety_tier: entry.safetyTier,
 			required_confirmation: entry.requiredConfirmation,
 			applied: entry.applied,
-			anomaly_triggered: entry.anomalyTriggered,
 			inverse_validated: entry.inverseValidated,
 			error: entry.error ?? null
 		})

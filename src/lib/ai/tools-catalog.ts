@@ -87,11 +87,7 @@ export const TOOLS_CATALOG: ToolCatalogEntry[] = [
 	}
 ];
 
-export const READ_ONLY_TOOLS = new Set<string>([]);
-
+/** Tool name → safety tier. `TIER_MAP[name] ?? "A"` is the effective base tier for a call. */
 export const TIER_MAP: Record<string, SafetyTier> = Object.fromEntries(
 	TOOLS_CATALOG.map((t) => [t.name, t.safetyTier])
 );
-
-/** Effective base tier for a call: the catalog tier (no runtime demotion in the countdown domain). */
-export const resolvedTier = (toolName: string): SafetyTier => TIER_MAP[toolName] ?? "A";

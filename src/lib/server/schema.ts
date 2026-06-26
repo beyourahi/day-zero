@@ -217,7 +217,6 @@ export const aiActions = sqliteTable(
 			.notNull(),
 		safetyTier: text("safety_tier").$type<"A" | "B">().notNull(),
 		requiredConfirmation: integer("required_confirmation", { mode: "boolean" }).notNull(),
-		anomalyTriggered: text("anomaly_triggered"),
 		applied: integer("applied", { mode: "boolean" }).notNull(),
 		status: text("status")
 			.$type<"applied" | "rejected" | "failed" | "undone" | "undo_failed">()

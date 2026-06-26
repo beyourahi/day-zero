@@ -13,10 +13,10 @@ import { ai } from "$lib/stores/ai.svelte";
 import { countdowns } from "$lib/stores/countdowns.svelte";
 import type { Countdown } from "$lib/types";
 import { executeToolCall, type ConfirmationRequest, type ExecutionFrame } from "./executor";
-import { streamFrames, type Frame } from "./streaming";
+import { streamFrames } from "./streaming";
 import { friendlyErrorMessage } from "./errors";
 import { toolLabel } from "./tool-labels";
-import type { ParsedToolCall } from "./types";
+import type { Frame, ParsedToolCall } from "./types";
 
 interface SendOptions {
 	signal?: AbortSignal;

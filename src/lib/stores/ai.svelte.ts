@@ -47,7 +47,6 @@ export interface AiHistoryAction {
 	inverse: unknown;
 	safetyTier: SafetyTier;
 	requiredConfirmation: boolean;
-	anomalyTriggered: string | null;
 	applied: boolean;
 	status: "applied" | "rejected" | "failed" | "undone" | "undo_failed";
 	error: string | null;

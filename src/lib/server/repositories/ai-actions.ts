@@ -26,7 +26,6 @@ export interface AiActionRow {
 	inverse: AiActionInverse;
 	safetyTier: AiActionSafetyTier;
 	requiredConfirmation: boolean;
-	anomalyTriggered: string | null;
 	applied: boolean;
 	status: AiActionStatus;
 	error: string | null;
@@ -43,7 +42,6 @@ export interface InsertActionInput {
 	inverse: AiActionInverse;
 	safetyTier: AiActionSafetyTier;
 	requiredConfirmation: boolean;
-	anomalyTriggered: string | null;
 	applied: boolean;
 	status: AiActionStatus;
 	error: string | null;
@@ -59,7 +57,6 @@ const toRow = (raw: typeof aiActions.$inferSelect): AiActionRow => ({
 	inverse: raw.inverse as AiActionInverse,
 	safetyTier: raw.safetyTier,
 	requiredConfirmation: raw.requiredConfirmation,
-	anomalyTriggered: raw.anomalyTriggered,
 	applied: raw.applied,
 	status: raw.status,
 	error: raw.error,
@@ -85,7 +82,6 @@ export const insertAction = async (
 			inverse: input.inverse,
 			safetyTier: input.safetyTier,
 			requiredConfirmation: input.requiredConfirmation,
-			anomalyTriggered: input.anomalyTriggered,
 			applied: input.applied,
 			status: input.status,
 			error: input.error,
@@ -102,7 +98,6 @@ export const insertAction = async (
 		inverse: input.inverse,
 		safetyTier: input.safetyTier,
 		requiredConfirmation: input.requiredConfirmation,
-		anomalyTriggered: input.anomalyTriggered,
 		applied: input.applied,
 		status: input.status,
 		error: input.error,

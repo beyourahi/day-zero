@@ -1,7 +1,6 @@
 /**
- * Friendly display names for tool names and patch field keys, shown in
- * AiToolBadge and AiConfirmDialog. Presentation-only; never affects execution.
- * Both lookups fall back gracefully (toolLabel → "Update", fieldLabel → the raw key).
+ * Friendly display names for tool names, shown in AiToolBadge and AiConfirmDialog.
+ * Presentation-only; never affects execution. Falls back to "Update" for unknowns.
  */
 
 const TOOL_LABELS: Record<string, string> = {
@@ -13,13 +12,3 @@ const TOOL_LABELS: Record<string, string> = {
 };
 
 export const toolLabel = (name: string): string => TOOL_LABELS[name] ?? "Update";
-
-const FIELD_LABELS: Record<string, string> = {
-	title: "title",
-	targetAt: "target date",
-	hasTime: "time of day",
-	archived: "archived",
-	enabled: "sharing"
-};
-
-export const fieldLabel = (key: string): string => FIELD_LABELS[key] ?? key;

@@ -7,8 +7,6 @@
 
 import type { Frame } from "./types";
 
-export type { Frame } from "./types";
-
 export const encodeFrame = (frame: Frame): string => `data: ${JSON.stringify(frame)}\n\n`;
 
 export const decodeFrame = (line: string): Frame | null => {

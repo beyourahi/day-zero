@@ -13,9 +13,9 @@
 import { api } from "$lib/api/client";
 import { countdowns } from "$lib/stores/countdowns.svelte";
 import { executors } from "./tools";
-import { argSchemas, type ArgsOf } from "./schemas";
-import { resolvedTier, TIER_MAP } from "./tools-catalog";
-import { toolLabel, fieldLabel } from "./tool-labels";
+import { argSchemas, isKnownToolName, type ArgsOf } from "./schemas";
+import { TIER_MAP } from "./tools-catalog";
+import { toolLabel } from "./tool-labels";
 import type {
 	ConfirmationDiffRow,
 	Frame,
@@ -91,7 +91,7 @@ const buildConfirmationDetail = (
 		case "setShareCountdown": {
 			const c = countdowns.getById(String(a.id));
 			diff.push({
-				label: fieldLabel("enabled"),
+				label: "sharing",
 				current: displayValue(c?.shareToken ? "on" : "off"),
 				proposed: displayValue(a.enabled ? "on" : "off")
 			});
@@ -124,7 +124,6 @@ const recordAction = async (params: {
 			inverse: params.inverse,
 			safetyTier: params.safetyTier,
 			requiredConfirmation: params.requiredConfirmation,
-			anomalyTriggered: null,
 			applied: params.applied,
 			status: params.status,
 			error: params.error
@@ -136,8 +135,6 @@ const recordAction = async (params: {
 	}
 };
 
-const isKnownTool = (name: string): name is keyof typeof argSchemas => name in argSchemas;
-
 /**
  * Validates + runs one tool call, driving confirmation UI through `ctx` callbacks
  * and reporting progress via `ctx.onResult`. Never throws — every failure path
@@ -148,7 +145,7 @@ export const executeToolCall = async (
 	call: ParsedToolCall,
 	ctx: ExecutionContext
 ): Promise<ExecutionOutcome> => {
-	if (!isKnownTool(call.name)) {
+	if (!isKnownToolName(call.name)) {
 		const error = `Unknown tool: ${call.name}`;
 		ctx.onResult({ t: "tool_result", id: call.id, status: "failed", error });
 		return { toolCallId: call.id, toolName: call.name, status: "failed", actionId: null, error };
@@ -174,7 +171,7 @@ export const executeToolCall = async (
 	}
 
 	const args = parsed.data as ArgsOf<typeof call.name>;
-	const tier: SafetyTier = resolvedTier(call.name);
+	const tier: SafetyTier = TIER_MAP[call.name] ?? "A";
 	const requiredConfirmation = tier === "B";
 
 	if (requiredConfirmation) {
@@ -265,5 +262,3 @@ export const executeToolCall = async (
 		return { toolCallId: call.id, toolName: call.name, status: "failed", actionId, error: message };
 	}
 };
-
-export const isToolKnown = (name: string): boolean => name in TIER_MAP;

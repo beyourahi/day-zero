@@ -1,0 +1,1 @@
+ALTER TABLE `ai_actions` DROP COLUMN `anomaly_triggered`;

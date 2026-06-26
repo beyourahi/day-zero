@@ -30,7 +30,6 @@ import { loadCloudflareConfig, resolveCloudflareCreds } from "$lib/server/ai/clo
 import type { CloudflareCreds } from "$lib/server/ai/run-rest";
 import { salvageTextToolCalls } from "$lib/ai/salvage";
 import { sseStream } from "$lib/ai/streaming";
-import { windowHistory } from "$lib/ai/window";
 import { TOOLS_CATALOG } from "$lib/ai/tools-catalog";
 import { toolLabel } from "$lib/ai/tool-labels";
 import { argSchemas, isKnownToolName } from "$lib/ai/schemas";
@@ -197,7 +196,8 @@ export const POST: RequestHandler = async (event) => {
 	}
 	const activeConversationId = conversation.id;
 
-	const history = windowHistory(toHistory(await listMessages(db, activeConversationId, 100)));
+	// Sliding window: forward only the most recent 12 turns to bound token cost.
+	const history = toHistory(await listMessages(db, activeConversationId, 100)).slice(-12);
 
 	await appendMessage(db, activeConversationId, {
 		role: "user",
