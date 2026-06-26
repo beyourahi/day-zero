@@ -81,7 +81,7 @@
 			container: "gap-2 sm:gap-[clamp(8px,1.8vw,22px)]",
 			group: "flex min-w-0 flex-1 flex-col items-center gap-3 sm:flex-none",
 			box: "w-full min-w-0 rounded-xl px-2 py-[13px] sm:w-auto sm:min-w-[clamp(72px,12vw,140px)] sm:px-[clamp(16px,2.6vw,32px)] sm:py-[clamp(14px,2.2vw,28px)]",
-			digit: "text-[clamp(34px,7vw,72px)]",
+			digit: "text-[clamp(26px,7vw,72px)]",
 			label: "text-caption",
 			colon: "hidden self-start pt-[clamp(24px,4vw,52px)] text-[clamp(26px,5vw,52px)] sm:block"
 		}

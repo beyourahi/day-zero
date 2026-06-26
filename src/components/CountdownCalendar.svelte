@@ -32,13 +32,13 @@
 
 	// Ghost icon button shared by the prev/next month controls.
 	const navBtn =
-		"inline-flex size-8 items-center justify-center rounded-sm text-ink-muted transition-colors duration-200 ease-[var(--ease)] hover:bg-white/[0.06] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal disabled:pointer-events-none disabled:opacity-30 touch-manipulation";
+		"inline-flex size-8 pointer-coarse:size-11 items-center justify-center rounded-sm text-ink-muted transition-colors duration-200 ease-[var(--ease)] hover:bg-white/[0.06] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal disabled:pointer-events-none disabled:opacity-30 touch-manipulation";
 
 	// One day cell. Hierarchy lives entirely in the ink ramp + the lone signal
 	// accent: selected = filled signal pill; today = hairline ring; the rest is
 	// quiet until hovered. Selectors read off bits-ui's data-* day attributes.
 	const dayCell = cn(
-		"relative flex size-(--cell) items-center justify-center rounded-sm font-mono text-label text-foreground tabular-nums leading-none transition-colors duration-200 ease-[var(--ease)] select-none touch-manipulation",
+		"relative flex aspect-square w-full max-w-(--cell) items-center justify-center rounded-sm font-mono text-label text-foreground tabular-nums leading-none transition-colors duration-200 ease-[var(--ease)] select-none touch-manipulation",
 		"not-data-selected:hover:bg-white/[0.06]",
 		"[&[data-today]:not([data-selected])]:border [&[data-today]:not([data-selected])]:border-hair",
 		"data-selected:bg-signal data-selected:font-semibold data-selected:text-background",
@@ -91,7 +91,7 @@
 								<CalendarPrimitive.Cell
 									{date}
 									month={month.value}
-									class="relative flex flex-1 items-center justify-center p-0"
+									class="relative flex flex-1 items-center justify-center p-0 min-w-0"
 								>
 									<CalendarPrimitive.Day class={dayCell} />
 								</CalendarPrimitive.Cell>

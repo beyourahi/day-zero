@@ -31,7 +31,7 @@
 			class="bg-signal size-[7px] shrink-0 rounded-full motion-safe:animate-[ctaPulse_2.8s_var(--ease)_infinite]"
 			aria-hidden="true"
 		></span>
-		<p class="text-ink-muted font-mono text-micro tracking-[0.26em] uppercase whitespace-nowrap">
+		<p class="text-ink-muted font-mono text-micro tracking-[0.26em] uppercase">
 			Next up · {formatTargetDate(countdown.targetAt, countdown.hasTime)}
 		</p>
 	</div>

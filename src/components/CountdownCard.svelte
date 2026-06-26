@@ -57,7 +57,7 @@
 			<h3 class="text-foreground truncate font-sans text-lead font-semibold lowercase" title={countdown.title}>
 				{countdown.title}
 			</h3>
-			<p class="text-ink-muted mt-1 font-mono text-micro tracking-[0.18em] uppercase whitespace-nowrap">
+			<p class="text-ink-muted mt-1 font-mono text-micro tracking-[0.18em] uppercase truncate">
 				{formatTargetDate(countdown.targetAt, countdown.hasTime)}
 			</p>
 		</div>
