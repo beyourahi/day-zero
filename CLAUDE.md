@@ -12,7 +12,7 @@ Guidance for Claude Code working in this repository.
 
 ## Project Overview
 
-**Day Zero** — a goal/milestone **countdown tracker** (a Dropout Studio free/public tool, sibling to `order-processor` and `invoice-generator`). A user creates countdowns toward a target date for a goal, makes many, and sees them all at once on one board: the soonest upcoming goal is promoted to an oversized **hero**, the rest fill a responsive grid, and reached goals collapse into a quieter section. Any countdown can be shared via a read-only public link (`/s/[token]`). An AI copilot manages countdowns in natural language. **No ads.**
+**Day Zero** — a goal/milestone **countdown tracker** (a Dropout Studio free/public tool, sibling to `order-processor` and `invoice-generator`). A user creates countdowns toward a target date for a goal, makes many, and sees them all at once on one board: the soonest upcoming goal is promoted to an oversized **hero**, the rest fill a responsive grid, and reached goals collapse into a quieter section; any card can also be manually archived into a separate Archived list. Any countdown can be shared via a read-only public link (`/s/[token]`). An AI copilot manages countdowns in natural language. **No ads.**
 
 **Stack**: SvelteKit 2 + Svelte 5 runes · TypeScript strict · Tailwind v4 (CSS-first; tokens from `@dropout/ds`, vendored) + shadcn-svelte · Better Auth (Google OAuth + Google One Tap + passkey/WebAuthn biometrics; email/password disabled) · Cloudflare D1 + Drizzle · Cloudflare Workers AI (copilot, **BYO** per-user via REST) · GSAP · Bun. Dark-only (`app.html` hardcodes `<html class="dark">`).
 
@@ -61,7 +61,7 @@ The frontend runs on the **Dropout Design System**, **vendored** at `src/lib/ds/
 ### Stores (factory-closure runes singletons)
 
 - `src/lib/stores/clock.svelte.ts` — **single shared 1Hz ticker** (`clock.now`). Every card derives remaining time from it; never one interval per card.
-- `src/lib/stores/countdowns.svelte.ts` — board state. An `authed` flag (set at hydrate) routes writes: authed → D1 (title edits debounced, structural changes immediate); guest → `localStorage` synchronously (creates mint their own id/position client-side). `loadGuest`/`migrateGuestToServer` bridge the two. Derived partitions `upcoming`/`past`/`hero` read `clock.now` so the board re-partitions the instant a countdown crosses zero. `aiInject`/`aiRemove` are local-only mutators the copilot uses to reflect its API writes.
+- `src/lib/stores/countdowns.svelte.ts` — board state. An `authed` flag (set at hydrate) routes writes: authed → D1 (title edits debounced, structural changes immediate); guest → `localStorage` synchronously (creates mint their own id/position client-side). `loadGuest`/`migrateGuestToServer` bridge the two. Derived partitions `active`/`upcoming`/`past`/`hero`/`archived` (archived cards split into their own collapsed list via `setArchived`); `upcoming`/`past` read `clock.now` so the board re-partitions the instant a countdown crosses zero. `aiInject`/`aiRemove` are local-only mutators the copilot uses to reflect its API writes.
 - `src/lib/stores/ai.svelte.ts` — copilot state (conversations, messages, confirm queue, undo).
 
 ### UI
