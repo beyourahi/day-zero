@@ -12,6 +12,7 @@
 	import { page } from "$app/state";
 	import { countdowns } from "$lib/stores/countdowns.svelte";
 	import { ai } from "$lib/stores/ai.svelte";
+	import { cn } from "$lib/utils";
 	import { reveal } from "$lib/motion";
 	import { Cta } from "$lib/ds";
 	import Heading from "$lib/components/ui/heading/heading.svelte";
@@ -72,6 +73,9 @@
 
 	const isEmpty = $derived(countdowns.active.length === 0 && countdowns.archived.length === 0);
 	const gridItems = $derived(countdowns.upcoming.slice(1)); // hero is upcoming[0]
+
+	// Slide the board left when the copilot rail opens — same shift the profile row (Navbar) uses.
+	const copilotOpen = $derived(ai.desktopOpen);
 </script>
 
 <Navbar>
@@ -85,7 +89,13 @@
 <main
 	id="main"
 	tabindex="-1"
-	class="flex w-full grow flex-col px-[var(--content-x)] pt-10 pb-16 sm:pt-12 sm:pb-20 outline-none"
+	class={cn(
+		"flex w-full grow flex-col px-[var(--content-x)] pt-10 pb-16 sm:pt-12 sm:pb-20 outline-none",
+		"transition-[padding] duration-300 ease-[var(--ease)] motion-reduce:transition-none",
+		copilotOpen
+			? "lg:pr-[calc(var(--copilot-rail-width)+1.5rem)] xl:pr-[calc(var(--copilot-rail-width-xl)+1.5rem)]"
+			: "lg:pr-[var(--content-x)]"
+	)}
 >
 	<div class="m-auto flex w-full flex-col gap-12 sm:gap-20">
 		<div class="flex flex-col items-center gap-8" use:reveal>
