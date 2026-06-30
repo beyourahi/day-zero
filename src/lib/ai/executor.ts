@@ -4,7 +4,7 @@
  * record the action (with inverse) for undo → emit result frames via ctx.onResult.
  *
  * Tier model (see ./tools-catalog.ts):
- * - Tier A (create/update/reorder) auto-applies.
+ * - Tier A (create/update) auto-applies.
  * - Tier B (delete/share) forces a confirmation dialog before running.
  * Rejected/failed calls are still recorded (with a noop inverse) for history.
  * @see ./tools.ts (executors), ./inverse.ts (inverse builders), $lib/stores/ai.svelte.ts.

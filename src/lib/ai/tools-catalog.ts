@@ -1,5 +1,5 @@
 /**
- * The 5-tool catalog advertised to the model (JSON-schema params + safety tier)
+ * The tool catalog advertised to the model (JSON-schema params + safety tier)
  * plus tier-resolution helpers. Tier A = auto-apply; Tier B = destructive or
  * share-mutating, requires user confirmation in the UI.
  * COUPLING: each tool here must have a matching Zod schema in ./schemas.ts and an
@@ -56,19 +56,6 @@ export const TOOLS_CATALOG: ToolCatalogEntry[] = [
 			type: "object",
 			properties: { id: { type: "string", description: "ID of the countdown to delete." } },
 			required: ["id"]
-		}
-	},
-	{
-		name: "reorderCountdowns",
-		description:
-			"Reorder the board. Pass every countdown ID in the desired order, soonest/most-important first.",
-		safetyTier: "A",
-		parameters: {
-			type: "object",
-			properties: {
-				orderedIds: { type: "array", items: { type: "string" } }
-			},
-			required: ["orderedIds"]
 		}
 	},
 	{

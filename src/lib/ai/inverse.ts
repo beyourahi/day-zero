@@ -64,12 +64,6 @@ export const inverseForDeleteCountdown = (snapshot: CountdownSnapshot): InverseR
 	snapshot
 });
 
-/** Undo a reorder by restoring the previous order. */
-export const inverseForReorderCountdowns = (previousOrder: string[]): InverseRecord => ({
-	tool: "reorderCountdowns",
-	args: { orderedIds: previousOrder }
-});
-
 /** Undo a share toggle by replaying the previous enabled state. */
 export const inverseForSetShareCountdown = (
 	id: string,

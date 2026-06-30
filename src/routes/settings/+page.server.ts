@@ -102,6 +102,17 @@ export const actions: Actions = {
 
 		const db = getDatabase(platform.env.DB);
 
+		const existing = await db
+			.select({
+				userId: userSettings.userId,
+				cloudflareAccountId: userSettings.cloudflareAccountId,
+				cloudflareTokenEncrypted: userSettings.cloudflareTokenEncrypted
+			})
+			.from(userSettings)
+			.where(eq(userSettings.userId, locals.user.id))
+			.limit(1);
+		const row = existing[0];
+
 		// When a new token is provided, validate it by listing the account's models
 		// (proves token + account + Workers AI permission), cache that list, then
 		// encrypt the token. Empty token preserves the existing blob.
@@ -126,13 +137,36 @@ export const actions: Actions = {
 			}
 			const key = await deriveTokenKey(platform.env.TOKEN_ENCRYPTION_KEY);
 			tokenBlob = await encryptToken(token, key);
+		} else if (
+			!tokenProvided &&
+			accountId &&
+			row?.cloudflareAccountId &&
+			accountId !== row.cloudflareAccountId &&
+			row.cloudflareTokenEncrypted
+		) {
+			// Account ID changed but no new token supplied: re-validate the STORED token
+			// against the NEW account before persisting. A scoped token that doesn't work
+			// on the new account is caught here instead of leaving the badge falsely "connected".
+			if (!platform.env.TOKEN_ENCRYPTION_KEY) {
+				return fail(500, { error: "Encryption key not configured." });
+			}
+			try {
+				const key = await deriveTokenKey(platform.env.TOKEN_ENCRYPTION_KEY);
+				const blob =
+					row.cloudflareTokenEncrypted instanceof Uint8Array
+						? row.cloudflareTokenEncrypted
+						: new Uint8Array(row.cloudflareTokenEncrypted as ArrayBuffer);
+				const decrypted = await decryptToken(blob, key);
+				const models = await listChatModels({ accountId, apiToken: decrypted });
+				await platform.env.AI_QUOTA_KV?.put(
+					`cf-models:${accountId}`,
+					JSON.stringify({ models, cachedAt: Date.now() }),
+					{ expirationTtl: 86400 }
+				);
+			} catch (e) {
+				return fail(400, { error: describeCloudflareError(e) });
+			}
 		}
-
-		const existing = await db
-			.select({ userId: userSettings.userId })
-			.from(userSettings)
-			.where(eq(userSettings.userId, locals.user.id))
-			.limit(1);
 
 		const updateData: {
 			cloudflareAccountId: string | null;

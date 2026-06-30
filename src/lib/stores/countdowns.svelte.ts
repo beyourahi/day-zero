@@ -62,8 +62,9 @@ const createCountdownsStore = () => {
 	};
 
 	// Browser-only: on first authed load, recreate any guest countdowns in the
-	// account (append), reflect them on the board, then drop the guest key. Kept
-	// for retry if any create fails — only cleared once every item imported.
+	// account (append), reflect them on the board, then drop the guest key.
+	// Idempotent across retries: only the items that actually FAILED are kept in
+	// localStorage, so re-running recreates just those — never duplicates a success.
 	const migrateGuestToServer = async () => {
 		const guest = readLocal<Countdown[]>(GUEST_KEY);
 		if (!guest || guest.length === 0) {
@@ -72,6 +73,7 @@ const createCountdownsStore = () => {
 		}
 		const ordered = [...guest].sort((a, b) => a.position - b.position);
 		const created: Countdown[] = [];
+		const failed: Countdown[] = [];
 		for (const g of ordered) {
 			const c = await sync(() =>
 				api.post<Countdown>("/api/countdowns", {
@@ -80,10 +82,21 @@ const createCountdownsStore = () => {
 					hasTime: g.hasTime
 				})
 			);
-			if (c) created.push(c);
+			if (!c) {
+				failed.push(g);
+				continue;
+			}
+			// Carry the guest's archived flag to the server and the local object so the
+			// board matches without a reload (create can't set archived directly).
+			if (g.archived) {
+				const ok = await sync(() => api.patch<void>(`/api/countdowns/${c.id}`, { archived: true }));
+				if (ok !== null) c.archived = true;
+			}
+			created.push(c);
 		}
 		if (created.length > 0) countdowns = [...countdowns, ...created];
-		if (created.length === ordered.length) clearLocal(GUEST_KEY);
+		if (failed.length === 0) clearLocal(GUEST_KEY);
+		else writeLocal(GUEST_KEY, failed);
 	};
 
 	const add = async (input: CountdownInput): Promise<Countdown | null> => {
@@ -136,7 +149,7 @@ const createCountdownsStore = () => {
 	};
 
 	// Reorders local state to match orderedIds (appending any unlisted survivors),
-	// then persists the new order. Used by drag-reorder on the board.
+	// then persists the new order via the PUT /api/countdowns endpoint.
 	const reorder = (orderedIds: string[]) => {
 		const byId = new Map(countdowns.map((c) => [c.id, c]));
 		const next: Countdown[] = [];

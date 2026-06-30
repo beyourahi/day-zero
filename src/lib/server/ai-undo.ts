@@ -16,9 +16,7 @@ import type { Countdown } from "$lib/types";
 import {
 	update as updateCountdownRepo,
 	remove as removeCountdownRepo,
-	reorder as reorderCountdownsRepo,
-	setShare as setShareRepo,
-	listByUser
+	setShare as setShareRepo
 } from "./repositories/countdowns";
 
 /** What the undo changed, so the client can reflect it on the board (inject upserts, remove deletes). */
@@ -43,7 +41,6 @@ export const KNOWN_INVERSE_TOOLS = new Set([
 	"deleteCountdown",
 	"updateCountdown",
 	"restoreCountdown",
-	"reorderCountdowns",
 	"setShareCountdown"
 ]);
 
@@ -76,8 +73,6 @@ interface InverseShape {
 
 const asString = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
 const asBool = (v: unknown): boolean | undefined => (typeof v === "boolean" ? v : undefined);
-const asStringArray = (v: unknown): string[] =>
-	Array.isArray(v) ? v.filter((x) => typeof x === "string") : [];
 
 const getOwned = async (db: Database, userId: string, id: string): Promise<Countdown | null> => {
 	const row = await db
@@ -167,14 +162,6 @@ export const applyInverse = async (
 			const snapshot = (inverse.snapshot as Record<string, unknown> | undefined) ?? {};
 			const restored = await insertCountdownFromSnapshot(db, userId, snapshot);
 			return { inject: [restored], remove: [] };
-		}
-
-		case "reorderCountdowns": {
-			const orderedIds = asStringArray(args.orderedIds);
-			if (orderedIds.length === 0) throw new UndoInvalidatedError("Bad args");
-			await reorderCountdownsRepo(db, userId, orderedIds);
-			const all = await listByUser(db, userId);
-			return { inject: all, remove: [] };
 		}
 
 		case "setShareCountdown": {

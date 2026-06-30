@@ -41,9 +41,6 @@ export const argSchemas = {
 			{ message: "Empty patch" }
 		),
 	deleteCountdown: z.object({ id: z.string().min(1) }),
-	reorderCountdowns: z.object({
-		orderedIds: z.array(z.string().min(1)).min(1).max(100)
-	}),
 	setShareCountdown: z.object({
 		id: z.string().min(1),
 		enabled: z.boolean()

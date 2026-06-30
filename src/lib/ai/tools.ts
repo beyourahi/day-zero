@@ -15,7 +15,6 @@ import type { Countdown } from "$lib/types";
 import {
 	inverseForCreateCountdown,
 	inverseForDeleteCountdown,
-	inverseForReorderCountdowns,
 	inverseForSetShareCountdown,
 	inverseForUpdateCountdown,
 	snapshotCountdown
@@ -73,19 +72,11 @@ export const executors: {
 		};
 	},
 
-	async reorderCountdowns(args) {
-		const previousOrder = countdowns.all.map((c) => c.id);
-		countdowns.reorder(args.orderedIds);
-		return {
-			inverse: inverseForReorderCountdowns(previousOrder),
-			summary: `Reordered the board.`
-		};
-	},
-
 	async setShareCountdown(args) {
 		const before = ensureCountdown(args.id);
 		const wasShared = before.shareToken !== null;
-		await countdowns.setShare(args.id, args.enabled);
+		const token = await countdowns.setShare(args.id, args.enabled);
+		if (args.enabled && token === null) throw new Error("Failed to enable sharing");
 		return {
 			inverse: inverseForSetShareCountdown(args.id, wasShared),
 			summary: args.enabled

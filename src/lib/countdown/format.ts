@@ -84,12 +84,20 @@ export const humanize = (targetAtMs: number, now: number, hasTime: boolean): str
 	return "any moment now";
 };
 
+// Date-only goals are stored anchored to UTC midnight (see CountdownComposerDialog),
+// so formatting them in UTC shows the creator's picked calendar day identically on
+// SSR (Workers, UTC) and the client (any viewer zone) — no hydration mismatch, no
+// off-by-one for viewers east/west of UTC.
 const dateOnlyFmt = new Intl.DateTimeFormat("en-US", {
 	weekday: "short",
 	month: "short",
 	day: "numeric",
-	year: "numeric"
+	year: "numeric",
+	timeZone: "UTC"
 });
+// Timed goals are a real instant; render in the viewer's local zone (correct moment
+// for the person looking). The creator's zone isn't stored, so cross-zone viewers
+// see their own local time — the defensible default for a specific timestamp.
 const dateTimeFmt = new Intl.DateTimeFormat("en-US", {
 	weekday: "short",
 	month: "short",

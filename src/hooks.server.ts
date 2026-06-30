@@ -78,6 +78,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
+	// AI_COPILOT_ENABLED kill switch — enforced server-side (not just in the UI) for
+	// every /api/ai/* handler at one chokepoint, so the copilot truly stops when off.
+	if (
+		event.url.pathname.startsWith("/api/ai/") &&
+		event.platform?.env?.AI_COPILOT_ENABLED === "false"
+	) {
+		return new Response(JSON.stringify({ code: "ai_disabled", error: "AI Copilot is disabled" }), {
+			status: 503,
+			headers: { "content-type": "application/json" }
+		});
+	}
+
 	// Synthesizes event.locals to bypass Google OAuth for Wrangler preview only.
 	// Trigger: E2E_BYPASS_AUTH=true in .dev.vars (gitignored). MUST NOT appear in wrangler.jsonc.
 	// SECURITY: env-gated, NOT url-gated — the removed ?__dev_bypass=1 param must not return.

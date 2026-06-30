@@ -87,7 +87,7 @@ const correctiveMessage = (invalid: ValidatedCall[]): string =>
 		"Your previous tool call(s) failed schema validation:",
 		...invalid.map((v) => `- "${v.call.name}": ${v.error}`),
 		"",
-		"Re-issue the corrected tool call(s) now. Argument names and types must exactly match each tool's argument schema (remember targetAt must be a full ISO-8601 timestamp). If you cannot produce a valid call, reply with a short plain-text explanation instead."
+		"Re-issue ONLY the corrected tool call(s) listed above — do NOT repeat any other tool calls you already issued successfully. Argument names and types must exactly match each tool's argument schema (remember targetAt must be a full ISO-8601 timestamp). If you cannot produce a valid call, reply with a short plain-text explanation instead."
 	].join("\n");
 
 /** Retry prompt when the model should have acted on an instruction but called no tool. */
@@ -101,13 +101,22 @@ const ACTION_RETRY_MESSAGE =
  */
 const IMPERATIVE_RE =
 	/\b(set|add|change|update|delete|remove|edit|fix|make|apply|append|insert|rename|clear|replace|move|undo|revert|create|correct|adjust|drop|fill|put|toggle|enable|disable|reorder|archive|unarchive|restore|share|unshare|schedule|track|countdown)\b/i;
+// Read-only / interrogative lead words: a message opening with one of these is a
+// question, not a command, even without a trailing "?". Excludes it from the
+// imperative heuristic so informational asks don't trigger a wasteful retry.
+const READONLY_LEAD_RE =
+	/^(how|what|when|where|which|why|who|is|are|do|does|did|can|could|would|show|tell|list|remind|give)\b/i;
 const looksImperative = (text: string): boolean => {
 	const t = text.trim();
+	if (READONLY_LEAD_RE.test(t)) return false;
 	return t.length > 0 && !t.endsWith("?") && IMPERATIVE_RE.test(t);
 };
 /** A genuine refusal/clarification we must NOT suppress as a false action narration. */
 const REFUSAL_RE =
 	/\b(can'?t|cannot|can not|unable|won'?t|not able|out of scope|outside|only help|only assist|don'?t|do not|which|could you|do you want|no countdown)\b/i;
+/** A completion claim ("Done — updated 5 rows"). Only blank a no-tool reply that actually claims an action. */
+const AFFIRMATION_RE =
+	/\b(done|updated?|set|added?|applied|appended|inserted|changed|removed|deleted|cleared|renamed|replaced|fixed|marked|created|adjusted|corrected|archived|restored|reordered|shared|i'?ve|i have|i'?ll|all set|here you go)\b/i;
 
 /**
  * POST /api/ai/chat — runs one Copilot turn and streams the result as SSE.
@@ -166,6 +175,19 @@ export const POST: RequestHandler = async (event) => {
 	const creds: CloudflareCreds = resolved.creds;
 	const model = resolved.model;
 
+	// Check the (read-only) monthly spend cap BEFORE incrementing the daily quota,
+	// so a turn rejected by the cap does not burn a daily quota unit.
+	const spend = await checkSpendCap(env.AI_QUOTA_KV, userId, env.AI_MONTHLY_CAP_USD);
+	if (!spend.allowed) {
+		return json(
+			{
+				code: "spend_cap_reached",
+				message: `Monthly AI spend cap reached ($${spend.spentUsd.toFixed(2)} of $${spend.capUsd.toFixed(2)}). Resets at the start of next month.`
+			},
+			{ status: 429 }
+		);
+	}
+
 	const quota = await checkAndIncrementQuota(env.AI_QUOTA_KV, userId);
 	if (!quota.allowed) {
 		return json(
@@ -173,17 +195,6 @@ export const POST: RequestHandler = async (event) => {
 				code: "quota_exceeded",
 				message: `Daily AI quota reached (${quota.count}/${quota.limit}). Resets at ${quota.resetsAt}.`,
 				resetsAt: quota.resetsAt
-			},
-			{ status: 429 }
-		);
-	}
-
-	const spend = await checkSpendCap(env.AI_QUOTA_KV, userId, env.AI_MONTHLY_CAP_USD);
-	if (!spend.allowed) {
-		return json(
-			{
-				code: "spend_cap_reached",
-				message: `Monthly AI spend cap reached ($${spend.spentUsd.toFixed(2)} of $${spend.capUsd.toFixed(2)}). Resets at the start of next month.`
 			},
 			{ status: 429 }
 		);
@@ -275,6 +286,9 @@ export const POST: RequestHandler = async (event) => {
 			let validated = validateToolCalls(firstCalls);
 			let replyText = firstText;
 			const invalid = validated.filter((v) => !v.valid);
+			// Turn-1 calls that already passed validation — preserved across a corrective
+			// retry so a mixed valid+invalid turn doesn't silently drop the valid action.
+			const firstValid = validated.filter((v) => v.valid);
 			const userImperative = looksImperative(parsed.message);
 			// Model failed to act: an imperative instruction produced no tool call,
 			// and the reply isn't a clarifying question.
@@ -316,12 +330,20 @@ export const POST: RequestHandler = async (event) => {
 				inputTokens += retry.inputTokens;
 				outputTokens += retry.outputTokens;
 				let retryCalls = retry.toolCalls;
+				let retryText = retry.text;
 				if (retryCalls.length === 0 && retry.text.trim().length > 0) {
 					const salvaged = salvageTextToolCalls(retry.text);
-					if (salvaged.calls.length > 0) retryCalls = salvaged.calls;
+					if (salvaged.calls.length > 0) {
+						retryCalls = salvaged.calls;
+						retryText = salvaged.cleanedText;
+					}
 				}
-				validated = validateToolCalls(retryCalls);
-				replyText = retry.text;
+				const retryValidated = validateToolCalls(retryCalls);
+				// On the invalid-args path keep the turn-1 valid calls (the corrective
+				// prompt re-issues ONLY the failed call(s)). The failedToAct path had no
+				// valid turn-1 calls, so it just takes the retry's calls.
+				validated = invalid.length > 0 ? [...firstValid, ...retryValidated] : retryValidated;
+				replyText = retryText;
 			}
 
 			// Only valid calls reach the client/D1.
@@ -335,7 +357,8 @@ export const POST: RequestHandler = async (event) => {
 				successCount === 0 &&
 				userImperative &&
 				!outText.includes("?") &&
-				!REFUSAL_RE.test(outText)
+				!REFUSAL_RE.test(outText) &&
+				AFFIRMATION_RE.test(outText)
 			) {
 				outText = "";
 			}

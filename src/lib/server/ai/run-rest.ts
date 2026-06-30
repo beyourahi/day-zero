@@ -105,7 +105,7 @@ export async function runChatViaRest(
 	// The binding returns `result` directly, so unwrap to keep the chat parser working.
 	const json = (await res.json()) as { result?: ChatRestResult };
 	return json && typeof json === "object" && "result" in json
-		? (json.result as ChatRestResult)
+		? (json.result ?? ({} as ChatRestResult))
 		: (json as ChatRestResult);
 }
 

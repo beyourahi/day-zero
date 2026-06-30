@@ -63,10 +63,13 @@
 	// reused for the live summary line so the user sees exactly what lands.
 	const resolvedIso = $derived.by(() => {
 		if (!dateValue) return null;
-		const h = withTime ? to24(Number(hour12), meridiem) : 0;
-		const m = withTime ? Number(minStr) : 0;
-		const local = new Date(dateValue.year, dateValue.month - 1, dateValue.day, h, m, 0, 0);
-		return Number.isNaN(local.getTime()) ? null : local.toISOString();
+		// Timed goals are a real instant (build in local time). Date-only goals are
+		// anchored to UTC midnight so the picked calendar day is zone-stable and renders
+		// identically on SSR + every viewer zone (see format.ts dateOnlyFmt).
+		const ts = withTime
+			? new Date(dateValue.year, dateValue.month - 1, dateValue.day, to24(Number(hour12), meridiem), Number(minStr), 0, 0)
+			: new Date(Date.UTC(dateValue.year, dateValue.month - 1, dateValue.day));
+		return Number.isNaN(ts.getTime()) ? null : ts.toISOString();
 	});
 	const summary = $derived(resolvedIso ? formatTargetDate(resolvedIso, withTime) : null);
 
@@ -76,7 +79,11 @@
 			if (editing) {
 				const d = new Date(editing.targetAt);
 				title = editing.title;
-				dateValue = new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+				// Date-only goals are stored at UTC midnight, so recover the picked day in
+				// UTC; timed goals are a local instant, so read local components.
+				dateValue = editing.hasTime
+					? new CalendarDate(d.getFullYear(), d.getMonth() + 1, d.getDate())
+					: new CalendarDate(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
 				placeholder = dateValue;
 				withTime = editing.hasTime;
 				const { h12, mer } = from24(d.getHours());

@@ -7,7 +7,6 @@ const TOOL_LABELS: Record<string, string> = {
 	createCountdown: "Add countdown",
 	updateCountdown: "Update countdown",
 	deleteCountdown: "Delete countdown",
-	reorderCountdowns: "Reorder countdowns",
 	setShareCountdown: "Share countdown"
 };
 
