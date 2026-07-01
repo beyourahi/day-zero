@@ -15,8 +15,8 @@
 
 const CF_API = "https://api.cloudflare.com/client/v4";
 
-/** Default chat model — the function-calling Llama. New users start here. */
-export const DEFAULT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+/** Default chat model — the function-calling Kimi K2. New users start here. */
+export const DEFAULT_MODEL = "@cf/moonshotai/kimi-k2.7-code";
 
 export interface CloudflareCreds {
 	accountId: string;
@@ -70,6 +70,55 @@ function kindForStatus(status: number): CfErrorKind {
 }
 
 /**
+ * Raw model envelope BEFORE normalization. Newer Workers AI models (kimi-k2.x,
+ * gpt-oss) return ONLY the OpenAI `choices` shape; older ones (llama, mistral)
+ * also expose the native top-level `response`/`tool_calls`.
+ */
+interface RawChatEnvelope {
+	response?: string;
+	tool_calls?: Array<{ name?: string; arguments?: unknown }>;
+	choices?: Array<{
+		message?: {
+			content?: string | null;
+			tool_calls?: Array<{
+				name?: string;
+				arguments?: unknown;
+				function?: { name?: string; arguments?: unknown };
+			}>;
+		};
+	}>;
+	usage?: ChatRestResult["usage"];
+}
+
+/**
+ * Collapses either response envelope into the native `{ response, tool_calls, usage }`
+ * the chat parser (`$lib/ai/client.ts`) reads. Prefers the native top-level fields
+ * (llama/mistral); otherwise lifts them from `choices[0].message` (kimi & other
+ * OpenAI-only models), mapping OpenAI `tool_calls[].function` -> `{ name, arguments }`.
+ * Without this, kimi turns (choices-only) would surface no text and no tool calls.
+ */
+function normalizeChatResult(raw: RawChatEnvelope): ChatRestResult {
+	const message = raw.choices?.[0]?.message;
+	const response =
+		typeof raw.response === "string"
+			? raw.response
+			: typeof message?.content === "string"
+				? message.content
+				: "";
+	const nativeCalls = Array.isArray(raw.tool_calls) ? raw.tool_calls : undefined;
+	const openaiCalls =
+		message && Array.isArray(message.tool_calls)
+			? message.tool_calls.map((tc) => ({
+					name: tc.function?.name ?? tc.name ?? "",
+					arguments: tc.function?.arguments ?? tc.arguments ?? {}
+				}))
+			: undefined;
+	const normalized: ChatRestResult = { response, tool_calls: nativeCalls ?? openaiCalls ?? [] };
+	if (raw.usage !== undefined) normalized.usage = raw.usage;
+	return normalized;
+}
+
+/**
  * Runs one chat turn through the user's chosen model on the user's account.
  * Returns the unwrapped model output (shape `{ response?, tool_calls?, usage? }`).
  * Throws `CfInferenceError` on any non-2xx so the consumer can map it.
@@ -102,11 +151,13 @@ export async function runChatViaRest(
 	}
 
 	// Native Workers AI REST wraps the output: { success, result, errors }.
-	// The binding returns `result` directly, so unwrap to keep the chat parser working.
-	const json = (await res.json()) as { result?: ChatRestResult };
-	return json && typeof json === "object" && "result" in json
-		? (json.result ?? ({} as ChatRestResult))
-		: (json as ChatRestResult);
+	// The binding returns `result` directly, so unwrap + normalize to keep the chat parser working.
+	const json = (await res.json()) as { result?: RawChatEnvelope };
+	const raw =
+		json && typeof json === "object" && "result" in json
+			? (json.result ?? ({} as RawChatEnvelope))
+			: (json as RawChatEnvelope);
+	return normalizeChatResult(raw);
 }
 
 // ── Model catalog ────────────────────────────────────────────────────────────
@@ -128,6 +179,7 @@ interface RawModel {
  * model the account exposes. DEFAULT_MODEL is included.
  */
 const KNOWN_CHAT_IDS = new Set([
+	"@cf/moonshotai/kimi-k2.7-code",
 	"@cf/meta/llama-3.3-70b-instruct-fp8-fast",
 	"@cf/meta/llama-3.1-70b-instruct",
 	"@cf/meta/llama-3.1-8b-instruct",
@@ -201,7 +253,7 @@ export async function listChatModels(creds: CloudflareCreds): Promise<CfModel[]>
 	if (!byId.has(DEFAULT_MODEL)) {
 		byId.set(DEFAULT_MODEL, {
 			id: DEFAULT_MODEL,
-			label: "meta/llama-3.3-70b-instruct-fp8-fast",
+			label: "moonshotai/kimi-k2.7-code",
 			task: "Text Generation",
 			description: "Default Copilot model (function-calling).",
 			deprecated: false,

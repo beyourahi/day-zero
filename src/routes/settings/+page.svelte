@@ -34,7 +34,7 @@
 
 	let { data } = $props();
 
-	const DEFAULT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+	const DEFAULT_MODEL = "@cf/moonshotai/kimi-k2.7-code";
 
 	const connected = $derived(data.connected);
 	const maskedToken = $derived(data.maskedToken ?? "");
@@ -65,7 +65,7 @@
 					: `${m.label} · experimental${m.deprecated ? " (deprecated)" : ""}`
 		}));
 		if (!ids.has(DEFAULT_MODEL)) {
-			opts.unshift({ id: DEFAULT_MODEL, label: "meta/llama-3.3-70b-instruct-fp8-fast · recommended" });
+			opts.unshift({ id: DEFAULT_MODEL, label: "moonshotai/kimi-k2.7-code · recommended" });
 		}
 		if (model && model !== DEFAULT_MODEL && !ids.has(model)) {
 			opts.push({ id: model, label: `${model.replace(/^@cf\//, "").replace(/^@hf\//, "")} · experimental` });
