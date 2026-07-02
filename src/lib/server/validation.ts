@@ -21,8 +21,7 @@ export const updateCountdownSchema = z
 	.object({
 		title: z.string().trim().min(1).max(120).optional(),
 		targetAt: isoDateTime.optional(),
-		hasTime: z.boolean().optional(),
-		archived: z.boolean().optional()
+		hasTime: z.boolean().optional()
 	})
 	.refine((v) => Object.keys(v).length > 0, { message: "Empty patch" });
 

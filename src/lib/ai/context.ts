@@ -28,9 +28,7 @@ const relativeLabel = (targetMs: number, nowMs: number): string => {
 const projectCountdown = (c: Countdown, nowMs: number): string => {
 	const targetMs = Date.parse(c.targetAt);
 	const rel = Number.isNaN(targetMs) ? "" : ` (${relativeLabel(targetMs, nowMs)})`;
-	const flags = [c.archived ? "archived" : null, c.shareToken ? "shared" : null]
-		.filter(Boolean)
-		.join(", ");
+	const flags = [c.shareToken ? "shared" : null].filter(Boolean).join(", ");
 	return `  id=${c.id} "${c.title || "(untitled)"}" target=${c.targetAt}${c.hasTime ? " (timed)" : ""}${rel}${flags ? ` [${flags}]` : ""}`;
 };
 

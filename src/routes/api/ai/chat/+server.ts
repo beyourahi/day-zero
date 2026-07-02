@@ -100,7 +100,7 @@ const ACTION_RETRY_MESSAGE =
  * intent (an imperative instruction) rather than the model's wording.
  */
 const IMPERATIVE_RE =
-	/\b(set|add|change|update|delete|remove|edit|fix|make|apply|append|insert|rename|clear|replace|move|undo|revert|create|correct|adjust|drop|fill|put|toggle|enable|disable|reorder|archive|unarchive|restore|share|unshare|schedule|track|countdown)\b/i;
+	/\b(set|add|change|update|delete|remove|edit|fix|make|apply|append|insert|rename|clear|replace|move|undo|revert|create|correct|adjust|drop|fill|put|toggle|enable|disable|reorder|restore|share|unshare|schedule|track|countdown)\b/i;
 // Read-only / interrogative lead words: a message opening with one of these is a
 // question, not a command, even without a trailing "?". Excludes it from the
 // imperative heuristic so informational asks don't trigger a wasteful retry.
@@ -116,7 +116,7 @@ const REFUSAL_RE =
 	/\b(can'?t|cannot|can not|unable|won'?t|not able|out of scope|outside|only help|only assist|don'?t|do not|which|could you|do you want|no countdown)\b/i;
 /** A completion claim ("Done — updated 5 rows"). Only blank a no-tool reply that actually claims an action. */
 const AFFIRMATION_RE =
-	/\b(done|updated?|set|added?|applied|appended|inserted|changed|removed|deleted|cleared|renamed|replaced|fixed|marked|created|adjusted|corrected|archived|restored|reordered|shared|i'?ve|i have|i'?ll|all set|here you go)\b/i;
+	/\b(done|updated?|set|added?|applied|appended|inserted|changed|removed|deleted|cleared|renamed|replaced|fixed|marked|created|adjusted|corrected|restored|reordered|shared|i'?ve|i have|i'?ll|all set|here you go)\b/i;
 
 /**
  * POST /api/ai/chat — runs one Copilot turn and streams the result as SSE.

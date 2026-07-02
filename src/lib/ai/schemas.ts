@@ -29,17 +29,11 @@ export const argSchemas = {
 			id: z.string().min(1),
 			title: z.string().min(1).max(200).optional(),
 			targetAt: isoDate.optional(),
-			hasTime: z.boolean().optional(),
-			archived: z.boolean().optional()
+			hasTime: z.boolean().optional()
 		})
-		.refine(
-			(v) =>
-				v.title !== undefined ||
-				v.targetAt !== undefined ||
-				v.hasTime !== undefined ||
-				v.archived !== undefined,
-			{ message: "Empty patch" }
-		),
+		.refine((v) => v.title !== undefined || v.targetAt !== undefined || v.hasTime !== undefined, {
+			message: "Empty patch"
+		}),
 	deleteCountdown: z.object({ id: z.string().min(1) }),
 	setShareCountdown: z.object({
 		id: z.string().min(1),

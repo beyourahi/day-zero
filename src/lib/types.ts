@@ -18,7 +18,6 @@ export interface Countdown {
 	targetAt: string;
 	/** Whether a specific time-of-day was set (drives display granularity). */
 	hasTime: boolean;
-	archived: boolean;
 	/** Unguessable token while publicly shared; null when private. */
 	shareToken: string | null;
 	position: number;
@@ -37,7 +36,6 @@ export interface CountdownPatch {
 	title?: string;
 	targetAt?: string;
 	hasTime?: boolean;
-	archived?: boolean;
 }
 
 /** The safe public projection returned for a shared countdown (no ids, no owner). */

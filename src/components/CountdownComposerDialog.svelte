@@ -67,7 +67,15 @@
 		// anchored to UTC midnight so the picked calendar day is zone-stable and renders
 		// identically on SSR + every viewer zone (see format.ts dateOnlyFmt).
 		const ts = withTime
-			? new Date(dateValue.year, dateValue.month - 1, dateValue.day, to24(Number(hour12), meridiem), Number(minStr), 0, 0)
+			? new Date(
+					dateValue.year,
+					dateValue.month - 1,
+					dateValue.day,
+					to24(Number(hour12), meridiem),
+					Number(minStr),
+					0,
+					0
+				)
 			: new Date(Date.UTC(dateValue.year, dateValue.month - 1, dateValue.day));
 		return Number.isNaN(ts.getTime()) ? null : ts.toISOString();
 	});

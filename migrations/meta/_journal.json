@@ -43,6 +43,13 @@
       "when": 1782428606412,
       "tag": "0005_tidy_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1782988272220,
+      "tag": "0006_magical_blindfold",
+      "breakpoints": true
     }
   ]
 }

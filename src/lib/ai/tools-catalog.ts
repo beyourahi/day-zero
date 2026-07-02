@@ -34,7 +34,7 @@ export const TOOLS_CATALOG: ToolCatalogEntry[] = [
 	{
 		name: "updateCountdown",
 		description:
-			"Update fields on an existing countdown. Pass only the fields that change. Set `archived` true to hide a countdown from the active board, false to restore it. `targetAt` must be a full ISO-8601 timestamp when changed.",
+			"Update fields on an existing countdown. Pass only the fields that change. `targetAt` must be a full ISO-8601 timestamp when changed.",
 		safetyTier: "A",
 		parameters: {
 			type: "object",
@@ -42,8 +42,7 @@ export const TOOLS_CATALOG: ToolCatalogEntry[] = [
 				id: { type: "string", description: "ID of the countdown to update." },
 				title: { type: "string" },
 				targetAt: { type: "string", description: "New target instant as ISO-8601 (UTC)." },
-				hasTime: { type: "boolean" },
-				archived: { type: "boolean" }
+				hasTime: { type: "boolean" }
 			},
 			required: ["id"]
 		}

@@ -135,7 +135,6 @@ export const countdowns = sqliteTable(
 		title: text("title").notNull().default(""),
 		targetAt: integer("target_at", { mode: "timestamp" }).notNull(),
 		hasTime: integer("has_time", { mode: "boolean" }).notNull().default(false),
-		archived: integer("archived", { mode: "boolean" }).notNull().default(false),
 		shareToken: text("share_token").unique(),
 		position: integer("position").notNull().default(0),
 		createdAt: integer("created_at", { mode: "timestamp" })

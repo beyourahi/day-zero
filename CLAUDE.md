@@ -12,7 +12,7 @@ Guidance for Claude Code working in this repository.
 
 ## Project Overview
 
-**Day Zero** — a goal/milestone **countdown tracker** (a Dropout Studio free/public tool, sibling to `order-processor` and `invoice-generator`). A user creates countdowns toward a target date for a goal, makes many, and sees them all at once on one board: the soonest upcoming goal is promoted to an oversized **hero**, the rest fill a responsive grid, and reached goals collapse into a quieter section; any card can also be manually archived into a separate Archived list. Any countdown can be shared via a read-only public link (`/s/[token]`). An AI copilot manages countdowns in natural language. **No ads.**
+**Day Zero** — a goal/milestone **countdown tracker** (a Dropout Studio free/public tool, sibling to `order-processor` and `invoice-generator`). A user creates countdowns toward a target date for a goal, makes many, and sees them all at once on one board: the soonest upcoming goal is promoted to an oversized **hero**, the rest fill a responsive grid, and reached goals collapse into a quieter section. A countdown is either kept or deleted (delete asks for confirmation) — there is no archive. Any countdown can be shared via a read-only public link (`/s/[token]`). An AI copilot manages countdowns in natural language. **No ads.**
 
 **Stack**: SvelteKit 2 + Svelte 5 runes · TypeScript strict · Tailwind v4 (CSS-first; tokens from `@dropout/ds`, vendored) + shadcn-svelte · Better Auth (Google OAuth + Google One Tap + passkey/WebAuthn biometrics; email/password disabled) · Cloudflare D1 + Drizzle · Cloudflare Workers AI (copilot, **BYO** per-user via REST) · GSAP · Bun. Dark-only (`app.html` hardcodes `<html class="dark">`).
 
@@ -52,7 +52,7 @@ The frontend runs on the **Dropout Design System**, **vendored** at `src/lib/ds/
 
 ### Domain
 
-- `src/lib/types.ts` — `Countdown` ({ id, title, `targetAt` (ISO UTC string), hasTime, archived, shareToken, position, createdAt }), `CountdownInput`, `CountdownPatch`, `PublicCountdown`, `AppConfig`. **No per-countdown color** and **no `note`** (both dropped) — differentiation is typographic.
+- `src/lib/types.ts` — `Countdown` ({ id, title, `targetAt` (ISO UTC string), hasTime, shareToken, position, createdAt }), `CountdownInput`, `CountdownPatch`, `PublicCountdown`, `AppConfig`. **No per-countdown color**, **no `note`**, and **no `archived`** (all dropped) — differentiation is typographic; a countdown is kept or deleted, never archived.
 - `src/lib/server/schema.ts` — Drizzle: Better Auth tables (`users`, `sessions`, `accounts`, `verifications`, `passkeys` (WebAuthn creds), `rate_limits` (DB-backed rate limiting)) + `countdowns` + `user_settings` (per-user BYO-Cloudflare creds; AES-GCM-encrypted token blob) + AI tables (`ai_conversations`, `ai_messages`, `ai_actions`). Snake_case columns (Better Auth adapter invariant). `share_token` is unique & nullable.
 - `src/lib/server/repositories/countdowns.ts` — `listByUser`, `create`, `update`, `remove`, `reorder`, `setShare`, and the one cross-user read `getByShareToken` (returns only the safe public projection — never owner/ids). `repositories/state.ts` exposes `loadAppState` (the `+page.server.ts`/chat board projection).
 - `src/lib/server/{api,db,auth,dto,validation}.ts` — `requireApiContext`/`parseJson`/`ok`, Drizzle factory, Better Auth factory (Google OAuth + `oneTap()` + `passkey()` plugins; DB rate-limiting via `rate_limits`; 5-min signed session cookie cache; passkey `rpID`/`origin` derived from `BETTER_AUTH_URL` so dev/preview/prod all work), row→domain mappers, Zod request schemas. `src/lib/auth-client.ts` is the browser client (`passkeyClient` + `oneTapClient`, reads `PUBLIC_GOOGLE_CLIENT_ID`). `server/crypto.ts` (WebCrypto AES-GCM for the token at rest) + `server/ai/{cloudflare-config,run-rest,errors}.ts` back the BYO Copilot.
@@ -61,7 +61,7 @@ The frontend runs on the **Dropout Design System**, **vendored** at `src/lib/ds/
 ### Stores (factory-closure runes singletons)
 
 - `src/lib/stores/clock.svelte.ts` — **single shared 1Hz ticker** (`clock.now`). Every card derives remaining time from it; never one interval per card.
-- `src/lib/stores/countdowns.svelte.ts` — board state. An `authed` flag (set at hydrate) routes writes: authed → D1 (title edits debounced, structural changes immediate); guest → `localStorage` synchronously (creates mint their own id/position client-side). `loadGuest`/`migrateGuestToServer` bridge the two. Derived partitions `active`/`upcoming`/`past`/`hero`/`archived` (archived cards split into their own collapsed list via `setArchived`); `upcoming`/`past` read `clock.now` so the board re-partitions the instant a countdown crosses zero. `aiInject`/`aiRemove` are local-only mutators the copilot uses to reflect its API writes.
+- `src/lib/stores/countdowns.svelte.ts` — board state. An `authed` flag (set at hydrate) routes writes: authed → D1 (title edits debounced, structural changes immediate); guest → `localStorage` synchronously (creates mint their own id/position client-side). `loadGuest`/`migrateGuestToServer` bridge the two. Derived partitions `active`/`upcoming`/`past`/`hero`; `upcoming`/`past` read `clock.now` so the board re-partitions the instant a countdown crosses zero. `aiInject`/`aiRemove` are local-only mutators the copilot uses to reflect its API writes.
 - `src/lib/stores/ai.svelte.ts` — copilot state (conversations, messages, confirm queue, undo).
 
 ### UI
@@ -114,3 +114,15 @@ Gated by `AI_COPILOT_ENABLED` (set `"false"` to disable) **and signed-in only**.
 ---
 
 For Cloudflare work, prefer the installed Cloudflare skills and Code Mode MCP over your own knowledge.
+
+---
+
+## ⚙️ Autonomy directive — do actionable work yourself, never hand it back (highest operational priority) <!-- AUTONOMY-DIRECTIVE-v1 -->
+
+**Default: do it, don't delegate it back to Rahi.** Any step you are technically able to perform, you perform — autonomously, in the same turn. Never tell Rahi to run something, and never end a turn asking him to do a step you could have done yourself.
+
+- **Database migrations specifically:** generate AND apply them yourself — local and remote. Run `bun run db:generate`, `bun run db:migrate:local`, and `bun run db:migrate` (remote) yourself. NEVER say "run the migration", "you'll need to migrate", or "say the word and I'll run it" — just run it.
+- **Any comparable actionable / setup / maintenance step:** dependency installs, type generation (`cf-typegen`), builds, `format`/`lint`/`check`, seeding, codegen, cache clears, config regeneration, dev-server starts for verification, etc. — do them yourself without asking.
+- **Only surface to Rahi when it is genuinely impossible for you:** it requires a credential/secret you don't hold, or a physical/external action you truly cannot perform (a login in his browser, a third-party dashboard toggle, a purchase). Even then, do everything you can first and hand him only the smallest irreducible remaining step.
+- **Never** finish by presenting a menu of actionable steps for Rahi to trigger ("say migrate / commit / both"). Get it done, then report what you did.
+- **Carve-out (this preserves an existing rule, it does not override it):** the git-safety protocol still stands — where a project requires explicit permission before `git commit` / `git push`, keep asking for that. Autonomy means doing the _work_; it does not mean publishing/committing on his behalf without the permission that project already requires.

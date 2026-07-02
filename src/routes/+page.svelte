@@ -71,7 +71,7 @@
 		else await countdowns.add(input);
 	};
 
-	const isEmpty = $derived(countdowns.active.length === 0 && countdowns.archived.length === 0);
+	const isEmpty = $derived(countdowns.active.length === 0);
 	const gridItems = $derived(countdowns.upcoming.slice(1)); // hero is upcoming[0]
 
 	// Slide the board left when the copilot rail opens — same shift the profile row (Navbar) uses.
@@ -139,23 +139,6 @@
 					</div>
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{#each countdowns.past as c (c.id)}
-							<CountdownCard countdown={c} onEdit={openEdit} onShare={openShare} {canShare} />
-						{/each}
-					</div>
-				</section>
-			{/if}
-
-			{#if countdowns.archived.length}
-				<section class="space-y-6" use:reveal={{ distance: "sm", onScroll: true }}>
-					<div class="flex items-center gap-3">
-						<span class="text-ink-muted font-mono text-micro tracking-[0.24em] uppercase">Archived</span>
-						<span class="bg-hair h-px grow" aria-hidden="true"></span>
-						<span class="text-ink-muted font-mono text-micro tabular-nums"
-							>{countdowns.archived.length}</span
-						>
-					</div>
-					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-						{#each countdowns.archived as c (c.id)}
 							<CountdownCard countdown={c} onEdit={openEdit} onShare={openShare} {canShare} />
 						{/each}
 					</div>

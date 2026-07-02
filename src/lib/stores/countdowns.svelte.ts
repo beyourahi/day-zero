@@ -5,7 +5,7 @@
  *
  * Persistence: mutations update local `$state` immutably and persist via the API
  * — text edits (title) through keyed debounceSync, structural changes
- * (targetAt/hasTime/archived/order/share) immediately via sync(). hydrate() runs
+ * (targetAt/hasTime/order/share) immediately via sync(). hydrate() runs
  * exactly ONCE in +page.svelte under untrack(); do not add a second hydrate path.
  *
  * Derived partitions read `clock.now`, so the board re-partitions itself the
@@ -32,8 +32,7 @@ const applyPatch = (c: Countdown, patch: CountdownPatch): Countdown => ({
 	...c,
 	...(patch.title !== undefined ? { title: patch.title } : {}),
 	...(patch.targetAt !== undefined ? { targetAt: patch.targetAt } : {}),
-	...(patch.hasTime !== undefined ? { hasTime: patch.hasTime } : {}),
-	...(patch.archived !== undefined ? { archived: patch.archived } : {})
+	...(patch.hasTime !== undefined ? { hasTime: patch.hasTime } : {})
 });
 
 const ms = (iso: string): number => Date.parse(iso);
@@ -86,12 +85,6 @@ const createCountdownsStore = () => {
 				failed.push(g);
 				continue;
 			}
-			// Carry the guest's archived flag to the server and the local object so the
-			// board matches without a reload (create can't set archived directly).
-			if (g.archived) {
-				const ok = await sync(() => api.patch<void>(`/api/countdowns/${c.id}`, { archived: true }));
-				if (ok !== null) c.archived = true;
-			}
 			created.push(c);
 		}
 		if (created.length > 0) countdowns = [...countdowns, ...created];
@@ -113,7 +106,6 @@ const createCountdownsStore = () => {
 			title: input.title,
 			targetAt: input.targetAt,
 			hasTime: input.hasTime ?? false,
-			archived: false,
 			shareToken: null,
 			position: maxPos + 1,
 			createdAt: new Date().toISOString()
@@ -136,8 +128,6 @@ const createCountdownsStore = () => {
 			void sync(send);
 		}
 	};
-
-	const setArchived = (id: string, archived: boolean) => update(id, { archived });
 
 	const remove = (id: string) => {
 		countdowns = countdowns.filter((c) => c.id !== id);
@@ -198,7 +188,7 @@ const createCountdownsStore = () => {
 		countdowns = countdowns.filter((c) => c.id !== id);
 	};
 
-	const active = $derived(countdowns.filter((c) => !c.archived));
+	const active = $derived(countdowns);
 	const upcoming = $derived.by(() => {
 		const now = clock.now;
 		return active
@@ -211,7 +201,6 @@ const createCountdownsStore = () => {
 			.filter((c) => ms(c.targetAt) <= now)
 			.sort((a, b) => ms(b.targetAt) - ms(a.targetAt));
 	});
-	const archivedList = $derived(countdowns.filter((c) => c.archived));
 	const hero = $derived(upcoming[0] ?? null);
 
 	return {
@@ -227,9 +216,6 @@ const createCountdownsStore = () => {
 		get past() {
 			return past;
 		},
-		get archived() {
-			return archivedList;
-		},
 		get hero() {
 			return hero;
 		},
@@ -238,7 +224,6 @@ const createCountdownsStore = () => {
 		migrateGuestToServer,
 		add,
 		update,
-		setArchived,
 		remove,
 		reorder,
 		setShare,

@@ -55,7 +55,6 @@ export const executors: {
 		if (args.title !== undefined) patch.title = args.title;
 		if (args.targetAt !== undefined) patch.targetAt = args.targetAt;
 		if (args.hasTime !== undefined) patch.hasTime = args.hasTime;
-		if (args.archived !== undefined) patch.archived = args.archived;
 		countdowns.update(args.id, patch);
 		return {
 			inverse: inverseForUpdateCountdown(args.id, before),
