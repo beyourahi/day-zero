@@ -90,13 +90,20 @@ export const handle: Handle = async ({ event, resolve }) => {
 		});
 	}
 
-	// Synthesizes event.locals to bypass Google OAuth for Wrangler preview only.
-	// Trigger: E2E_BYPASS_AUTH=true in .dev.vars (gitignored). MUST NOT appear in wrangler.jsonc.
-	// SECURITY: env-gated, NOT url-gated — the removed ?__dev_bypass=1 param must not return.
+	// Synthesizes event.locals to bypass Google OAuth for local dev / Wrangler preview only.
+	// DOUBLE-GATED (defense in depth):
+	//   (1) E2E_BYPASS_AUTH=true — lives in .dev.vars (gitignored); MUST NOT appear in
+	//       wrangler.jsonc/secrets. Cloudflare never uploads .dev.vars, so it can't reach prod.
+	//   (2) request host is localhost/127.0.0.1 — so even if the flag ever leaked into a deployed
+	//       env, the bypass stays inert on the prod domain (day-zero.dropoutstudio.co).
+	// NOT query-param-gated — the removed ?__dev_bypass=1 must not return (a param is attacker-controlled;
+	// a bound env var + the request host are not). Covers Vite dev (5173) and Wrangler preview (8787).
 	// Synthesizes BOTH user+session so /api/* routes (which gate via requireApiContext) also pass.
 	// The user row is upserted (onConflictDoNothing) so FK-bound app data has a real owner.
-	// MUST NEVER be set in production — it grants full unauthenticated access.
-	if (event.platform?.env?.E2E_BYPASS_AUTH === "true") {
+	// MUST NEVER be enabled in production — it grants full unauthenticated access.
+	const isLocalDev =
+		event.url.hostname === "localhost" || event.url.hostname === "127.0.0.1";
+	if (isLocalDev && event.platform?.env?.E2E_BYPASS_AUTH === "true") {
 		const now = new Date();
 		const userId = "e2e-test-user";
 		const dz = drizzle(db);
