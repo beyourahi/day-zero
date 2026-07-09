@@ -92,8 +92,19 @@ Gated by `AI_COPILOT_ENABLED` (set `"false"` to disable) **and signed-in only**.
 - **Never nest `<button>` in `<button>`** — SSR auto-closes and desyncs hydration (whole-app double-render). Use `div[role="button"]` + tabindex/keydown, inner actions `stopPropagation`.
 - **Vendored DS is read-only** — edit upstream + `sync-ds`.
 - **Icons via `@lucide/svelte`** — import named icon components (e.g. `Fingerprint`, `ArrowLeft`); scoped package, not `lucide-svelte`. No inline SVGs.
-- **`E2E_BYPASS_AUTH`** — `=true` in `.dev.vars` (gitignored; never `wrangler.jsonc`/prod) skips Google OAuth by synthesizing a session, upserting an `e2e-test-user` row on **every** request. So an **unmigrated local D1 → 500 on every route**; run `bun run db:migrate:local` first.
+- **`E2E_BYPASS_AUTH`** — `=true` in `.dev.vars` (gitignored; never `wrangler.jsonc`/prod) skips Google OAuth by synthesizing a session, upserting an `e2e-test-user` row on **every** request. **Double-gated**: the flag **and** a localhost request host (see the "Test auth & mock data" section). So an **unmigrated local D1 → 500 on every route**; run `bun run db:migrate:local` first.
 - **Commits**: Conventional Commits, atomic, **no AI co-author**. `bun run check` + `bun run lint` must pass before every commit.
+
+---
+
+## Test auth & mock data (dev only)
+
+**Reach the signed-in board locally without Google OAuth** — for manual, Playwright, and curl checks. (email/password is disabled, so there is no password to seed; the bypass injects a session directly.)
+
+- **Test user:** `e2e-test-user` / `e2e@test.local` — synthesized into `event.locals.{user,session,currentUser}` by `hooks.server.ts`.
+- **Activate:** already on — `.dev.vars` (gitignored) carries `E2E_BYPASS_AUTH=true`. The bypass is **double-gated (defense in depth)**: the flag **AND** a `localhost`/`127.0.0.1` request host, so it is inert on the prod domain even if the flag ever leaked. Primary safety is still flag-absence — Cloudflare never uploads `.dev.vars`. Works under `bun run dev` (5173) and `bun run preview` (8787).
+- **Seed the board:** `bun run db:migrate:local` (once) → `bun run seed`. Idempotent (`seed/seed.sql`, fixed ids + `INSERT OR REPLACE`); inserts realistic countdowns for the test user — a soonest-upcoming **hero**, an upcoming grid, and one reached goal in the "past" section. Evergreen (relative dates), so it never expires.
+- **⚠️ NEVER enable in production.** `E2E_BYPASS_AUTH` must never appear in `wrangler.jsonc` `[vars]` or secrets — it grants full unauthenticated access. The real Google OAuth / passkey path is byte-for-byte unchanged; the bypass is an additive, gated branch.
 
 ---
 
