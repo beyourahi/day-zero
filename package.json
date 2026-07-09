@@ -24,7 +24,8 @@
 		"db:check": "drizzle-kit check",
 		"db:migrate": "wrangler d1 migrations apply day_zero --remote",
 		"db:migrate:local": "wrangler d1 migrations apply day_zero --local",
-		"db:migrate:list": "wrangler d1 migrations list day_zero --local"
+		"db:migrate:list": "wrangler d1 migrations list day_zero --local",
+		"seed": "wrangler d1 execute day_zero --local --file ./seed/seed.sql"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20260625.1",
