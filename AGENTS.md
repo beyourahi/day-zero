@@ -33,6 +33,7 @@ bun run sync-ds           # re-vendor @dropout/ds from ../../dropout-design-syst
 bun run db:generate       # generate Drizzle migration from schema
 bun run db:migrate        # apply migrations to REMOTE D1 (production)
 bun run db:migrate:local  # apply migrations to local D1 (dev/preview)
+bun run seed              # idempotent local D1 fixtures for e2e-test-user
 bun run cf-typegen        # regenerate worker-configuration.d.ts after wrangler.jsonc changes
 ```
 
@@ -108,16 +109,10 @@ Gated by `AI_COPILOT_ENABLED` (set `"false"` to disable) **and signed-in only**.
 
 ---
 
-## Cloudflare bindings & deploy
+## Cloudflare bindings & production
 
 `wrangler.jsonc`: `DB` (D1 `day_zero`, required — absent at runtime, `/api/*` returns 503), `AI` (Workers AI, `remote: true` — typing/compat only; inference is BYO REST), `AI_QUOTA_KV` (optional quota/spend + `cf-models` cache). `compatibility_flags: ["nodejs_compat"]` is **required** — Better Auth and the AI layer use Node built-ins; removing it breaks auth at runtime. `account_id` = Personal. Served ONLY on the custom domain `day-zero.dropoutstudio.co` (`workers_dev: false`, `preview_urls: false` — one canonical origin for OAuth/CSRF). Vars: `BETTER_AUTH_URL`, `AI_COPILOT_ENABLED`, `AI_MONTHLY_CAP_USD`, `PUBLIC_GOOGLE_CLIENT_ID` (browser-public, non-secret — enables Google One Tap; empty → One Tap stays off but the Google button still works). Passkey `rpID`/`origin` are auto-derived from `BETTER_AUTH_URL` — no extra config.
 
 **Secrets** (`wrangler secret put`): `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `TOKEN_ENCRYPTION_KEY` (base64 32 bytes — encrypts each user's BYO Cloudflare token; copilot is disabled without it).
 
-**To deploy (production):**
-
-1. Create/choose a Google OAuth client; add redirect URI `https://day-zero.dropoutstudio.co/api/auth/callback/google`. To enable One Tap, set the same client id (non-secret) as the `PUBLIC_GOOGLE_CLIENT_ID` var in `wrangler.jsonc`. Passkeys need no extra setup.
-2. `wrangler secret put BETTER_AUTH_SECRET` (e.g. `openssl rand -base64 32`), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `TOKEN_ENCRYPTION_KEY` (`openssl rand -base64 32`).
-3. `bun run db:migrate` (remote D1).
-4. `wrangler deploy` (or git-push auto-deploy).
-5. Each user connects their own Cloudflare account at `/settings` to use the Copilot. Flip the Day Zero showcase cards on dropoutstudio.co / beyourahi.com from `coming-soon` to `active`.
+Google OAuth must register `https://day-zero.dropoutstudio.co/api/auth/callback/google`; One Tap uses the same client id in the public `PUBLIC_GOOGLE_CLIENT_ID` var. Apply remote migrations before schema-dependent releases. Pushes auto-deploy through Cloudflare Workers Builds; never run a routine manual deploy command. Each user connects their own Cloudflare account at `/settings` to use the Copilot.
