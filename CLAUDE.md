@@ -4,9 +4,10 @@ Guidance for Claude Code working in this repository.
 
 ---
 
-## Always Do First
+## Frontend-design skill
 
-**Invoke the `frontend-design` skill** before writing any frontend code, every session, no exceptions. Consult Rahi's Mind Palace (`~/Desktop/mind-palace`) for brand/voice/design context.
+Follow the workspace selection rule and consult the Mind Palace for brand/voice/design context.
+The existing Dropout DS and Day Zero visual language win during constrained work.
 
 ---
 
