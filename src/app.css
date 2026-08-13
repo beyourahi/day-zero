@@ -21,15 +21,6 @@
 @import "tw-animate-css";
 @import "./lib/styles/chat-animations.css";
 
-@font-face {
-	font-family: "Google Sans Flex Fallback";
-	src: local("Arial");
-	size-adjust: 98%;
-	ascent-override: 95%;
-	descent-override: 25%;
-	line-gap-override: 0%;
-}
-
 /* =============================================================================
    TOOL-EXTRAS — tokens DS doesn't define, repointed to DS primitives so every
    existing utility (bg-chat-surface, border-status-active-border, bg-popover …)

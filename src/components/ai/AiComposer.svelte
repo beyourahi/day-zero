@@ -78,7 +78,7 @@
 			rows={2}
 			{disabled}
 			class={cn(
-				"text-chat-text-primary chat-scrollbar wrap-break-word min-h-[3.25rem] w-full resize-none bg-transparent text-base leading-relaxed transition-[height] duration-100 ease-out outline-none md:text-sm",
+				"text-chat-text-primary chat-scrollbar min-h-[3.25rem] w-full resize-none bg-transparent text-base leading-relaxed wrap-break-word transition-[height] duration-100 ease-out outline-none md:text-sm",
 				disabled ? "placeholder:text-chat-text-secondary" : "placeholder:text-chat-text-muted"
 			)}
 			style="max-height: {MAX_HEIGHT}px;"></textarea>
@@ -90,7 +90,7 @@
 				disabled={!canSubmit}
 				aria-label={disabled ? "Generating response" : "Send message"}
 				class={cn(
-					"ease-[var(--ease)] touch-manipulation rounded-full p-2 transition-all duration-200",
+					"touch-manipulation rounded-full p-2 transition-all duration-200 ease-[var(--ease)]",
 					disabled
 						? "bg-chat-accent-muted/40 text-chat-text-muted cursor-not-allowed"
 						: canSubmit
@@ -119,9 +119,7 @@
 			</button>
 		</div>
 
-		<span
-			class="text-chat-text-muted/60 absolute bottom-2.5 left-4 font-mono text-micro tracking-[0.1em] uppercase"
-		>
+		<span class="text-chat-text-muted/60 text-micro absolute bottom-2.5 left-4 tracking-[0.1em] uppercase">
 			{#if disabled}
 				generating…
 			{:else}

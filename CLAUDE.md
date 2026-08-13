@@ -1,5 +1,9 @@
 # CLAUDE.md
 
+## Branch Policy (Strict)
+
+**All work must be done on `main`. Never create a new branch unless Rahi explicitly instructs you to do so.**
+
 Guidance for Claude Code working in this repository.
 
 ---
@@ -117,3 +121,9 @@ Gated by `AI_COPILOT_ENABLED` (set `"false"` to disable) **and signed-in only**.
 **Secrets** (`wrangler secret put`): `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `TOKEN_ENCRYPTION_KEY` (base64 32 bytes — encrypts each user's BYO Cloudflare token; copilot is disabled without it).
 
 Google OAuth must register `https://day-zero.dropoutstudio.co/api/auth/callback/google`; One Tap uses the same client id in the public `PUBLIC_GOOGLE_CLIENT_ID` var. Apply remote migrations before schema-dependent releases. Pushes auto-deploy through Cloudflare Workers Builds; never run a routine manual deploy command. Each user connects their own Cloudflare account at `/settings` to use the Copilot.
+
+<!-- SWISS-DESIGN-GLOBAL -->
+
+## Swiss Design — mandatory for all frontend/UI work
+
+For every website and web application, **always apply Swiss International Style principles to all frontend UI and design work, without exception. This is the required structural baseline, not an optional aesthetic direction.** Before creating, editing, reviewing, or auditing UI, read and follow `/Users/beyourahi/.agents/skills/swiss-design/SKILL.md`; when the stack is not Tailwind, translate the implementation syntax while preserving the principles. Enforce its grid-first, mobile-first, typographic, whitespace, hierarchy, restrained-color, responsive, and accessibility rules. Express project and client branding inside this system; brand requirements do not waive the Swiss principles. This directive supersedes conflicting optional style defaults elsewhere.

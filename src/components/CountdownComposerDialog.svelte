@@ -148,7 +148,7 @@
 	// (signal fill for the active half, quiet ink for the other), sized to sit flush
 	// with the hour/minute select triggers.
 	const meridiemBtn =
-		"flex items-center px-3.5 font-mono text-caption tracking-[0.12em] uppercase transition-colors duration-200 ease-[var(--ease)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-signal touch-manipulation whitespace-nowrap";
+		"flex items-center px-3.5  text-caption tracking-[0.12em] uppercase transition-colors duration-200 ease-[var(--ease)] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-signal touch-manipulation whitespace-nowrap";
 	const meridiemOn = "bg-signal font-semibold text-background";
 	const meridiemOff = "text-ink-muted hover:bg-white/[0.04] hover:text-foreground";
 </script>
@@ -161,7 +161,7 @@
 	>
 		<Dialog.Header class="border-hair shrink-0 border-b px-5 py-4">
 			<Dialog.Title>
-				<span class="font-sans text-lead lowercase">
+				<span class="text-lead font-sans lowercase">
 					{editing ? "edit countdown" : "new countdown"}
 				</span>
 			</Dialog.Title>
@@ -185,9 +185,7 @@
 
 			<div class="flex flex-col gap-3">
 				<label class="flex items-center justify-between gap-3">
-					<span class="text-ink-muted font-mono text-micro tracking-[0.18em] uppercase">
-						Set a specific time
-					</span>
+					<span class="text-ink-muted text-micro tracking-[0.18em] uppercase"> Set a specific time </span>
 					<Switch bind:checked={withTime} />
 				</label>
 
@@ -200,12 +198,12 @@
 								</Select.Trigger>
 								<Select.Content class="max-h-56">
 									{#each hours as h (h)}
-										<Select.Item value={h} label={h} class="font-mono tabular-nums" />
+										<Select.Item value={h} label={h} class=" tabular-nums" />
 									{/each}
 								</Select.Content>
 							</Select.Root>
 						</div>
-						<span class="text-ink-muted self-center font-mono text-lead">:</span>
+						<span class="text-ink-muted text-lead self-center">:</span>
 						<div class="flex-1">
 							<Select.Root type="single" bind:value={minStr}>
 								<Select.Trigger class={timeTrigger} aria-label="Minute">
@@ -213,7 +211,7 @@
 								</Select.Trigger>
 								<Select.Content class="max-h-56">
 									{#each minutes as m (m)}
-										<Select.Item value={m} label={m} class="font-mono tabular-nums" />
+										<Select.Item value={m} label={m} class=" tabular-nums" />
 									{/each}
 								</Select.Content>
 							</Select.Root>
@@ -250,7 +248,7 @@
 
 			{#if summary}
 				<p
-					class="border-hair text-ink-muted rounded-sm border border-dashed px-4 py-3 text-center font-mono text-caption tracking-[0.04em] text-pretty"
+					class="border-hair text-ink-muted text-caption rounded-sm border border-dashed px-4 py-3 text-center tracking-[0.04em] text-pretty"
 				>
 					counting down to <span class="text-foreground">{summary}</span>
 				</p>
@@ -261,7 +259,7 @@
 			class="border-hair mx-0 mb-0 shrink-0 flex-row items-center justify-end gap-2 border-t px-5 py-4"
 		>
 			<Dialog.Close
-				class="text-ink-muted hover:text-foreground rounded-full px-4 py-2 font-mono text-micro tracking-[0.14em] uppercase transition-colors touch-manipulation whitespace-nowrap"
+				class="text-ink-muted hover:text-foreground text-micro touch-manipulation rounded-full  px-4 py-2 tracking-[0.14em] whitespace-nowrap uppercase transition-colors"
 			>
 				Cancel
 			</Dialog.Close>

@@ -72,7 +72,7 @@
 			{/if}
 		</span>
 		<span class="font-medium break-words">{toolLabel(call.name)}</span>
-		<span class="text-chat-text-muted font-mono text-micro tracking-[0.12em] uppercase tabular-nums">
+		<span class="text-chat-text-muted text-micro tracking-[0.12em] uppercase tabular-nums">
 			· {statusLabel}
 		</span>
 		{#if canUndo}
@@ -81,7 +81,7 @@
 				onclick={onUndo}
 				disabled={undoing}
 				class={cn(
-					"text-chat-text-secondary hover:text-chat-text-primary hover:bg-ink-2 border-hair bg-chat-bg ease-[var(--ease)] ml-auto inline-flex touch-manipulation items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-micro tracking-[0.1em] whitespace-nowrap uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+					"text-chat-text-secondary hover:text-chat-text-primary hover:bg-ink-2 border-hair bg-chat-bg text-micro ml-auto inline-flex touch-manipulation items-center gap-1 rounded-full border px-2.5 py-1  tracking-[0.1em] whitespace-nowrap uppercase transition-colors ease-[var(--ease)] disabled:cursor-not-allowed disabled:opacity-50",
 					undoing && "cursor-wait"
 				)}
 			>

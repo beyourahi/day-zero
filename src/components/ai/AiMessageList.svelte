@@ -63,7 +63,7 @@
 				<button
 					type="button"
 					onclick={reset}
-					class="border-hair bg-chat-surface text-chat-text-primary hover:border-signal hover:bg-ink-2 ease-[var(--ease)] mt-1 touch-manipulation rounded-full border px-4 py-1.5 font-mono text-caption tracking-[0.12em] whitespace-nowrap uppercase transition-colors"
+					class="border-hair bg-chat-surface text-chat-text-primary hover:border-signal hover:bg-ink-2 text-caption mt-1 touch-manipulation rounded-full border px-4 py-1.5 tracking-[0.12em] whitespace-nowrap uppercase transition-colors ease-[var(--ease)]"
 				>
 					Retry
 				</button>

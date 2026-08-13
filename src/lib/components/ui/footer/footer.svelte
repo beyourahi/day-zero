@@ -8,12 +8,12 @@
 </script>
 
 <footer
-	class="border-hair text-ink-muted flex w-full flex-col items-center justify-center gap-x-6 gap-y-3 border-t px-[var(--content-x)] py-8 text-center font-mono text-micro tracking-[0.22em] uppercase sm:flex-row sm:flex-wrap sm:justify-between sm:text-left sm:py-10"
+	class="border-hair text-ink-muted text-micro flex w-full flex-col items-center justify-center gap-x-6 gap-y-3 border-t px-[var(--content-x)] py-8 text-center tracking-[0.22em] uppercase sm:flex-row sm:flex-wrap sm:justify-between sm:py-10 sm:text-left"
 >
 	<p class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:justify-start">
 		<a
 			href="/changelog"
-			class="ease-[var(--ease)] whitespace-nowrap transition-colors pointer-fine:hover:text-foreground touch-manipulation"
+			class="pointer-fine:hover:text-foreground touch-manipulation whitespace-nowrap transition-colors ease-[var(--ease)]"
 		>
 			Changelog
 		</a>
@@ -22,7 +22,7 @@
 			href="https://dropoutstudio.co/tools"
 			target="_blank"
 			rel="noopener noreferrer"
-			class="ease-[var(--ease)] whitespace-nowrap transition-colors pointer-fine:hover:text-foreground touch-manipulation"
+			class="pointer-fine:hover:text-foreground touch-manipulation whitespace-nowrap transition-colors ease-[var(--ease)]"
 		>
 			Other tools
 		</a>
@@ -32,7 +32,7 @@
 			href={APP_CONFIG.author.url}
 			target="_blank"
 			rel="noopener noreferrer"
-			class="ease-[var(--ease)] whitespace-nowrap transition-colors pointer-fine:hover:text-foreground touch-manipulation"
+			class="pointer-fine:hover:text-foreground touch-manipulation whitespace-nowrap transition-colors ease-[var(--ease)]"
 		>
 			Designed by {APP_CONFIG.author.name}
 		</a>

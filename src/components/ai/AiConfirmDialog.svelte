@@ -99,9 +99,7 @@
 										>
 											{req.humanLabel}
 										</span>
-										<span
-											class="text-chat-text-muted font-mono text-micro tracking-[0.12em] uppercase"
-										>
+										<span class="text-chat-text-muted text-micro tracking-[0.12em] uppercase">
 											{toolLabel(req.toolName)}
 										</span>
 										<span class="text-chat-text-muted text-micro text-pretty">
@@ -117,7 +115,7 @@
 											class="touch-manipulation"
 										/>
 										<span
-											class="text-chat-text-muted font-mono text-micro tracking-[0.12em] uppercase select-none"
+											class="text-chat-text-muted text-micro tracking-[0.12em] uppercase select-none"
 											aria-hidden="true"
 										>
 											Reject
@@ -139,17 +137,17 @@
 						>
 							{#each first.diff as row, i (i)}
 								<div class="space-y-1">
-									<div class="text-chat-text-muted font-mono text-micro tracking-[0.12em] uppercase">
+									<div class="text-chat-text-muted text-micro tracking-[0.12em] uppercase">
 										{row.label}
 									</div>
 									<div class="flex items-start gap-2 text-xs">
-										<span class="text-destructive shrink-0 font-mono select-none">−</span>
+										<span class="text-destructive shrink-0 select-none">−</span>
 										<span class="text-chat-text-muted min-w-0 break-words line-through">
 											{row.current}
 										</span>
 									</div>
 									<div class="flex items-start gap-2 text-xs">
-										<span class="text-chat-text-primary shrink-0 font-mono select-none">+</span>
+										<span class="text-chat-text-primary shrink-0 select-none">+</span>
 										<span class="text-chat-text-primary min-w-0 font-medium break-words">
 											{row.proposed}
 										</span>
@@ -159,7 +157,7 @@
 						</div>
 					{/if}
 
-					<p class="text-chat-text-muted flex items-start gap-1.5 text-caption text-pretty">
+					<p class="text-chat-text-muted text-caption flex items-start gap-1.5 text-pretty">
 						<Undo2 class="mt-px size-3 shrink-0" aria-hidden="true" />
 						<span>{first.inverseSummary}</span>
 					</p>
@@ -171,14 +169,14 @@
 					type="button"
 					onclick={isBatch ? onCancelAll : onReject}
 					use:focusOnMount
-					class="border-hair bg-chat-surface text-chat-text-primary hover:border-signal hover:bg-ink-2 focus-visible:ring-signal ease-[var(--ease)] inline-flex h-9 cursor-pointer touch-manipulation items-center rounded-full border px-5 font-mono text-caption tracking-[0.12em] whitespace-nowrap uppercase transition-colors focus:outline-none focus-visible:ring-2"
+					class="border-hair bg-chat-surface text-chat-text-primary hover:border-signal hover:bg-ink-2 focus-visible:ring-signal text-caption inline-flex h-9 cursor-pointer touch-manipulation items-center rounded-full border px-5 tracking-[0.12em] whitespace-nowrap uppercase transition-colors ease-[var(--ease)] focus:outline-none focus-visible:ring-2"
 				>
 					{isBatch ? "Reject all" : "Reject"}
 				</button>
 				<button
 					type="button"
 					onclick={isBatch ? onApplyAll : onConfirm}
-					class="bg-signal text-background hover:bg-signal/90 focus-visible:ring-signal ease-[var(--ease)] inline-flex h-9 cursor-pointer touch-manipulation items-center rounded-full px-5 font-mono text-caption font-medium tracking-[0.12em] whitespace-nowrap uppercase transition-colors focus:outline-none focus-visible:ring-2"
+					class="bg-signal text-background hover:bg-signal/90 focus-visible:ring-signal text-caption inline-flex h-9 cursor-pointer touch-manipulation items-center rounded-full px-5 font-medium tracking-[0.12em] whitespace-nowrap uppercase transition-colors ease-[var(--ease)] focus:outline-none focus-visible:ring-2"
 				>
 					{isBatch ? "Apply selected" : "Confirm"}
 				</button>

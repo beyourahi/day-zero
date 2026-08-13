@@ -90,7 +90,7 @@
 	id="main"
 	tabindex="-1"
 	class={cn(
-		"flex w-full grow flex-col px-[var(--content-x)] pt-10 pb-16 sm:pt-12 sm:pb-20 outline-none",
+		"flex w-full grow flex-col px-[var(--content-x)] pt-10 pb-16 outline-none sm:pt-12 sm:pb-20",
 		"transition-[padding] duration-300 ease-[var(--ease)] motion-reduce:transition-none",
 		copilotOpen
 			? "lg:pr-[calc(var(--copilot-rail-width)+1.5rem)] xl:pr-[calc(var(--copilot-rail-width-xl)+1.5rem)]"
@@ -118,9 +118,9 @@
 			{#if gridItems.length}
 				<section class="space-y-6" use:reveal={{ distance: "sm", onScroll: true }}>
 					<div class="flex items-center gap-3">
-						<span class="text-ink-muted font-mono text-micro tracking-[0.24em] uppercase">Upcoming</span>
+						<span class="text-ink-muted text-micro tracking-[0.24em] uppercase">Upcoming</span>
 						<span class="bg-hair h-px grow" aria-hidden="true"></span>
-						<span class="text-ink-muted font-mono text-micro tabular-nums">{gridItems.length}</span>
+						<span class="text-ink-muted text-micro tabular-nums">{gridItems.length}</span>
 					</div>
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{#each gridItems as c (c.id)}
@@ -133,9 +133,9 @@
 			{#if countdowns.past.length}
 				<section class="space-y-6" use:reveal={{ distance: "sm", onScroll: true }}>
 					<div class="flex items-center gap-3">
-						<span class="text-ink-muted font-mono text-micro tracking-[0.24em] uppercase">Reached</span>
+						<span class="text-ink-muted text-micro tracking-[0.24em] uppercase">Reached</span>
 						<span class="bg-hair h-px grow" aria-hidden="true"></span>
-						<span class="text-ink-muted font-mono text-micro tabular-nums">{countdowns.past.length}</span>
+						<span class="text-ink-muted text-micro tabular-nums">{countdowns.past.length}</span>
 					</div>
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 						{#each countdowns.past as c (c.id)}

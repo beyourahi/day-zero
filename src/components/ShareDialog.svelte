@@ -49,7 +49,7 @@
 	<Dialog.Content class="gap-0 p-0 sm:max-w-md" showCloseButton={false}>
 		<Dialog.Header class="border-hair border-b px-5 py-4">
 			<Dialog.Title>
-				<span class="font-sans text-lead lowercase">share countdown</span>
+				<span class="text-lead font-sans lowercase">share countdown</span>
 			</Dialog.Title>
 			<Dialog.Description class="text-ink-muted text-caption text-pretty">
 				Anyone with the link sees a read-only view — no sign-in, nothing else of yours.
@@ -58,7 +58,7 @@
 
 		<div class="flex flex-col gap-5 px-5 py-5">
 			<label class="flex items-center justify-between gap-3">
-				<span class="text-foreground font-mono text-micro tracking-[0.18em] uppercase">
+				<span class="text-foreground text-micro tracking-[0.18em] uppercase">
 					{shared ? "Sharing is on" : "Make it public"}
 				</span>
 				<Switch checked={shared} onCheckedChange={toggle} disabled={busy} />
@@ -72,7 +72,7 @@
 						type="button"
 						onclick={copy}
 						aria-label="Copy link"
-						class="border-hair text-ink-muted hover:text-foreground hover:border-white/30 flex size-[46px] shrink-0 items-center justify-center rounded-[11px] border transition-colors touch-manipulation"
+						class="border-hair text-ink-muted hover:text-foreground flex size-[46px] shrink-0 touch-manipulation items-center justify-center rounded-[11px] border transition-colors hover:border-white/30"
 					>
 						{#if copied}
 							<Check size={16} class="text-signal" />

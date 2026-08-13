@@ -51,7 +51,7 @@
 	<header class="flex flex-col gap-4 sm:gap-5" use:reveal={{ distance: "sm" }}>
 		<Eyebrow>What's new</Eyebrow>
 		<Heading as="h1" size="title" weight={600} class="lowercase">changelog</Heading>
-		<p class="text-ink-muted max-w-md text-label text-pretty sm:text-body">
+		<p class="text-ink-muted text-label sm:text-body max-w-md text-pretty">
 			Every meaningful update to Day Zero, written in plain language.
 		</p>
 	</header>
@@ -65,12 +65,12 @@
 					class="flex flex-wrap items-baseline gap-x-3 gap-y-1.5"
 					use:reveal={{ distance: "sm", delay: groupIndex === 0 ? 0.05 : 0 }}
 				>
-					<span class="text-ink-muted font-mono text-micro tracking-[0.28em] uppercase tabular-nums">
+					<span class="text-ink-muted text-micro tracking-[0.28em] uppercase tabular-nums">
 						{group.label}
 					</span>
 					{#if groupIndex === 0}
 						<span
-							class="border-hair text-ink-muted rounded-full border px-2 py-0.5 font-mono text-micro tracking-[0.18em] uppercase"
+							class="border-hair text-ink-muted text-micro rounded-full border px-2 py-0.5 tracking-[0.18em] uppercase"
 						>
 							Latest
 						</span>
@@ -83,7 +83,7 @@
 							class="flex flex-col gap-2.5"
 							use:reveal={{ distance: "sm", delay: 0.06 * entryIndex }}
 						>
-							<span class="text-ink-muted block font-mono text-micro tracking-[0.22em] uppercase">
+							<span class="text-ink-muted text-micro block tracking-[0.22em] uppercase">
 								{entry.category}
 							</span>
 							<Heading as="h2" size="lead" class="text-balance">

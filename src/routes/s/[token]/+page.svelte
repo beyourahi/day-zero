@@ -80,7 +80,7 @@
 	// One editorial pill for both the enter and exit affordances: hairline at rest,
 	// signal border + foreground ink on hover.
 	const controlClass =
-		"group ease-[var(--ease)] text-ink-muted fixed top-4 right-4 z-10 inline-flex items-center gap-2 rounded-full border border-hair px-3.5 py-2 font-mono text-micro tracking-[0.2em] whitespace-nowrap uppercase transition-colors duration-300 hover:border-signal hover:text-foreground touch-manipulation sm:top-6 sm:right-6";
+		"group ease-[var(--ease)] text-ink-muted fixed top-4 right-4 z-10 inline-flex items-center gap-2 rounded-full border border-hair px-3.5 py-2  text-micro tracking-[0.2em] whitespace-nowrap uppercase transition-colors duration-300 hover:border-signal hover:text-foreground touch-manipulation sm:top-6 sm:right-6";
 </script>
 
 <svelte:head>
@@ -107,7 +107,7 @@
 				class="bg-signal size-[7px] shrink-0 rounded-full motion-safe:animate-[ctaPulse_2.8s_var(--ease)_infinite]"
 				aria-hidden="true"
 			></span>
-			<p class="text-ink-muted font-mono text-micro tracking-[0.26em] uppercase">
+			<p class="text-ink-muted text-micro tracking-[0.26em] uppercase">
 				{formatTargetDate(cd.targetAt, cd.hasTime)}
 			</p>
 		</div>
@@ -131,11 +131,11 @@
 		<Cta
 			variant="secondary"
 			href="/"
-			class="border-signal bg-ink-2 hover:border-signal hover:bg-signal hover:text-background hover:shadow-lg touch-manipulation"
+			class="border-signal bg-ink-2 hover:border-signal hover:bg-signal hover:text-background touch-manipulation hover:shadow-lg"
 		>
 			make your own
 		</Cta>
-		<p class="text-ink-muted font-mono text-micro tracking-[0.22em] uppercase">by dropout studio</p>
+		<p class="text-ink-muted text-micro tracking-[0.22em] uppercase">by dropout studio</p>
 	</div>
 </main>
 
@@ -150,7 +150,7 @@
 	bind:this={dialog}
 	onclose={onClose}
 	aria-label="{cd.title} — zen mode"
-	class="bg-background text-foreground fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none border-none p-0 backdrop:bg-background"
+	class="bg-background text-foreground backdrop:bg-background fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none border-none p-0"
 >
 	{#if zen}
 		<div
@@ -165,7 +165,7 @@
 			</button>
 
 			<p
-				class="text-ink-muted/70 fixed bottom-6 left-1/2 -translate-x-1/2 font-mono text-micro tracking-[0.22em] uppercase"
+				class="text-ink-muted/70 text-micro fixed bottom-6 left-1/2 -translate-x-1/2 tracking-[0.22em] uppercase"
 			>
 				esc to exit
 			</p>

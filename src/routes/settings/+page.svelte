@@ -231,8 +231,7 @@
 				/>
 				<p class={cn(helperBase, "mt-2")}>
 					{#if connected}
-						Stored: <span class="text-foreground font-mono break-all">{maskedToken}</span> — leave blank to keep
-						it.
+						Stored: <span class="text-foreground break-all">{maskedToken}</span> — leave blank to keep it.
 					{:else}
 						An API token with the <span class="text-foreground">Account · Workers AI · Read</span>
 						permission. Stored securely. You won't see it again after saving.
@@ -282,7 +281,7 @@
 			</SettingsRow>
 
 			{#if saved}
-				<p class="text-status-connected inline-flex items-center gap-1.5 text-caption" role="status">
+				<p class="text-status-connected text-caption inline-flex items-center gap-1.5" role="status">
 					<Check class="size-3.5" aria-hidden="true" /> Saved.
 				</p>
 			{:else if saveError}
@@ -297,12 +296,12 @@
 							href="https://dash.cloudflare.com/profile/api-tokens"
 							target="_blank"
 							rel="noreferrer"
-							class="text-foreground underline underline-offset-2 break-all"
+							class="text-foreground break-all underline underline-offset-2"
 						>
 							dash.cloudflare.com/profile/api-tokens
 						</a>
 						→ Create Custom Token → permission
-						<span class="text-foreground font-mono">Account · Workers AI · Read</span>.
+						<span class="text-foreground">Account · Workers AI · Read</span>.
 					</p>
 				{/snippet}
 				<Cta

@@ -38,7 +38,7 @@
 	// accent: selected = filled signal pill; today = hairline ring; the rest is
 	// quiet until hovered. Selectors read off bits-ui's data-* day attributes.
 	const dayCell = cn(
-		"relative flex aspect-square w-full max-w-(--cell) items-center justify-center rounded-sm font-mono text-label text-foreground tabular-nums leading-none transition-colors duration-200 ease-[var(--ease)] select-none touch-manipulation",
+		"relative flex aspect-square w-full max-w-(--cell) items-center justify-center rounded-sm  text-label text-foreground tabular-nums leading-none transition-colors duration-200 ease-[var(--ease)] select-none touch-manipulation",
 		"not-data-selected:hover:bg-white/[0.06]",
 		"[&[data-today]:not([data-selected])]:border [&[data-today]:not([data-selected])]:border-hair",
 		"data-selected:bg-signal data-selected:font-semibold data-selected:text-background",
@@ -57,7 +57,7 @@
 	weekdayFormat="short"
 	fixedWeeks
 	locale="en-US"
-	class={cn("rounded-sm border border-hair bg-white/[0.025] p-3 [--cell:2.5rem]", className)}
+	class={cn("border-hair rounded-sm border bg-white/[0.025] p-3 [--cell:2.5rem]", className)}
 >
 	{#snippet children({ months, weekdays })}
 		{#each months as month (month.value)}
@@ -66,7 +66,7 @@
 				<CalendarPrimitive.PrevButton class={navBtn} aria-label="Previous month">
 					<ChevronLeftIcon class="size-4" />
 				</CalendarPrimitive.PrevButton>
-				<CalendarPrimitive.Heading class="font-mono text-caption tracking-[0.16em] text-foreground uppercase" />
+				<CalendarPrimitive.Heading class=" text-caption text-foreground tracking-[0.16em] uppercase" />
 				<CalendarPrimitive.NextButton class={navBtn} aria-label="Next month">
 					<ChevronRightIcon class="size-4" />
 				</CalendarPrimitive.NextButton>
@@ -77,7 +77,7 @@
 					<CalendarPrimitive.GridRow class="flex w-full">
 						{#each weekdays as weekday (weekday)}
 							<CalendarPrimitive.HeadCell
-								class="flex flex-1 items-center justify-center pb-1 font-mono text-micro tracking-[0.14em] text-ink-muted uppercase"
+								class="text-micro text-ink-muted flex flex-1 items-center  justify-center pb-1 tracking-[0.14em] uppercase"
 							>
 								{weekday.slice(0, 2)}
 							</CalendarPrimitive.HeadCell>
@@ -91,7 +91,7 @@
 								<CalendarPrimitive.Cell
 									{date}
 									month={month.value}
-									class="relative flex flex-1 items-center justify-center p-0 min-w-0"
+									class="relative flex min-w-0 flex-1 items-center justify-center p-0"
 								>
 									<CalendarPrimitive.Day class={dayCell} />
 								</CalendarPrimitive.Cell>
