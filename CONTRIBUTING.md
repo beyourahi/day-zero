@@ -335,7 +335,7 @@ No PR should be opened with failing lint, type, or build errors.
 - [ ] `bun run format` has been run and the changes are committed
 - [ ] `bun run build` succeeds
 - [ ] No `.env`, `.dev.vars`, or secret values are committed
-- [ ] No `tmp_screenshots/` or `.playwright-mcp/` artifacts are committed
+- [ ] No `tmp_screenshots/` or `.playwright-cli/` artifacts are committed
 - [ ] No `any` types or suppressed TypeScript errors introduced
 - [ ] No legacy Svelte patterns (`export let`, `$:`) introduced in component files
 - [ ] No relative imports from route files (use path aliases)
