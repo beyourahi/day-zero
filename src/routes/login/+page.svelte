@@ -13,7 +13,8 @@
 	import { env as publicEnv } from "$env/dynamic/public";
 	import { ArrowLeft, Fingerprint } from "@lucide/svelte";
 	import Heading from "$lib/components/ui/heading/heading.svelte";
-	import { Cta, cn, isPlatformAuthenticatorAvailable, detectPlatform, biometricLabel } from "$lib/ds";
+	import { Cta, cn } from "$lib/ds";
+	import { isPlatformAuthenticatorAvailable, detectPlatform, biometricLabel } from "$lib/ds/adapters";
 
 	let isLoading = $state(false);
 	let error = $state<string | null>(null);
@@ -107,7 +108,7 @@
 			arrow={false}
 			onclick={handleGoogleLogin}
 			disabled={isLoading}
-			class={cn("min-w-[260px] justify-center py-4 touch-manipulation", isLoading && "cursor-wait")}
+			class={cn("min-w-[260px] touch-manipulation justify-center py-4", isLoading && "cursor-wait")}
 		>
 			<span class="inline-flex items-center gap-2.5">
 				{#if isLoading}
@@ -145,7 +146,7 @@
 				arrow={false}
 				onclick={handlePasskeyLogin}
 				disabled={isLoading}
-				class={cn("min-w-[260px] justify-center py-4 touch-manipulation", isLoading && "cursor-wait")}
+				class={cn("min-w-[260px] touch-manipulation justify-center py-4", isLoading && "cursor-wait")}
 			>
 				<span class="inline-flex items-center gap-2.5">
 					<Fingerprint class="size-4" aria-hidden="true" />
@@ -159,7 +160,7 @@
 		variant="secondary"
 		href="/"
 		arrow={false}
-		class="mt-4 min-w-[260px] justify-center py-4 touch-manipulation sm:mt-6"
+		class="mt-4 min-w-[260px] touch-manipulation justify-center py-4 sm:mt-6"
 	>
 		<span class="inline-flex items-center gap-2.5">
 			<ArrowLeft
